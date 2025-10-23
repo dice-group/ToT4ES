@@ -1,0 +1,8 @@
+# optional; you can leave empty and rely on auto-learning
+defaults:
+  top_k: 8         # how many central predicates per class to keep
+  min_support: 25  # skip classes with fewer than this many subjects
+classes:
+  RadioStation: [frequency, country, city, owner, format, airdate, homepage, slogan]
+  Organization: [founder, foundingDate, headquarters, industry, country, parentOrganization]
+  Person: [occupation, birthDate, nationality, knownFor, employer, award]

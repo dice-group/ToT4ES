@@ -1,0 +1,17 @@
+aliases:
+  # canonical_key: [list of predicate tails or CURIE-like names]
+  homepage: [homepage, foaf:homepage, schema:url, officialWebsite, website]
+  type: [rdf:type, type, P31]
+  country: [country, locatedInCountry, P17]
+  location: [location, locatedIn, locality, municipality]
+  coordinates: [coordinates, coord, latLong, geo, P625]
+
+templates:
+  # canonical_key: template; use {S} and {O}
+  type: "{S} is a {O}."
+  homepage: "{S} has a homepage at {O}."
+  country: "{S} is in {O}."
+  location: "{S} is located in {O}."
+  coordinates: "{S} has coordinates {O}."
+  founder: "{S} was founded by {O}."
+  foundingDate: "{S} was founded in {O}."
