@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/religion> <http://dbpedia.org/resource/Catholic_Church> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/mother> <http://dbpedia.org/resource/Jeanne_III_of_Navarre> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Margaret_of_Valois> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Jeanne_d'Albret> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/3/38/HenriIV.jpg/200px-HenriIV.jpg> .

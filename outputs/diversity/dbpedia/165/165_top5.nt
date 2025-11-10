@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/You_Better_Run> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:1966_songs> .
+<http://dbpedia.org/resource/You_Better_Run> <http://dbpedia.org/ontology/album> <http://dbpedia.org/resource/Crimes_of_Passion_(Pat_Benatar_album)> .
+<http://dbpedia.org/resource/You_Better_Run> <http://dbpedia.org/ontology/recordLabel> <http://dbpedia.org/resource/Chrysalis_Records> .
+<http://dbpedia.org/resource/You_Better_Run> <http://dbpedia.org/ontology/previousWork> <http://dbpedia.org/resource/Good_Lovin'> .
+<http://dbpedia.org/resource/You_Better_Run> <http://xmlns.com/foaf/0.1/name> "You Better Run" .

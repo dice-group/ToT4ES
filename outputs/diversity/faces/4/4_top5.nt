@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/residence> <http://dbpedia.org/resource/Washington_(state)> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/religion> <http://dbpedia.org/resource/Agnostic> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/placeOfBirth> <http://dbpedia.org/resource/Seattle> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/after> <http://dbpedia.org/resource/Carlos_Slim> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/almaMater> <http://dbpedia.org/resource/Harvard_University> .

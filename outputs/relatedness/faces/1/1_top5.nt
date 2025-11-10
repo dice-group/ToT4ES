@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/vicePresident> <http://dbpedia.org/resource/Joe_Biden> .
+<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/children> <http://dbpedia.org/resource/Family_of_Barack_Obama> .
+<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/religion> <http://dbpedia.org/resource/Christian> .
+<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/Occidental_College> .
+<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Michelle_Obama> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/392_(album)> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/entity/Q482994> .
+<http://dbpedia.org/resource/392_(album)> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/entity/Q2188189> .
+<http://dbpedia.org/resource/392_(album)> <http://dbpedia.org/ontology/releaseDate> "2011-09-01" .
+<http://dbpedia.org/resource/392_(album)> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/Rock_music> .
+<http://dbpedia.org/resource/392_(album)> <http://xmlns.com/foaf/0.1/name> "392" .

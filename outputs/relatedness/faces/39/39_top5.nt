@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Baywatch> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Baywatch> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/genre> <http://dbpedia.org/resource/Action_(fiction)> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Baywatch> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/executiveProducer> <http://dbpedia.org/resource/Baywatch> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/creator> <http://dbpedia.org/resource/Baywatch> .

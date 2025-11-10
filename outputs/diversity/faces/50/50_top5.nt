@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/J._Caleb_Boggs> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/religion> <http://dbpedia.org/resource/Catholic_Church> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/termPeriod> <http://dbpedia.org/resource/Joe_Biden__5> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/state> <http://dbpedia.org/resource/Delaware> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Scranton,_Pennsylvania> .

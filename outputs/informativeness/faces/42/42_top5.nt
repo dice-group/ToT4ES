@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/shortDescription> <http://dbpedia.org/resource/Natural_history> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/academicAdvisors> <http://dbpedia.org/resource/Adam_Sedgwick> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/The_Mount,_Shrewsbury> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/citizenship> <http://dbpedia.org/resource/British_Citizenship> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Natural_selection> .

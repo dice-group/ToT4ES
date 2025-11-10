@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/distributor> <http://dbpedia.org/resource/Lexington_Broadcast_Services_Company> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Baywatch_logo.jpg/200px-Baywatch_logo.jpg> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/audioFormat> <http://dbpedia.org/resource/Monaural> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/executiveProducer> <http://dbpedia.org/resource/David_Hasselhoff> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/related> <http://dbpedia.org/resource/Baywatch_Nights> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Poland> <http://dbpedia.org/property/upperHouse> <http://dbpedia.org/resource/Senate_of_the_Republic_of_Poland> .
+<http://dbpedia.org/resource/Poland> <http://dbpedia.org/ontology/leaderName> <http://dbpedia.org/resource/Bronis%C5%82aw_Komorowski> .
+<http://dbpedia.org/resource/Poland> <http://dbpedia.org/property/cctld> <http://dbpedia.org/resource/.pl> .
+<http://dbpedia.org/resource/Poland> <http://dbpedia.org/property/capital> <http://dbpedia.org/resource/Warsaw> .
+<http://dbpedia.org/resource/Poland> <http://xmlns.com/foaf/0.1/homepage> <http://www.poland.travel/en> .

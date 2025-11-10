@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://xmlns.com/foaf/0.1/name> "Borough of North Haledon" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://xmlns.com/foaf/0.1/name> "North Haledon, New Jersey" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/type> <http://dbpedia.org/resource/Borough_(New_Jersey)> .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/leaderTitle> "Mayor" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/leaderTitle> "Clerk" .

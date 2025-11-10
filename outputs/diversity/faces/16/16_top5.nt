@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Argo_(2012_film)> <http://dbpedia.org/property/director> <http://dbpedia.org/resource/Ben_Affleck> .
+<http://dbpedia.org/resource/Argo_(2012_film)> <http://dbpedia.org/property/cinematography> <http://dbpedia.org/resource/Rodrigo_Prieto> .
+<http://dbpedia.org/resource/Argo_(2012_film)> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/John_Goodman> .
+<http://dbpedia.org/resource/Argo_(2012_film)> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Argo_(2012_film)?oldid=548580418> .
+<http://dbpedia.org/resource/Argo_(2012_film)> <http://dbpedia.org/ontology/producer> <http://dbpedia.org/resource/Grant_Heslov> .

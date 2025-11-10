@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Roque_Ceruti> <http://dbpedia.org/ontology/birthYear> "1683" .
+<http://dbpedia.org/resource/Roque_Ceruti> <http://dbpedia.org/ontology/deathDate> "1760" .
+<http://dbpedia.org/resource/Roque_Ceruti> <http://xmlns.com/foaf/0.1/name> "Roque Ceruti" .
+<http://dbpedia.org/resource/Roque_Ceruti> <http://purl.org/dc/elements/1.1/description> "Italian composer" .
+<http://dbpedia.org/resource/Roque_Ceruti> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:Musicians_from_Milan> .

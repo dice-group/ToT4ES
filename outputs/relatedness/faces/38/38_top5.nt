@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Knight_Rider_(1982_TV_series)> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/U.S._television_science_fiction> .
+<http://dbpedia.org/resource/Knight_Rider_(1982_TV_series)> <http://dbpedia.org/ontology/composer> <http://dbpedia.org/resource/Morton_Stevens> .
+<http://dbpedia.org/resource/Knight_Rider_(1982_TV_series)> <http://dbpedia.org/ontology/voice> <http://dbpedia.org/resource/William_Daniels> .
+<http://dbpedia.org/resource/Knight_Rider_(1982_TV_series)> <http://dbpedia.org/ontology/format> <http://dbpedia.org/resource/Monaural> .
+<http://dbpedia.org/resource/Knight_Rider_(1982_TV_series)> <http://dbpedia.org/ontology/related> <http://dbpedia.org/resource/Code_of_Vengeance> .

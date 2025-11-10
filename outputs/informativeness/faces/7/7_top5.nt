@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/John_Napier> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/University_of_St_Andrews> .
+<http://dbpedia.org/resource/John_Napier> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/John_Napier?oldid=547490259> .
+<http://dbpedia.org/resource/John_Napier> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Mathematician> .
+<http://dbpedia.org/resource/John_Napier> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/John_Napier> .
+<http://dbpedia.org/resource/John_Napier> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Decimal_mark> .

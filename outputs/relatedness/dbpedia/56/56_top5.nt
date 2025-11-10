@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Momchil_Tsvetanov> <http://xmlns.com/foaf/0.1/name> "Momchil Emilov Tsvetanov" .
+<http://dbpedia.org/resource/Momchil_Tsvetanov> <http://xmlns.com/foaf/0.1/name> "Momchil Tsvetanov" .
+<http://dbpedia.org/resource/Momchil_Tsvetanov> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:Living_people> .
+<http://dbpedia.org/resource/Momchil_Tsvetanov> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:PFC_Botev_Plovdiv_players> .
+<http://dbpedia.org/resource/Momchil_Tsvetanov> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:PFC_Litex_Lovech_players> .

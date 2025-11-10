@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Darreh_Dang> <http://xmlns.com/foaf/0.1/name> "Darreh Dang" .
+<http://dbpedia.org/resource/Darreh_Dang> <http://xmlns.com/foaf/0.1/name> "دره دنگ" .
+<http://dbpedia.org/resource/Darreh_Dang> <http://dbpedia.org/ontology/country> <http://dbpedia.org/resource/Iran> .
+<http://dbpedia.org/resource/Darreh_Dang> <http://www.w3.org/2000/01/rdf-schema#label> "Darreh Dang" .
+<http://dbpedia.org/resource/Darreh_Dang> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/PhysicalEntity100001930> .

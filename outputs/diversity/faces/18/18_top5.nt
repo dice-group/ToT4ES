@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/The_Cosby_Show> <http://dbpedia.org/property/executiveProducer> <http://dbpedia.org/resource/Tom_Werner> .
+<http://dbpedia.org/resource/The_Cosby_Show> <http://dbpedia.org/ontology/openingTheme> <http://dbpedia.org/resource/Bobby_McFerrin> .
+<http://dbpedia.org/resource/The_Cosby_Show> <http://dbpedia.org/ontology/company> <http://dbpedia.org/resource/Viacom_Productions> .
+<http://dbpedia.org/resource/The_Cosby_Show> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Phylicia_Rash%C4%81d> .
+<http://dbpedia.org/resource/The_Cosby_Show> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/The_Cosby_Show?oldid=548377159> .

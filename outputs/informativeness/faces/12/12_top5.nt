@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/leaderName> <http://dbpedia.org/resource/Petr_Ne%C4%8Das> .
+<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/leaderTitle> <http://dbpedia.org/resource/President_of_the_Czech_Republic> .
+<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/officialLanguages> <http://dbpedia.org/resource/Czech_language> .
+<http://dbpedia.org/resource/Czech_Republic> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Czech_Republic?oldid=548486944> .
+<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/capital> <http://dbpedia.org/resource/Prague> .

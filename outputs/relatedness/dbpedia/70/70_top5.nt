@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/causalties> "48 US killed" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/causalties> "many more wounded" .
+<http://dbpedia.org/resource/Operation_Hump> <http://www.w3.org/2000/01/rdf-schema#label> "Operation Hump" .
+<http://dbpedia.org/resource/Operation_Hump> <http://xmlns.com/foaf/0.1/name> "Operation Hump" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/result> "United States/Australian victory, Viet Cong retreats." .

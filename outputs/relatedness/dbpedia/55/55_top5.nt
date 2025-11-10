@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Hiroshi_Mori_(writer)> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/LivingThing100004258> .
+<http://dbpedia.org/resource/Hiroshi_Mori_(writer)> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Communicator109610660> .
+<http://dbpedia.org/resource/Hiroshi_Mori_(writer)> <http://dbpedia.org/ontology/birthYear> "1957" .
+<http://dbpedia.org/resource/Hiroshi_Mori_(writer)> <http://www.w3.org/2000/01/rdf-schema#label> "Hiroshi Mori (writer)" .
+<http://dbpedia.org/resource/Hiroshi_Mori_(writer)> <http://purl.org/dc/elements/1.1/description> "Japanese writer" .

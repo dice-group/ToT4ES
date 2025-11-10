@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/militaryRank> <http://dbpedia.org/resource/Polkovnik> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/primeMinister> <http://dbpedia.org/resource/Viktor_Khristenko> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/termPeriod> <http://dbpedia.org/resource/Vladimir_Putin__1> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/primeMinister> <http://dbpedia.org/resource/Mikhail_Fradkov> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/property/primeminister> <http://dbpedia.org/resource/Mikhail_Kasyanov> .

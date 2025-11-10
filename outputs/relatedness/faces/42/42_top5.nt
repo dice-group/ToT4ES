@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/influenced> <http://dbpedia.org/resource/Ernst_Haeckel> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/workplaces> <http://dbpedia.org/resource/University_of_Cambridge> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/awards> <http://dbpedia.org/resource/Royal_Medal> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/awards> <http://dbpedia.org/resource/Copley_Medal> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://xmlns.com/foaf/0.1/depiction> <http://upload.wikimedia.org/wikipedia/commons/2/2e/Charles_Darwin_seated_crop.jpg> .

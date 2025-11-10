@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:North_Haledon,_New_Jersey> .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/leaderTitle> "Mayor" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/populationDensity> "940.8537399362322" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://dbpedia.org/ontology/areaTotal> "9059778.409955328" .
+<http://dbpedia.org/resource/North_Haledon,_New_Jersey> <http://www.w3.org/2003/01/geo/wgs84_pos#long> "-74.18528" .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Computer_science> .
+<http://dbpedia.org/resource/Alan_Turing> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Alan_Turing?oldid=548596608> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/workInstitutions> <http://dbpedia.org/resource/University_of_Cambridge> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Paddington> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Turing_machine> .

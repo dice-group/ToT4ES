@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/company> <http://dbpedia.org/resource/Georgia_Department_of_Economic_Development> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/location> <http://dbpedia.org/resource/NBC_Studios> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/property/themeMusicComposer> <http://dbpedia.org/resource/Edd_Kalehoff> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/distributor> <http://dbpedia.org/resource/Debmar-Mercury> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/distributor> <http://dbpedia.org/resource/Viacom_Enterprises> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/academicAdvisor> <http://dbpedia.org/resource/Adam_Sedgwick> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/influenced> <http://dbpedia.org/resource/Joseph_Dalton_Hooker> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/United_Kingdom_of_Great_Britain_and_Ireland> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Charles_Darwin?oldid=547325692> .
+<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/awards> <http://dbpedia.org/resource/Royal_Medal> .
