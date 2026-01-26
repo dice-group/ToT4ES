@@ -16,6 +16,20 @@ from .utils import (
     load_entity_description_from_nt
 )
 
+# Task-decomposed components
+try:
+    from .task_prompts import (
+        make_relatedness_prompt,
+        make_informativeness_prompt,
+        make_diversity_prompt,
+        make_combined_evaluation_prompt,
+    )
+    from .task_decomposed_search import TaskDecomposedToT
+    
+    _task_decomposed_available = True
+except ImportError:
+    _task_decomposed_available = False
+
 __all__ = [
     'TreeNode',
     'Llama32Chat',
@@ -27,3 +41,12 @@ __all__ = [
     'decode_state_to_triples',
     'load_entity_description_from_nt',
 ]
+
+if _task_decomposed_available:
+    __all__.extend([
+        'make_relatedness_prompt',
+        'make_informativeness_prompt',
+        'make_diversity_prompt',
+        'make_combined_evaluation_prompt',
+        'TaskDecomposedToT',
+    ])

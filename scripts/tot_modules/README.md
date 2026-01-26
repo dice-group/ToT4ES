@@ -264,9 +264,44 @@ result = tot.bfs(verbose=True)
 ### Issue: No valid children created
 **Solution:** Increase `n_candidates` or check triple validation logic
 
+## Task-Decomposed Architecture (NEW!)
+
+A new implementation is available that decomposes the task into three separate prompts:
+
+### Architecture Comparison
+
+**Original (Unified):**
+```
+Entity → Single Prompt (all criteria) → Thoughts → Evaluation
+```
+
+**Task-Decomposed:**
+```
+Entity → ┌─ Relatedness Prompt    ─┐
+         ├─ Informativeness Prompt ─┤ → Combined → Evaluation
+         └─ Diversity Prompt       ─┘
+```
+
+### Files
+- `task_prompts.py` - Three specialized prompts
+- `task_decomposed_search.py` - Multi-task search algorithm
+- `tot_entity_summarizer_task_decomposed.py` - Main script
+
+### Usage
+```bash
+python scripts/tot_entity_summarizer_task_decomposed.py \
+  --nt data.nt \
+  --dataset dbpedia \
+  --max-summary-len 5 \
+  --n-candidates-per-task 2  # 2 per task = 6 total
+```
+
+See `TASK_DECOMPOSED_IMPLEMENTATION.md` for details.
+
 ## Future Enhancements
 
-- [ ] Add unit tests for all modules
+- [x] Add unit tests for all modules
+- [x] Implement task-decomposed architecture
 - [ ] Add caching for LLM responses
 - [ ] Implement DFS alternative
 - [ ] Add visualization module
