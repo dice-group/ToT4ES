@@ -36,12 +36,16 @@ class TaskDecomposedToT:
         get_state_eval_prompt: Callable[[str, List[str]], str],
         heuristic_calculator: Callable[[List[str], List[str]], List[float]],
         num_triples: int,
+        llm_relatedness: Optional[Llama32Chat] = None,
+        llm_informativeness: Optional[Llama32Chat] = None,
+        llm_diversity: Optional[Llama32Chat] = None,
+        llm_evaluation: Optional[Llama32Chat] = None,
     ):
         """
         Initialize Task-Decomposed ToT search.
         
         Args:
-            llm: LLM wrapper instance
+            llm: Default LLM wrapper instance (used if task-specific LLMs not provided)
             input_seq: Global description string
             get_relatedness_prompt: Prompt function for relatedness task
             get_informativeness_prompt: Prompt function for informativeness task
@@ -49,6 +53,10 @@ class TaskDecomposedToT:
             get_state_eval_prompt: Prompt function for state evaluation
             heuristic_calculator: Function to aggregate evaluation scores
             num_triples: Total number of triples
+            llm_relatedness: Optional LLM specifically for relatedness task
+            llm_informativeness: Optional LLM specifically for informativeness task
+            llm_diversity: Optional LLM specifically for diversity task
+            llm_evaluation: Optional LLM specifically for evaluation task
         """
         self.llm = llm
         self.input_seq = input_seq
@@ -64,6 +72,12 @@ class TaskDecomposedToT:
         self.get_informativeness_prompt = get_informativeness_prompt
         self.get_diversity_prompt = get_diversity_prompt
         self.get_state_eval_prompt = get_state_eval_prompt
+        
+        # Task-specific LLMs (fall back to default if not provided)
+        self.llm_relatedness = llm_relatedness or llm
+        self.llm_informativeness = llm_informativeness or llm
+        self.llm_diversity = llm_diversity or llm
+        self.llm_evaluation = llm_evaluation or llm
         
         self.num_triples = num_triples
 
@@ -89,10 +103,12 @@ class TaskDecomposedToT:
         max_tokens: int = 1024,
         n: int = 1,
         stop: Optional[List[str]] = None,
+        llm: Optional[Llama32Chat] = None,
     ) -> List[str]:
         """Query LLM with chat interface."""
+        llm_to_use = llm or self.llm
         messages = [{"role": "user", "content": prompt}]
-        raw_outputs = self.llm.chat(
+        raw_outputs = llm_to_use.chat(
             messages=messages,
             temperature=temperature,
             max_new_tokens=max_tokens,
@@ -114,6 +130,7 @@ class TaskDecomposedToT:
         state: str, 
         task_prompt_fn: Callable[[str, str], str],
         task_name: str,
+        llm: Optional[Llama32Chat] = None,
     ) -> List[str]:
         """
         Generate thoughts using a specific task prompt.
@@ -122,6 +139,7 @@ class TaskDecomposedToT:
             state: Current state string
             task_prompt_fn: Task-specific prompt generator
             task_name: Name of task (for logging)
+            llm: Optional task-specific LLM to use
             
         Returns:
             List of unique thought strings (triple indices)
@@ -131,6 +149,7 @@ class TaskDecomposedToT:
             prompt=prompt,
             temperature=0.8,
             n=self.n_candidates_per_task,
+            llm=llm,
         )
 
         thought_ids: List[str] = []
@@ -154,18 +173,20 @@ class TaskDecomposedToT:
             Dictionary mapping task name to thought list
         """
         tasks = {
-            "relatedness": self.get_relatedness_prompt,
-            "informativeness": self.get_informativeness_prompt,
-            "diversity": self.get_diversity_prompt,
+            "relatedness": (self.get_relatedness_prompt, self.llm_relatedness),
+            "informativeness": (self.get_informativeness_prompt, self.llm_informativeness),
+            "diversity": (self.get_diversity_prompt, self.llm_diversity),
         }
         
         all_thoughts = {}
         
-        for task_name, prompt_fn in tasks.items():
+        for task_name, (prompt_fn, task_llm) in tasks.items():
             if verbose:
                 print(f"  Generating thoughts for {task_name.upper()}...")
+                if task_llm != self.llm:
+                    print(f"    Using task-specific model: {task_llm.model_id}")
             
-            thoughts = self.task_thought_generator(state, prompt_fn, task_name)
+            thoughts = self.task_thought_generator(state, prompt_fn, task_name, llm=task_llm)
             all_thoughts[task_name] = thoughts
             
             if verbose:
@@ -176,7 +197,7 @@ class TaskDecomposedToT:
     def state_evaluator(self, states: List[str]) -> List[float]:
         """Evaluate states using vote-based aggregation."""
         prompt = self.get_state_eval_prompt(self.input_seq, states)
-        state_evals = self.chat_completions(prompt, temperature=0.3, n=self.n_evals)
+        state_evals = self.chat_completions(prompt, temperature=0.3, n=self.n_evals, llm=self.llm_evaluation)
 
         print("\n[DEBUG] Raw LLM evaluation outputs:")
         for i, s in enumerate(state_evals):

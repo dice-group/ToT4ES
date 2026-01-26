@@ -54,7 +54,7 @@ def parse_arguments():
     parser.add_argument(
         "--model-id",
         default="meta-llama/Llama-3.2-3B-Instruct",
-        help="Hugging Face model ID (default: meta-llama/Llama-3.2-3B-Instruct)",
+        help="Hugging Face model ID for LLM (default: meta-llama/Llama-3.2-3B-Instruct)",
     )
     parser.add_argument(
         "--max-summary-len",

@@ -88,6 +88,7 @@ class TreeOfThoughts:
         max_tokens: int = 1024,
         n: int = 1,
         stop: Optional[List[str]] = None,
+        llm: Optional[Llama32Chat] = None,
     ) -> List[str]:
         """
         Query LLM with chat interface.
@@ -98,12 +99,14 @@ class TreeOfThoughts:
             max_tokens: Maximum tokens to generate
             n: Number of completions
             stop: Stop strings for early termination
+            llm: Optional custom LLM to use (defaults to self.llm)
             
         Returns:
             List of generated text strings
         """
+        llm_to_use = llm or self.llm
         messages = [{"role": "user", "content": prompt}]
-        raw_outputs = self.llm.chat(
+        raw_outputs = llm_to_use.chat(
             messages=messages,
             temperature=temperature,
             max_new_tokens=max_tokens,

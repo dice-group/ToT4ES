@@ -54,7 +54,27 @@ def parse_arguments():
     parser.add_argument(
         "--model-id",
         default="meta-llama/Llama-3.2-3B-Instruct",
-        help="HuggingFace model ID",
+        help="Default HuggingFace model ID (used if task-specific models not provided)",
+    )
+    parser.add_argument(
+        "--model-relatedness",
+        default=None,
+        help="Model for relatedness task (optional, defaults to --model-id)",
+    )
+    parser.add_argument(
+        "--model-informativeness",
+        default=None,
+        help="Model for informativeness task (optional, defaults to --model-id)",
+    )
+    parser.add_argument(
+        "--model-diversity",
+        default=None,
+        help="Model for diversity task (optional, defaults to --model-id)",
+    )
+    parser.add_argument(
+        "--model-evaluation",
+        default=None,
+        help="Model for evaluation task (optional, defaults to --model-id)",
     )
     parser.add_argument(
         "--max-summary-len",
@@ -115,13 +135,52 @@ def main():
     
     entity_id = os.path.basename(os.path.dirname(args.nt))
     
-    # Setup LLM
-    print(f"\nInitializing LLM: {args.model_id}")
+    # Setup LLMs
+    print(f"\nInitializing LLMs...")
+    print(f"  Default model: {args.model_id}")
     llm = Llama32Chat(
         model_id=args.model_id,
         device_map="auto",
         torch_dtype=torch.bfloat16,
     )
+    
+    # Initialize task-specific LLMs if provided
+    llm_relatedness = None
+    llm_informativeness = None
+    llm_diversity = None
+    llm_evaluation = None
+    
+    if args.model_relatedness:
+        print(f"  Relatedness model: {args.model_relatedness}")
+        llm_relatedness = Llama32Chat(
+            model_id=args.model_relatedness,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
+    
+    if args.model_informativeness:
+        print(f"  Informativeness model: {args.model_informativeness}")
+        llm_informativeness = Llama32Chat(
+            model_id=args.model_informativeness,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
+    
+    if args.model_diversity:
+        print(f"  Diversity model: {args.model_diversity}")
+        llm_diversity = Llama32Chat(
+            model_id=args.model_diversity,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
+    
+    if args.model_evaluation:
+        print(f"  Evaluation model: {args.model_evaluation}")
+        llm_evaluation = Llama32Chat(
+            model_id=args.model_evaluation,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     # Create task-specific prompt generators
     print("\nCreating task-specific prompts...")
@@ -148,6 +207,10 @@ def main():
         get_state_eval_prompt=get_eval_prompt,
         heuristic_calculator=entity_heuristic_calculator,
         num_triples=len(all_triples),
+        llm_relatedness=llm_relatedness,
+        llm_informativeness=llm_informativeness,
+        llm_diversity=llm_diversity,
+        llm_evaluation=llm_evaluation,
     )
     
     # Configure
