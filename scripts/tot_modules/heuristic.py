@@ -19,21 +19,22 @@ def entity_heuristic_calculator(
     """
     Aggregate multiple LLM evaluation samples using vote-based averaging.
     
+    Supports two formats:
+    1. JSON: [{"idx": 0, "relatedness": 0.8, ...}, ...]
+    2. Simple: SUMMARY_0: R=0.8 I=0.7 C=0.9
+    
     Args:
         states: List of state strings being evaluated
-        state_evals: List of raw LLM evaluation outputs (JSON strings)
+        state_evals: List of raw LLM evaluation outputs
         w_relatedness: Weight for relatedness criterion
         w_informativeness: Weight for informativeness criterion
         w_coverage: Weight for coverage/diversity criterion
         
     Returns:
         List of aggregated scores (one per state)
-        
-    Notes:
-        - Uses robust JSON extraction (finds [...] in response)
-        - Averages across multiple evaluation samples
-        - Returns neutral scores (0.5) if all parsing fails
     """
+    import re
+    
     n_states = len(states)
     agg = [{"relatedness": 0.0, "informativeness": 0.0, "coverage": 0.0}
            for _ in range(n_states)]
@@ -44,41 +45,61 @@ def entity_heuristic_calculator(
         if not raw:
             continue
 
-        # Salvage: find JSON between [ ... ]
+        # Try JSON format first
         start = raw.find("[")
         end = raw.rfind("]")
-        if start == -1 or end == -1 or end <= start:
-            continue
-
-        json_str = raw[start:end+1]
-
-        try:
-            parsed = json.loads(json_str)
-        except json.JSONDecodeError:
-            continue
-
-        if not isinstance(parsed, list):
-            continue
-        if len(parsed) != n_states:
-            continue
-
-        # Accumulate scores
-        for i, entry in enumerate(parsed):
+        if start != -1 and end != -1 and end > start:
+            json_str = raw[start:end+1]
             try:
-                agg[i]["relatedness"]     += float(entry["relatedness"])
-                agg[i]["informativeness"] += float(entry["informativeness"])
-                agg[i]["coverage"]        += float(entry["coverage"])
-            except (KeyError, ValueError, TypeError):
+                parsed = json.loads(json_str)
+                if isinstance(parsed, list) and len(parsed) == n_states:
+                    for i, entry in enumerate(parsed):
+                        try:
+                            agg[i]["relatedness"]     += float(entry["relatedness"])
+                            agg[i]["informativeness"] += float(entry["informativeness"])
+                            agg[i]["coverage"]        += float(entry["coverage"])
+                        except (KeyError, ValueError, TypeError):
+                            pass
+                    n_samples += 1
+                    continue
+            except json.JSONDecodeError:
                 pass
 
-        n_samples += 1
+        # Try simple format: SUMMARY_X: R=0.X I=0.X C=0.X
+        # More lenient pattern to handle variations
+        pattern = r'SUMMARY[_\s]*(\d+)\s*:?\s*R\s*=\s*([0-9.]+)\s*I\s*=\s*([0-9.]+)\s*C\s*=\s*([0-9.]+)'
+        matches = re.findall(pattern, raw, re.IGNORECASE)
+        
+        if matches:
+            # Create mapping from index to scores
+            score_map = {}
+            for idx_str, r_str, i_str, c_str in matches:
+                try:
+                    idx = int(idx_str)
+                    if 0 <= idx < n_states:
+                        score_map[idx] = {
+                            'r': float(r_str),
+                            'i': float(i_str),
+                            'c': float(c_str)
+                        }
+                except (ValueError, IndexError):
+                    pass
+            
+            # Check if we got scores for all states
+            if len(score_map) == n_states:
+                for idx in range(n_states):
+                    agg[idx]["relatedness"]     += score_map[idx]['r']
+                    agg[idx]["informativeness"] += score_map[idx]['i']
+                    agg[idx]["coverage"]        += score_map[idx]['c']
+                n_samples += 1
+                continue
 
     if n_samples == 0:
         # All evaluation samples failed to parse
-        print("\n[ERROR] All evaluation samples failed JSON parsing!")
+        print("\n[ERROR] All evaluation samples failed parsing!")
         print("Raw evaluation outputs were shown above in DEBUG section.")
         print("Falling back to uniform scores (0.5) for all states.")
-        return [0.5] * n_states  # Return neutral scores instead of zeros
+        return [0.5] * n_states
 
     # Average and compute weighted sum
     factor = 1.0 / n_samples

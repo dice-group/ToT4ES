@@ -7,16 +7,17 @@ ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
 OUT="outputs/tot_semantic/dbpedia"
 LOGS="logs/tot_semantic/dbpedia"
 
-# Configuration
+# Configuration (OPTIMIZED FOR SPEED)
 DATASET="dbpedia"
 MAX_SUMMARY_LEN=5
-N_CANDIDATES_PER_TASK=2
-N_EVALS=3
-BREADTH_LIMIT=3
-SEARCH_ALGO="bfs"  # or "dfs"
+N_CANDIDATES_PER_TASK=1  # Reduced from 2 (2x faster)
+N_EVALS=2                 # Reduced from 3 (1.5x faster)
+BREADTH_LIMIT=2           # Reduced from 3 (1.5x faster)
+SEARCH_ALGO="bfs"         # or "dfs"
 GPU_DEVICE=3
 
 # Model configuration
+# Use 3B for better evaluation reliability (simple format works better)
 MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
 
 mkdir -p "$OUT" "$LOGS"
@@ -65,7 +66,7 @@ for f in "${nt_files[@]}"; do
   stdout_log="$LOGS/$id/stdout.log"
   stderr_log="$LOGS/$id/stderr.log"
 
-  # Run semantic ToT
+  # Run semantic ToT (show output on screen AND save to logs)
   if CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_semantic.py \
     --nt "$f" \
     --dataset "$DATASET" \
@@ -76,8 +77,8 @@ for f in "${nt_files[@]}"; do
     --breadth-limit "$BREADTH_LIMIT" \
     --search-algorithm "$SEARCH_ALGO" \
     --output-dir "$OUT/$id" \
-    --show-semantic-analysis \
-    > "$stdout_log" 2> "$stderr_log"; then
+    --no-verbose \
+    2>&1 | tee "$stdout_log"; then
     
     echo "✓ Success: Entity $id"
   else

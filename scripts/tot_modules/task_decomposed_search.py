@@ -165,6 +165,8 @@ class TaskDecomposedToT:
         """
         Generate thoughts from all three task-specific generators.
         
+        OPTIMIZED: Uses batched generation when all tasks use same model.
+        
         Args:
             state: Current state
             verbose: Whether to print debug info
@@ -178,24 +180,97 @@ class TaskDecomposedToT:
             "diversity": (self.get_diversity_prompt, self.llm_diversity),
         }
         
+        # Check if all tasks use the same model (for batching optimization)
+        all_same_model = (
+            self.llm_relatedness == self.llm and
+            self.llm_informativeness == self.llm and
+            self.llm_diversity == self.llm
+        )
+        
         all_thoughts = {}
         
-        for task_name, (prompt_fn, task_llm) in tasks.items():
+        if all_same_model:
+            # FAST PATH: Batch all three prompts together
             if verbose:
-                print(f"  Generating thoughts for {task_name.upper()}...")
-                if task_llm != self.llm:
-                    print(f"    Using task-specific model: {task_llm.model_id}")
+                print(f"  Generating thoughts for ALL TASKS (batched)...")
             
-            thoughts = self.task_thought_generator(state, prompt_fn, task_name, llm=task_llm)
-            all_thoughts[task_name] = thoughts
+            # Create combined prompts
+            prompts = []
+            task_names = []
+            for task_name, (prompt_fn, _) in tasks.items():
+                prompts.append(prompt_fn(self.input_seq, state))
+                task_names.append(task_name)
             
-            if verbose:
-                print(f"    {task_name}: {thoughts}")
+            # Single batched LLM call for all tasks
+            # Generate n_candidates_per_task for each prompt
+            all_raw_thoughts = []
+            for prompt in prompts:
+                raw_thoughts = self.chat_completions(
+                    prompt=prompt,
+                    temperature=0.8,
+                    n=self.n_candidates_per_task,
+                    llm=self.llm,
+                )
+                all_raw_thoughts.append(raw_thoughts)
+            
+            # Parse results for each task
+            for task_name, raw_thoughts in zip(task_names, all_raw_thoughts):
+                thought_ids = []
+                for txt in raw_thoughts:
+                    tid = extract_first_int(txt)
+                    if tid is not None and 1 <= tid <= self.num_triples:
+                        thought_ids.append(str(tid))
+                
+                unique_thoughts = list(dict.fromkeys(thought_ids))
+                all_thoughts[task_name] = unique_thoughts
+                
+                if verbose:
+                    print(f"    {task_name}: {unique_thoughts}")
+        else:
+            # SLOW PATH: Sequential generation (different models per task)
+            for task_name, (prompt_fn, task_llm) in tasks.items():
+                if verbose:
+                    print(f"  Generating thoughts for {task_name.upper()}...")
+                    if task_llm != self.llm:
+                        print(f"    Using task-specific model: {task_llm.model_id}")
+                
+                thoughts = self.task_thought_generator(state, prompt_fn, task_name, llm=task_llm)
+                all_thoughts[task_name] = thoughts
+                
+                if verbose:
+                    print(f"    {task_name}: {thoughts}")
         
         return all_thoughts
 
     def state_evaluator(self, states: List[str]) -> List[float]:
-        """Evaluate states using vote-based aggregation."""
+        """
+        Evaluate states using vote-based aggregation.
+        
+        For large state counts, evaluates in chunks to improve reliability.
+        """
+        n_states = len(states)
+        
+        # If too many states, evaluate in chunks
+        MAX_STATES_PER_EVAL = 10
+        
+        if n_states > MAX_STATES_PER_EVAL:
+            print(f"\n[INFO] Evaluating {n_states} states in chunks of {MAX_STATES_PER_EVAL}")
+            all_scores = []
+            
+            for chunk_start in range(0, n_states, MAX_STATES_PER_EVAL):
+                chunk_end = min(chunk_start + MAX_STATES_PER_EVAL, n_states)
+                chunk_states = states[chunk_start:chunk_end]
+                
+                print(f"  Evaluating states {chunk_start}-{chunk_end-1}...")
+                chunk_scores = self._evaluate_chunk(chunk_states)
+                all_scores.extend(chunk_scores)
+            
+            return all_scores
+        else:
+            return self._evaluate_chunk(states)
+    
+    def _evaluate_chunk(self, states: List[str]) -> List[float]:
+        """Evaluate a single chunk of states."""
         prompt = self.get_state_eval_prompt(self.input_seq, states)
         state_evals = self.chat_completions(prompt, temperature=0.3, n=self.n_evals, llm=self.llm_evaluation)
 

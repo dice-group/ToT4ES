@@ -215,7 +215,7 @@ def make_combined_evaluation_prompt(
 ) -> Callable[[str, List[str]], str]:
     """
     Create evaluation prompt that assesses all three criteria.
-    This remains the same as before.
+    Uses simpler format for better compatibility with smaller models.
     """
     
     def _inner(input_seq: str, states: List[str]) -> str:
@@ -243,31 +243,21 @@ def make_combined_evaluation_prompt(
         states_block = "\n\n".join(formatted_states)
 
         return f"""
-You are evaluating RDF triple summaries for: {entity_label}
+You are evaluating RDF triple summaries for entity: {entity_label}
 
-Rate each summary on three criteria (0.0–1.0):
+Rate each summary on 3 criteria (scale 0.0 to 1.0):
+- RELATEDNESS (R): How central are triples to entity identity?
+- INFORMATIVENESS (I): How unique/valuable is the information?
+- COVERAGE (C): How diverse are the aspects covered?
 
-1. RELATEDNESS: How central/core are the triples to the entity?
-2. INFORMATIVENESS: How much unique, valuable information is provided?
-3. COVERAGE/DIVERSITY: How diverse are the aspects covered?
+IMPORTANT: Output EXACTLY one line per summary in this format:
+SUMMARY_0: R=0.8 I=0.7 C=0.9
 
-There are {len(states)} summaries. Return JSON array:
-
-[
-  {{
-    "idx": 0,
-    "relatedness": 0.0,
-    "informativeness": 0.0,
-    "coverage": 0.0
-  }},
-  ...
-]
-
-Return ONLY the JSON array, no explanations.
-
-Summaries:
+Below are {len(states)} summaries to rate:
 
 {states_block}
+
+Now output your ratings (one line per summary):
         """.strip()
 
     return _inner
