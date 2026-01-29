@@ -14,7 +14,7 @@ N_CANDIDATES_PER_TASK=5
 GPU_DEVICE=3
 
 # Model configuration (customize as needed)
-MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
+MODEL_ID="meta-llama/Llama-3.1-8B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"

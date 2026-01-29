@@ -12,15 +12,15 @@ def evaluation(dataset, k, model_name):
     m = MAP()
 
     if dataset.ds_name == "dbpedia":
-        IN_SUMM = os.path.join(os.getcwd(), f'out/{model_name}/dbpedia')
+        IN_SUMM = os.path.join(os.getcwd(), f'{model_name}/dbpedia')
         start = [0, 140]
         end   = [100, 165]
     elif dataset.ds_name == "lmdb":
-        IN_SUMM = os.path.join(os.getcwd(), f'out/{model_name}/lmdb')
+        IN_SUMM = os.path.join(os.getcwd(), f'{model_name}/lmdb')
         start = [100, 165]
         end   = [140, 175]
     elif dataset.ds_name == "faces":
-        IN_SUMM = os.path.join(os.getcwd(), f'out/{model_name}/faces')
+        IN_SUMM = os.path.join(os.getcwd(), f'{model_name}/faces')
         start = [0, 25]
         end   = [25, 50]
 
@@ -35,14 +35,14 @@ def evaluation(dataset, k, model_name):
         print(t)
         gold_list_top, triples_dict, triple_tuples = get_all_data(dataset.db_path, t, k, dataset.file_n)
         print("triples_dict", triples_dict)
-        rank_triples, encoded_rank_triples = get_rank_triples(IN_SUMM, t, k, triples_dict)
+        #rank_triples, encoded_rank_triples = get_rank_triples(IN_SUMM, t, k, triples_dict)
         topk_triples, encoded_topk_triples = get_topk_triples(IN_SUMM, t, k, triples_dict)
         print(f"#####{topk_triples}###########")
-        ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
-        #ndcg_score = 0
+        #ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
+        ndcg_score = 0
         f_score = fmeasure.get_score(encoded_topk_triples, gold_list_top)
-        map_score = m.get_map(encoded_rank_triples, gold_list_top)
-        #map_score = 0
+        #map_score = m.get_map(encoded_rank_triples, gold_list_top)
+        map_score = 0
         total_ndcg += ndcg_score
         all_ndcg_scores.append(ndcg_score)
 
@@ -56,14 +56,14 @@ def evaluation(dataset, k, model_name):
         print(t)
         gold_list_top, triples_dict, triple_tuples = get_all_data(dataset.db_path, t, k, dataset.file_n)
         print("triples_dict", triples_dict)
-        rank_triples, encoded_rank_triples = get_rank_triples(IN_SUMM, t, k, triples_dict)
+        #rank_triples, encoded_rank_triples = get_rank_triples(IN_SUMM, t, k, triples_dict)
         topk_triples, encoded_topk_triples = get_topk_triples(IN_SUMM, t, k, triples_dict)
         print(f"#####{topk_triples}###########")
-        ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
-        #ndcg_score = 0
+        #ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
+        ndcg_score = 0
         f_score = fmeasure.get_score(encoded_topk_triples, gold_list_top)
-        map_score = m.get_map(encoded_rank_triples, gold_list_top)
-        #map_score = 0
+        #map_score = m.get_map(encoded_rank_triples, gold_list_top)
+        map_score = 0
         total_ndcg += ndcg_score
         all_ndcg_scores.append(ndcg_score)
         total_fscore += f_score
