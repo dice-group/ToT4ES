@@ -358,7 +358,143 @@ class TaskDecomposedToT:
 
         return best_node.state
 
+    def dfs(self, verbose: bool = True) -> str:
+        """
+        Perform depth-first search with task decomposition.
+        
+        DFS explores paths to maximum depth using multi-task thought generation
+        before backtracking. Selects best thoughts at each step.
+        
+        Args:
+            verbose: Whether to print detailed progress
+            
+        Returns:
+            Best state string found
+        """
+        best_node = self.root
+        best_value = float('-inf')
+        
+        def dfs_recursive(node: TreeNode, depth: int) -> None:
+            nonlocal best_node, best_value
+            
+            # Terminal condition
+            if depth >= self.n_steps:
+                value = self.state_evaluator([node.state])[0]
+                node.value = value
+                
+                if verbose:
+                    print(f"\n[LEAF] Depth {depth}, Value: {value:.4f}, State: {node.state}")
+                
+                if value > best_value:
+                    best_value = value
+                    best_node = node
+                    if verbose:
+                        print(f"  ★ New best! Value={value:.4f}")
+                return
+            
+            if verbose:
+                print(f"\n{'  ' * depth}[DFS Step {depth + 1}/{self.n_steps}]")
+                print(f"{'  ' * depth}Current state: {node.state if node.state else '<root>'}")
+            
+            # Generate thoughts from all tasks
+            all_task_thoughts = self.generate_thoughts_all_tasks(node.state, verbose=False)
+            
+            # Parse existing IDs
+            existing_ids = set()
+            if node.state.strip():
+                existing_ids = {
+                    int(x) for x in node.state.strip().splitlines()
+                    if x.strip().isdigit()
+                }
+            
+            # Combine all thoughts
+            all_thoughts = []
+            for task_name, thoughts in all_task_thoughts.items():
+                all_thoughts.extend(thoughts)
+            all_thoughts = list(dict.fromkeys(all_thoughts))
+            
+            if verbose:
+                print(f"{'  ' * depth}Generated {len(all_thoughts)} thoughts from all tasks")
+            
+            # Create candidates
+            candidates = []
+            for t_str in all_thoughts:
+                try:
+                    t_id = int(t_str)
+                except ValueError:
+                    continue
+                
+                if t_id in existing_ids:
+                    continue
+                
+                new_state = t_str if node.state == "" else node.state + "\n" + t_str
+                
+                if not self.validate_state(new_state):
+                    continue
+                
+                child = TreeNode(
+                    state=new_state,
+                    thought=t_str,
+                    depth=node.depth + 1,
+                    parent=node
+                )
+                candidates.append(child)
+            
+            if not candidates:
+                if verbose:
+                    print(f"{'  ' * depth}No valid children - backtracking")
+                return
+            
+            # Evaluate candidates
+            candidate_states = [c.state for c in candidates]
+            candidate_values = self.state_evaluator(candidate_states)
+            
+            for child, value in zip(candidates, candidate_values):
+                child.value = value
+            
+            # Sort by value (best first)
+            sorted_candidates = sorted(
+                zip(candidates, candidate_values),
+                key=lambda x: x[1],
+                reverse=True
+            )
+            
+            if verbose:
+                print(f"{'  ' * depth}Candidate evaluations:")
+                for i, (child, val) in enumerate(sorted_candidates[:3]):
+                    print(f"{'  ' * depth}  {i+1}. Thought={child.thought}, Value={val:.4f}")
+            
+            # Explore best candidates
+            for child, value in sorted_candidates:
+                node.children.append(child)
+                
+                if verbose:
+                    print(f"{'  ' * depth}→ Exploring thought={child.thought} (value={value:.4f})")
+                
+                dfs_recursive(child, depth + 1)
+        
+        if verbose:
+            print("="*70)
+            print("DEPTH-FIRST SEARCH (Task-Decomposed DFS)")
+            print("="*70)
+        
+        dfs_recursive(self.root, 0)
+        
+        if verbose:
+            print("\n" + "="*70)
+            print("DFS COMPLETE")
+            print("="*70)
+            print("Best state found:")
+            print(f"  Value: {best_value:.4f}")
+            print(f"  Depth: {best_node.depth}")
+            print(f"  Triple count: {len(best_node.get_triple_ids())}")
+            print(f"  Selected triple IDs: {best_node.state}")
+            print("="*70)
+        
+        return best_node.state
+
     def __repr__(self) -> str:
         return (f"TaskDecomposedToT(n_steps={self.n_steps}, "
                 f"n_candidates_per_task={self.n_candidates_per_task}, "
                 f"breadth_limit={self.breadth_limit})")
+

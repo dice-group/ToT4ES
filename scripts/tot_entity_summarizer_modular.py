@@ -78,7 +78,13 @@ def parse_arguments():
         "--breadth-limit",
         type=int,
         default=3,
-        help="Beam width (number of states kept at each level)",
+        help="Beam width (number of states kept at each level, only for BFS)",
+    )
+    parser.add_argument(
+        "--search-algorithm",
+        choices=["bfs", "dfs"],
+        default="bfs",
+        help="Search algorithm: bfs (breadth-first) or dfs (depth-first)",
     )
     parser.add_argument(
         "--no-verbose",
@@ -242,10 +248,14 @@ def main():
     
     # Run search
     print("\n" + "="*70)
-    print("Starting Tree-of-Thought search...")
+    print(f"Starting Tree-of-Thought search ({args.search_algorithm.upper()})...")
     print("="*70)
     
-    best_state = tot.bfs(verbose=not args.no_verbose)
+    if args.search_algorithm == "bfs":
+        best_state = tot.bfs(verbose=not args.no_verbose)
+    else:
+        best_state = tot.dfs(verbose=not args.no_verbose)
+        
     best_triples = decode_state_to_triples(best_state, all_triples)
     
     # Display results

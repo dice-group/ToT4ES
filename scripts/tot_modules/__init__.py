@@ -30,6 +30,19 @@ try:
 except ImportError:
     _task_decomposed_available = False
 
+# Semantic enhancement components
+try:
+    from .semantic_analyzer import SemanticAnalyzer
+    from .semantic_prompts import (
+        make_semantic_relatedness_prompt,
+        make_semantic_informativeness_prompt,
+        make_semantic_diversity_prompt,
+    )
+    
+    _semantic_available = True
+except ImportError:
+    _semantic_available = False
+
 __all__ = [
     'TreeNode',
     'Llama32Chat',
@@ -49,4 +62,12 @@ if _task_decomposed_available:
         'make_diversity_prompt',
         'make_combined_evaluation_prompt',
         'TaskDecomposedToT',
+    ])
+
+if _semantic_available:
+    __all__.extend([
+        'SemanticAnalyzer',
+        'make_semantic_relatedness_prompt',
+        'make_semantic_informativeness_prompt',
+        'make_semantic_diversity_prompt',
     ])

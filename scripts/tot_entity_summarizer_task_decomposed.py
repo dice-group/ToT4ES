@@ -98,7 +98,13 @@ def parse_arguments():
         "--breadth-limit",
         type=int,
         default=3,
-        help="Beam width",
+        help="Beam width (only used for BFS)",
+    )
+    parser.add_argument(
+        "--search-algorithm",
+        choices=["bfs", "dfs"],
+        default="bfs",
+        help="Search algorithm: bfs (breadth-first) or dfs (depth-first)",
     )
     parser.add_argument(
         "--no-verbose",
@@ -224,10 +230,14 @@ def main():
     
     # Run search
     print("\n" + "="*70)
-    print("Starting Task-Decomposed Search...")
+    print(f"Starting Task-Decomposed Search ({args.search_algorithm.upper()})...")
     print("="*70)
     
-    best_state = tot.bfs(verbose=not args.no_verbose)
+    if args.search_algorithm == "bfs":
+        best_state = tot.bfs(verbose=not args.no_verbose)
+    else:
+        best_state = tot.dfs(verbose=not args.no_verbose)
+        
     best_triples = decode_state_to_triples(best_state, all_triples)
     
     # Display results
