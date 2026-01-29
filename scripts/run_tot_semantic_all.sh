@@ -50,9 +50,14 @@ total="${#nt_files[@]}"
 current=0
 failed=0
 
+echo "DEBUG: About to enter loop with $total files"
+echo "DEBUG: First file: ${nt_files[0]}"
+
 # Process each entity
 for f in "${nt_files[@]}"; do
-  ((current++))
+  echo "DEBUG: Inside loop, processing: $f"
+  current=$((current + 1))  # Safer than ((current++)) with set -e
+  id="$(basename "$(dirname "$f")")"
   id="$(basename "$(dirname "$f")")"
   
   echo "========================================="
@@ -89,7 +94,7 @@ for f in "${nt_files[@]}"; do
   if [ $exit_code -eq 0 ]; then
     echo "✓ Success: Entity $id"
   else
-    ((failed++))
+    failed=$((failed + 1))  # Safer than ((failed++))
     echo "✗ Failed: Entity $id (exit code: $exit_code, see $stderr_log)"
   fi
   
