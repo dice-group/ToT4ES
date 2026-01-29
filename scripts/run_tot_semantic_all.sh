@@ -57,6 +57,7 @@ for f in "${nt_files[@]}"; do
   
   echo "========================================="
   echo "[$current/$total] Processing Entity: $id"
+  echo "File: $f"
   echo "========================================="
 
   # Ensure per-entity output/log directories exist
@@ -65,6 +66,8 @@ for f in "${nt_files[@]}"; do
   # Log files
   stdout_log="$LOGS/$id/stdout.log"
   stderr_log="$LOGS/$id/stderr.log"
+  
+  echo "Starting Python script for entity $id..."
 
   # Run semantic ToT
   CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_semantic.py \
@@ -81,11 +84,13 @@ for f in "${nt_files[@]}"; do
     > "$stdout_log" 2> "$stderr_log"
   
   # Check exit status
-  if [ $? -eq 0 ]; then
+  exit_code=$?
+  
+  if [ $exit_code -eq 0 ]; then
     echo "✓ Success: Entity $id"
   else
     ((failed++))
-    echo "✗ Failed: Entity $id (see $stderr_log)"
+    echo "✗ Failed: Entity $id (exit code: $exit_code, see $stderr_log)"
   fi
   
   echo ""
