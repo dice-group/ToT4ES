@@ -4,8 +4,8 @@ set -euo pipefail
 # Process all DBpedia entities with Semantic-Enhanced ToT (DL)
 
 ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
-OUT="outputs/tot_semantic/dbpedia"
-LOGS="logs/tot_semantic/dbpedia"
+OUT="outputs/tot_semantic"
+LOGS="logs/tot_semantic"
 
 # Configuration (OPTIMIZED FOR SPEED)
 DATASET="dbpedia"
@@ -84,7 +84,7 @@ for f in "${nt_files[@]}"; do
     --n-evals "$N_EVALS" \
     --breadth-limit "$BREADTH_LIMIT" \
     --search-algorithm "$SEARCH_ALGO" \
-    --output-dir "$OUT/$id" \
+    --output-dir "$OUT" \
     --no-verbose \
     > "$stdout_log" 2> "$stderr_log"
   

@@ -170,6 +170,7 @@ def main():
         print(f"   {triple}")
     
     # Save results in N-Triples format (same as standard ToT)
+    # Structure: outputs/tot_semantic/dbpedia/1/1_top5.nt
     out_base = f"{args.dataset}/{entity_id}/{entity_id}_top{args.max_summary_len}.nt"
     out_path = os.path.join(args.output_dir, out_base)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
