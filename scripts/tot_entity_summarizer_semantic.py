@@ -169,21 +169,33 @@ def main():
         print(f"   Semantic: {annotation}")
         print(f"   {triple}")
     
-    # Save results
-    os.makedirs(args.output_dir, exist_ok=True)
-    output_file = os.path.join(args.output_dir, f"{entity_id}_summary.txt")
+    # Save results in N-Triples format (same as standard ToT)
+    out_base = f"{args.dataset}/{entity_id}/{entity_id}_top{args.max_summary_len}.nt"
+    out_path = os.path.join(args.output_dir, out_base)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
     
-    with open(output_file, 'w') as f:
+    with open(out_path, "w", encoding="utf-8") as f:
+        for triple in best_triples:
+            f.write(triple.rstrip() + "\n")
+    
+    print(f"\n✓ Saved ({len(best_triples)} triples) to: {out_path}")
+    
+    # Also save semantic analysis metadata with topk in filename
+    metadata_file = os.path.join(os.path.dirname(out_path), f"{entity_id}_top{args.max_summary_len}_semantic_analysis.txt")
+    with open(metadata_file, 'w', encoding='utf-8') as f:
         f.write(f"Entity: {entity_label}\n")
         f.write(f"Dataset: {args.dataset}\n")
-        f.write(f"Method: Semantic ToT ({args.search_algorithm.upper()})\n\n")
-        f.write("Selected Triples:\n")
+        f.write(f"Method: Semantic ToT ({args.search_algorithm.upper()})\n")
+        f.write(f"Top-K: {args.max_summary_len}\n\n")
+        f.write("Selected Triples with DL Analysis:\n")
         for i, (triple_id, triple) in enumerate(zip(selected_ids, best_triples), 1):
             info = informativeness.get(triple_id, 0.5)
             rel = relatedness.get(triple_id, 0.5)
-            f.write(f"{i}. Info={info:.2f}, Rel={rel:.2f} | {triple}\n")
+            annotation = analyzer.get_enriched_triple_info(triple_id)
+            f.write(f"{i}. Info={info:.2f}, Rel={rel:.2f} | {annotation}\n")
+            f.write(f"   {triple}\n")
     
-    print(f"\nResults saved to: {output_file}")
+    print(f"✓ Saved semantic analysis to: {metadata_file}")
     print("="*70)
 
 
