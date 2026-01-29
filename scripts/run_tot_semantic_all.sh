@@ -10,7 +10,7 @@ LOGS="logs/tot_semantic/dbpedia"
 # Configuration (OPTIMIZED FOR SPEED)
 DATASET="dbpedia"
 MAX_SUMMARY_LEN=5
-N_CANDIDATES_PER_TASK=3  # Reduced from 2 (2x faster)
+N_CANDIDATES_PER_TASK=1  # Reduced from 2 (2x faster)
 N_EVALS=2                 # Reduced from 3 (1.5x faster)
 BREADTH_LIMIT=2           # Reduced from 3 (1.5x faster)
 SEARCH_ALGO="bfs"         # or "dfs"
@@ -66,8 +66,8 @@ for f in "${nt_files[@]}"; do
   stdout_log="$LOGS/$id/stdout.log"
   stderr_log="$LOGS/$id/stderr.log"
 
-  # Run semantic ToT (show output on screen AND save to logs)
-  if CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_semantic.py \
+  # Run semantic ToT
+  CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_semantic.py \
     --nt "$f" \
     --dataset "$DATASET" \
     --model-id "$MODEL_ID" \
@@ -78,8 +78,10 @@ for f in "${nt_files[@]}"; do
     --search-algorithm "$SEARCH_ALGO" \
     --output-dir "$OUT/$id" \
     --no-verbose \
-    2>&1 | tee "$stdout_log"; then
-    
+    > "$stdout_log" 2> "$stderr_log"
+  
+  # Check exit status
+  if [ $? -eq 0 ]; then
     echo "✓ Success: Entity $id"
   else
     ((failed++))
