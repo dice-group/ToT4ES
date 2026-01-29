@@ -10,7 +10,7 @@ LOGS="logs/tot_semantic/dbpedia"
 # Configuration (OPTIMIZED FOR SPEED)
 DATASET="dbpedia"
 MAX_SUMMARY_LEN=5
-N_CANDIDATES_PER_TASK=1  # Reduced from 2 (2x faster)
+N_CANDIDATES_PER_TASK=3  # Reduced from 2 (2x faster)
 N_EVALS=2                 # Reduced from 3 (1.5x faster)
 BREADTH_LIMIT=2           # Reduced from 3 (1.5x faster)
 SEARCH_ALGO="bfs"         # or "dfs"
