@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from tot_modules import (
     Llama32Chat,
     Qwen3CoderChat,
+    OllamaChat,
     decode_state_to_triples,
     load_entity_description_from_nt,
     entity_heuristic_calculator,
@@ -145,7 +146,9 @@ def main():
     # Setup LLMs
     print(f"\nInitializing LLMs...")
     print(f"  Default model: {args.model_id}")
-    if "qwen3-coder" in args.model_id.lower() or "Qwen3-coder" in args.model_id:
+    if args.model_id.lower().startswith("ollama:"):
+        llm = OllamaChat(model_id=args.model_id)
+    elif "qwen3-coder" in args.model_id.lower() or "Qwen3-coder" in args.model_id:
         llm = Qwen3CoderChat(
             model_id=args.model_id,
             device_map="auto",
@@ -166,7 +169,9 @@ def main():
     
     if args.model_relatedness:
         print(f"  Relatedness model: {args.model_relatedness}")
-        if "qwen3-coder" in args.model_relatedness.lower() or "Qwen3-coder" in args.model_relatedness:
+        if args.model_relatedness.lower().startswith("ollama:"):
+            llm_relatedness = OllamaChat(model_id=args.model_relatedness)
+        elif "qwen3-coder" in args.model_relatedness.lower() or "Qwen3-coder" in args.model_relatedness:
             llm_relatedness = Qwen3CoderChat(
                 model_id=args.model_relatedness,
                 device_map="auto",
@@ -181,7 +186,9 @@ def main():
     
     if args.model_informativeness:
         print(f"  Informativeness model: {args.model_informativeness}")
-        if "qwen3-coder" in args.model_informativeness.lower() or "Qwen3-coder" in args.model_informativeness:
+        if args.model_informativeness.lower().startswith("ollama:"):
+            llm_informativeness = OllamaChat(model_id=args.model_informativeness)
+        elif "qwen3-coder" in args.model_informativeness.lower() or "Qwen3-coder" in args.model_informativeness:
             llm_informativeness = Qwen3CoderChat(
                 model_id=args.model_informativeness,
                 device_map="auto",
@@ -196,7 +203,9 @@ def main():
     
     if args.model_diversity:
         print(f"  Diversity model: {args.model_diversity}")
-        if "qwen3-coder" in args.model_diversity.lower() or "Qwen3-coder" in args.model_diversity:
+        if args.model_diversity.lower().startswith("ollama:"):
+            llm_diversity = OllamaChat(model_id=args.model_diversity)
+        elif "qwen3-coder" in args.model_diversity.lower() or "Qwen3-coder" in args.model_diversity:
             llm_diversity = Qwen3CoderChat(
                 model_id=args.model_diversity,
                 device_map="auto",
@@ -211,7 +220,9 @@ def main():
     
     if args.model_evaluation:
         print(f"  Evaluation model: {args.model_evaluation}")
-        if "qwen3-coder" in args.model_evaluation.lower() or "Qwen3-coder" in args.model_evaluation:
+        if args.model_evaluation.lower().startswith("ollama:"):
+            llm_evaluation = OllamaChat(model_id=args.model_evaluation)
+        elif "qwen3-coder" in args.model_evaluation.lower() or "Qwen3-coder" in args.model_evaluation:
             llm_evaluation = Qwen3CoderChat(
                 model_id=args.model_evaluation,
                 device_map="auto",

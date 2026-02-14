@@ -1,3 +1,34 @@
+import requests
+
+class OllamaChat:
+    """
+    Wrapper for using Ollama API as a chat LLM backend.
+    """
+    def __init__(self, model_id: str = "qwen:latest", base_url: str = "http://localhost:11434"):
+        self.model_id = model_id.replace("ollama:", "")
+        self.base_url = base_url.rstrip("/")
+
+    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.0, max_new_tokens: int = 1024, n: int = 1) -> List[str]:
+        # Ollama expects a single prompt string, so we concatenate messages
+        prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
+        results = []
+        for _ in range(n):
+            payload = {
+                "model": self.model_id,
+                "prompt": prompt,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_new_tokens
+                }
+            }
+            response = requests.post(f"{self.base_url}/api/generate", json=payload)
+            response.raise_for_status()
+            data = response.json()
+            results.append(data.get("response", "").strip())
+        return results
+
+    def __repr__(self) -> str:
+        return f"OllamaChat(model={self.model_id}, base_url={self.base_url})"
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
