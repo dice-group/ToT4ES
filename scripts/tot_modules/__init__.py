@@ -3,7 +3,7 @@ Tree-of-Thought Entity Summarization - Modular Components
 """
 
 from .tree_node import TreeNode
-from .llm_wrapper import Llama32Chat
+from .llm_wrapper import Llama32Chat, Qwen3CoderChat, OllamaChat
 from .tree_search import TreeOfThoughts
 from .prompt_factory import (
     make_entity_thought_gen_prompt,
@@ -46,6 +46,8 @@ except ImportError:
 __all__ = [
     'TreeNode',
     'Llama32Chat',
+    'Qwen3CoderChat',
+    'OllamaChat',
     'TreeOfThoughts',
     'make_entity_thought_gen_prompt',
     'make_entity_state_eval_prompt',
