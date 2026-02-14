@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from tot_modules import (
     Llama32Chat,
+    Qwen3CoderChat,
     decode_state_to_triples,
     load_entity_description_from_nt,
     entity_heuristic_calculator,
@@ -54,7 +55,7 @@ def parse_arguments():
     parser.add_argument(
         "--model-id",
         default="meta-llama/Llama-3.2-3B-Instruct",
-        help="Default HuggingFace model ID (used if task-specific models not provided)",
+        help="Default HuggingFace model ID (used if task-specific models not provided; use 'Qwen/Qwen3-coder-30B' for Qwen3-coder)",
     )
     parser.add_argument(
         "--model-relatedness",
@@ -144,11 +145,18 @@ def main():
     # Setup LLMs
     print(f"\nInitializing LLMs...")
     print(f"  Default model: {args.model_id}")
-    llm = Llama32Chat(
-        model_id=args.model_id,
-        device_map="auto",
-        torch_dtype=torch.bfloat16,
-    )
+    if "qwen3-coder" in args.model_id.lower() or "Qwen3-coder" in args.model_id:
+        llm = Qwen3CoderChat(
+            model_id=args.model_id,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
+    else:
+        llm = Llama32Chat(
+            model_id=args.model_id,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     # Initialize task-specific LLMs if provided
     llm_relatedness = None
@@ -158,35 +166,63 @@ def main():
     
     if args.model_relatedness:
         print(f"  Relatedness model: {args.model_relatedness}")
-        llm_relatedness = Llama32Chat(
-            model_id=args.model_relatedness,
-            device_map="auto",
-            torch_dtype=torch.bfloat16,
-        )
+        if "qwen3-coder" in args.model_relatedness.lower() or "Qwen3-coder" in args.model_relatedness:
+            llm_relatedness = Qwen3CoderChat(
+                model_id=args.model_relatedness,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
+        else:
+            llm_relatedness = Llama32Chat(
+                model_id=args.model_relatedness,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
     
     if args.model_informativeness:
         print(f"  Informativeness model: {args.model_informativeness}")
-        llm_informativeness = Llama32Chat(
-            model_id=args.model_informativeness,
-            device_map="auto",
-            torch_dtype=torch.bfloat16,
-        )
+        if "qwen3-coder" in args.model_informativeness.lower() or "Qwen3-coder" in args.model_informativeness:
+            llm_informativeness = Qwen3CoderChat(
+                model_id=args.model_informativeness,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
+        else:
+            llm_informativeness = Llama32Chat(
+                model_id=args.model_informativeness,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
     
     if args.model_diversity:
         print(f"  Diversity model: {args.model_diversity}")
-        llm_diversity = Llama32Chat(
-            model_id=args.model_diversity,
-            device_map="auto",
-            torch_dtype=torch.bfloat16,
-        )
+        if "qwen3-coder" in args.model_diversity.lower() or "Qwen3-coder" in args.model_diversity:
+            llm_diversity = Qwen3CoderChat(
+                model_id=args.model_diversity,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
+        else:
+            llm_diversity = Llama32Chat(
+                model_id=args.model_diversity,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
     
     if args.model_evaluation:
         print(f"  Evaluation model: {args.model_evaluation}")
-        llm_evaluation = Llama32Chat(
-            model_id=args.model_evaluation,
-            device_map="auto",
-            torch_dtype=torch.bfloat16,
-        )
+        if "qwen3-coder" in args.model_evaluation.lower() or "Qwen3-coder" in args.model_evaluation:
+            llm_evaluation = Qwen3CoderChat(
+                model_id=args.model_evaluation,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
+        else:
+            llm_evaluation = Llama32Chat(
+                model_id=args.model_evaluation,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+            )
     
     # Create task-specific prompt generators
     print("\nCreating task-specific prompts...")
