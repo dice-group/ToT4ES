@@ -25,8 +25,23 @@ class OllamaChat:
             }
             response = requests.post(f"{self.base_url}/api/generate", json=payload)
             response.raise_for_status()
-            data = response.json()
-            results.append(data.get("response", "").strip())
+            # Robustly handle multi-line/streamed JSON responses
+            try:
+                # Try standard JSON first
+                data = response.json()
+                results.append(data.get("response", "").strip())
+            except (requests.exceptions.JSONDecodeError, ValueError, Exception):
+                # Fallback: parse each line as JSON and concatenate 'response' fields
+                import json
+                lines = response.text.strip().splitlines()
+                response_text = ""
+                for line in lines:
+                    try:
+                        obj = json.loads(line)
+                        response_text += obj.get("response", "")
+                    except Exception:
+                        continue
+                results.append(response_text.strip())
         return results
 
     def __repr__(self) -> str:
