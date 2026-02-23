@@ -43,6 +43,11 @@ echo "Using GPU: $GPU_DEVICE"
 echo "Model: $MODEL_ID"
 echo ""
 
+
+# Timing: record start time
+start_time=$(date +%s)
+entity_count=0
+
 # Process each entity
 for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
@@ -78,7 +83,32 @@ for f in "${nt_files[@]}"; do
 
   # Execute
   eval "$cmd" && echo "[$id] ✓ Success" || echo "[$id] ✗ Failed (see $LOGS/$id/stderr.log)"
+  ((entity_count++))
 done
+
+# Timing: record end time and calculate total and average
+end_time=$(date +%s)
+total_time=$((end_time - start_time))
+if (( entity_count > 0 )); then
+  avg_time=$(awk "BEGIN {printf \"%.2f\", $total_time/$entity_count}")
+else
+  avg_time=0
+fi
+
+echo ""
+echo "Processing complete!"
+echo "Results saved to: $OUT"
+echo "Logs saved to: $LOGS"
+
+# Save summary to overall_report.txt
+REPORT_FILE="$OUT/overall_report.txt"
+{
+  echo "Processing complete!"
+  echo "Results saved to: $OUT"
+  echo "Logs saved to: $LOGS"
+  echo "Total runtime: $total_time seconds"
+  echo "Average runtime per entity: $avg_time seconds"
+} | tee -a "$REPORT_FILE"
 
 echo ""
 echo "Processing complete!"
