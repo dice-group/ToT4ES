@@ -74,7 +74,7 @@ for f in "${nt_files[@]}"; do
   # Skip if output .nt file already exists (indicates processing completed)
   if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
     echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
-    ((skipped_count++))
+    skipped_count=$((skipped_count + 1))
     continue
   fi
   
@@ -118,12 +118,12 @@ for f in "${nt_files[@]}"; do
     proc_end=$(date +%s)
     proc_time=$((proc_end - proc_start))
     echo "  ✓ [$id] Success (completed in ${proc_time}s)"
-    ((processed_count++))
+    processed_count=$((processed_count + 1))
   else
     echo "  ✗ [$id] Failed (see $LOGS/$id/stderr.log)"
     tail -10 "$LOGS/$id/stderr.log" | sed 's/^/    /'
   fi
-  ((entity_count++))
+  entity_count=$((entity_count + 1))
 done
 
 # Timing: record end time and calculate total and average
