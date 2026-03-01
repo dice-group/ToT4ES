@@ -51,6 +51,13 @@ entity_count=0
 # Process each entity
 for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
+  
+  # Skip if output already exists
+  if [ -d "$OUT/$id" ] && [ -n "$(find "$OUT/$id" -type f 2>/dev/null)" ]; then
+    echo "[$id] ⊘ Skipped (output already exists)"
+    continue
+  fi
+  
   echo "[$id] Processing: $f"
 
   # Ensure per-entity output/log directories exist
