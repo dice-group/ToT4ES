@@ -36,29 +36,53 @@ if ((${#nt_files[@]}==0)); then
   exit 1
 fi
 
-echo "Found ${#nt_files[@]} entities to process"
-echo "Output directory: $OUT"
-echo "Log directory: $LOGS"
-echo "Using GPU: $GPU_DEVICE"
-echo "Model: $MODEL_ID"
+echo "═══════════════════════════════════════════════════════════"
+echo "Task-Decomposed ToT - Entity Processing"
+echo "═══════════════════════════════════════════════════════════"
+echo "Total entities found: ${#nt_files[@]} to process"
 echo ""
-
+echo "Configuration:"
+echo "  Dataset: $DATASET"
+echo "  Max summary length: $MAX_SUMMARY_LEN"
+echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
+echo "  GPU device: $GPU_DEVICE"
+echo "  Model: $MODEL_ID"
+echo ""
+echo "Paths:"
+echo "  Input data: $ROOT"
+echo "  Output directory: $OUT"
+echo "  Log directory: $LOGS"
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo ""
 
 # Timing: record start time
 start_time=$(date +%s)
+start_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 entity_count=0
+processed_count=0
+skipped_count=0
 
 # Process each entity
+total_to_process=${#nt_files[@]}
+current=0
+
 for f in "${nt_files[@]}"; do
+  current=$((current + 1))
   id="$(basename "$(dirname "$f")")"
   
   # Skip if output .nt file already exists (indicates processing completed)
   if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
-    echo "[$id] ⊘ Skipped (output already exists: $OUT/$id/)"
+    echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
+    ((skipped_count++))
     continue
   fi
   
-  echo "[$id] Processing: $f"
+  proc_start=$(date +%s)
+  echo ""
+  echo "[$current/$total_to_process] [$id] Processing: $f"
+  echo "  → Output: $OUT/$id/"
+  echo "  → Log: $LOGS/$id/"
 
   # Ensure per-entity output/log directories exist
   mkdir -p "$OUT/$id" "$LOGS/$id"
@@ -89,35 +113,70 @@ for f in "${nt_files[@]}"; do
   cmd="$cmd > \"$LOGS/$id/stdout.log\" 2> \"$LOGS/$id/stderr.log\""
 
   # Execute
-  eval "$cmd" && echo "[$id] ✓ Success" || echo "[$id] ✗ Failed (see $LOGS/$id/stderr.log)"
+  echo "  → Executing Python script..."
+  if eval "$cmd"; then
+    proc_end=$(date +%s)
+    proc_time=$((proc_end - proc_start))
+    echo "  ✓ [$id] Success (completed in ${proc_time}s)"
+    ((processed_count++))
+  else
+    echo "  ✗ [$id] Failed (see $LOGS/$id/stderr.log)"
+    tail -10 "$LOGS/$id/stderr.log" | sed 's/^/    /'
+  fi
   ((entity_count++))
 done
 
 # Timing: record end time and calculate total and average
 end_time=$(date +%s)
+end_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 total_time=$((end_time - start_time))
-if (( entity_count > 0 )); then
-  avg_time=$(awk "BEGIN {printf \"%.2f\", $total_time/$entity_count}")
+
+if (( processed_count > 0 )); then
+  avg_time=$(awk "BEGIN {printf \"%.2f\", $total_time/$processed_count}")
 else
   avg_time=0
 fi
 
 echo ""
-echo "Processing complete!"
-echo "Results saved to: $OUT"
-echo "Logs saved to: $LOGS"
+echo "═══════════════════════════════════════════════════════════"
+echo "Processing Summary"
+echo "═══════════════════════════════════════════════════════════"
+echo "Start time:           $start_timestamp"
+echo "End time:             $end_timestamp"
+echo "Total runtime:        ${total_time}s"
+echo ""
+echo "Results:"
+echo "  Processed:          $processed_count"
+echo "  Skipped:            $skipped_count"
+echo "  Total checked:      $entity_count"
+echo "  Avg time per entity: ${avg_time}s"
+echo ""
+echo "Output locations:"
+echo "  Results saved to:   $OUT"
+echo "  Logs saved to:      $LOGS"
+echo "═══════════════════════════════════════════════════════════"
 
 # Save summary to overall_report.txt
 REPORT_FILE="$OUT/overall_report.txt"
 {
-  echo "Processing complete!"
-  echo "Results saved to: $OUT"
-  echo "Logs saved to: $LOGS"
-  echo "Total runtime: $total_time seconds"
-  echo "Average runtime per entity: $avg_time seconds"
-} | tee -a "$REPORT_FILE"
+  echo "═══════════════════════════════════════════════════════════"
+  echo "Task-Decomposed ToT Processing Report"
+  echo "═══════════════════════════════════════════════════════════"
+  echo "Start time:           $start_timestamp"
+  echo "End time:             $end_timestamp"
+  echo "Total runtime:        ${total_time}s"
+  echo ""
+  echo "Results:"
+  echo "  Processed:          $processed_count"
+  echo "  Skipped:            $skipped_count"
+  echo "  Total checked:      $entity_count"
+  echo "  Avg time per entity: ${avg_time}s"
+  echo ""
+  echo "Output locations:"
+  echo "  Results saved to:   $OUT"
+  echo "  Logs saved to:      $LOGS"
+  echo "═══════════════════════════════════════════════════════════"
+} | tee "$REPORT_FILE"
 
 echo ""
-echo "Processing complete!"
-echo "Results saved to: $OUT"
-echo "Logs saved to: $LOGS"
+echo "✓ All processing complete!"
