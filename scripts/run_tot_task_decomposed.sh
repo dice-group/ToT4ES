@@ -52,9 +52,9 @@ entity_count=0
 for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
   
-  # Skip if output already exists
-  if [ -d "$OUT/$id" ] && [ -n "$(find "$OUT/$id" -type f 2>/dev/null)" ]; then
-    echo "[$id] ⊘ Skipped (output already exists)"
+  # Skip if output .nt file already exists (indicates processing completed)
+  if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
+    echo "[$id] ⊘ Skipped (output already exists: $OUT/$id/)"
     continue
   fi
   
