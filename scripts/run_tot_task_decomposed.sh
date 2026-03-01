@@ -3,19 +3,19 @@ set -euo pipefail
 
 # Process all DBpedia entities with Task-Decomposed ToT
 
-ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
-#ROOT="../datasets/FACES/faces_data"
-OUT="outputs/tot_task_decomposed/dbpedia"
-LOGS="logs/tot_task_decomposed/dbpedia"
+#ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
+ROOT="../datasets/FACES/faces_data"
+OUT="outputs/tot_task_decomposed/faces"
+LOGS="logs/tot_task_decomposed/faces"
 
 # Configuration
-DATASET="dbpedia"
-MAX_SUMMARY_LEN=5
+DATASET="faces"
+MAX_SUMMARY_LEN=10
 N_CANDIDATES_PER_TASK=3
 GPU_DEVICE=3
 
 # Model configuration (customize as needed)
-MODEL_ID="Qwen/Qwen3-coder-30B"
+MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
