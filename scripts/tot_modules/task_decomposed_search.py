@@ -8,6 +8,7 @@ Implements the architecture with separate task-specific thought generators
 
 from collections import deque
 from typing import Callable, List, Dict, Optional
+import time
 
 from .tree_node import TreeNode
 from .llm_wrapper import Llama32Chat
@@ -104,16 +105,25 @@ class TaskDecomposedToT:
         n: int = 1,
         stop: Optional[List[str]] = None,
         llm: Optional[Llama32Chat] = None,
+        enable_thinking: bool = False,
     ) -> List[str]:
         """Query LLM with chat interface."""
         llm_to_use = llm or self.llm
         messages = [{"role": "user", "content": prompt}]
-        raw_outputs = llm_to_use.chat(
+
+        # Build kwargs — only pass enable_thinking to models that support it (Qwen3)
+        chat_kwargs = dict(
             messages=messages,
             temperature=temperature,
             max_new_tokens=max_tokens,
             n=n,
         )
+        # Qwen3CoderChat accepts enable_thinking; others will ignore unknown kwargs
+        import inspect
+        if "enable_thinking" in inspect.signature(llm_to_use.chat).parameters:
+            chat_kwargs["enable_thinking"] = enable_thinking
+
+        raw_outputs = llm_to_use.chat(**chat_kwargs)
         outputs: List[str] = []
         for text in raw_outputs:
             if stop:
@@ -148,8 +158,11 @@ class TaskDecomposedToT:
         raw_thoughts = self.chat_completions(
             prompt=prompt,
             temperature=0.8,
+            max_tokens=32,
             n=self.n_candidates_per_task,
+            stop=["\n", ".", ","],
             llm=llm,
+            enable_thinking=False,
         )
 
         thought_ids: List[str] = []
@@ -208,8 +221,11 @@ class TaskDecomposedToT:
                 raw_thoughts = self.chat_completions(
                     prompt=prompt,
                     temperature=0.8,
+                    max_tokens=32,
                     n=self.n_candidates_per_task,
+                    stop=["\n", ".", ","],
                     llm=self.llm,
+                    enable_thinking=False,
                 )
                 all_raw_thoughts.append(raw_thoughts)
             
@@ -272,7 +288,9 @@ class TaskDecomposedToT:
     def _evaluate_chunk(self, states: List[str]) -> List[float]:
         """Evaluate a single chunk of states."""
         prompt = self.get_state_eval_prompt(self.input_seq, states)
-        state_evals = self.chat_completions(prompt, temperature=0.3, n=self.n_evals, llm=self.llm_evaluation)
+        # Evaluation output is short: ~30 chars per state ("SUMMARY_X: R=0.X I=0.X C=0.X")
+        eval_max_tokens = max(64, len(states) * 40)
+        state_evals = self.chat_completions(prompt, temperature=0.3, max_tokens=eval_max_tokens, n=self.n_evals, llm=self.llm_evaluation)
 
         print("\n[DEBUG] Raw LLM evaluation outputs:")
         for i, s in enumerate(state_evals):
@@ -307,6 +325,7 @@ class TaskDecomposedToT:
 
             # Expand all nodes in current layer
             new_nodes = deque()
+            thought_gen_start = time.time()
             for i in range(current_layer_size):
                 node = queue.popleft()
 
@@ -371,6 +390,8 @@ class TaskDecomposedToT:
                     if children_created == 0:
                         print("WARNING: No valid children - branch exhausted")
 
+            thought_gen_time = time.time() - thought_gen_start
+
             queue = new_nodes
 
             if len(queue) == 0:
@@ -382,10 +403,15 @@ class TaskDecomposedToT:
             if verbose:
                 print(f"\n--- Evaluating {len(queue)} states ---")
 
+            eval_start = time.time()
             states = [node.state for node in queue]
             values = self.state_evaluator(states)
+            eval_time = time.time() - eval_start
             for node, val in zip(queue, values):
                 node.value = val
+
+            if verbose:
+                print(f"\n⏱  Step {step} timing: thought_gen={thought_gen_time:.1f}s, eval={eval_time:.1f}s, total={thought_gen_time+eval_time:.1f}s")
 
             if verbose:
                 print("\nState evaluations:")
