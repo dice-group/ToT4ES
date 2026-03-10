@@ -91,7 +91,7 @@ class DatasetStats:
         set_q = self.feature_entities.get(key_q, set())
 
         if len(set_q) == 0:
-            return 1.0
+            return 0.0  # unseen conditioning feature → treat as never co-occurring
         return len(set_p & set_q) / len(set_q)
 
 

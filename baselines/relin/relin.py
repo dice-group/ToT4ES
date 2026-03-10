@@ -65,13 +65,21 @@ class RELIN:
         M = np.zeros((n, n))
 
         for i in range(n):
-            for j in range(n):
-                if i == j:
-                    continue
-                M[i, j] = self.relatedness(features[i], features[j])
-            # Normalize row for stochastic matrix
-            if M[i].sum() > 0:
-                M[i] /= M[i].sum()
+            for j in range(i + 1, n):
+                r = self.relatedness(features[i], features[j])
+                M[i, j] = r
+                M[j, i] = r  # PMI is symmetric
+
+        # Normalize rows; uniform fallback for dangling nodes (zero rows)
+        for i in range(n):
+            row_sum = M[i].sum()
+            if row_sum > 0:
+                M[i] /= row_sum
+            else:
+                # Dangling node: distribute uniformly to all other features
+                for j in range(n):
+                    if j != i:
+                        M[i, j] = 1.0 / (n - 1) if n > 1 else 0.0
 
         return M
 
@@ -112,9 +120,15 @@ class RELIN:
                         # Feature pair never co-occurs: maximum informativeness
                         J[i, j] = math.log(self.stats.entity_count) if self.stats.entity_count > 1 else 1.0
 
-                # Normalize row
-                if J[i].sum() > 0:
-                    J[i] /= J[i].sum()
+                # Normalize row; uniform fallback for zero rows
+                row_sum = J[i].sum()
+                if row_sum > 0:
+                    J[i] /= row_sum
+                else:
+                    # All features equally informative from this source
+                    for j in range(n):
+                        if j != i:
+                            J[i, j] = 1.0 / (n - 1) if n > 1 else 0.0
 
             return J
         else:
