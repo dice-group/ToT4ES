@@ -73,7 +73,7 @@ class RELIN:
 
         # update formula
         for _ in range (self.iterations):
-            x = self.lam * (M.T @ x) + (1 - self.lam) * J
+            x = (1 - self.lam) * (M.T @ x) + self.lam * J
             x /= x.sum()
         
         ranked = sorted(zip(features, x), key=lambda x: x[1], reverse=True)
