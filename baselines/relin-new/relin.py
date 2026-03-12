@@ -103,14 +103,19 @@ class RelatednessMeasure:
         if total_docs is None:
             total_docs = self.total_docs
         
-        if phrase1 == phrase2:
-            return 1.0
-        
-        # Estimate probabilities
+        # Estimate probabilities: P(si) = Hits(si) / N
         p_phrase1 = self.phrase_stats[phrase1]["count"] / total_docs
         p_phrase2 = self.phrase_stats[phrase2]["count"] / total_docs
         
-        # Handle co-occurrence
+        if phrase1 == phrase2:
+            # Self-PMI: PMI(si, si) = log(P(si,si) / P(si)^2)
+            # P(si,si) = P(si) (a doc containing si also contains si)
+            # So self-PMI = log(1/P(si)) = -log(P(si))
+            if p_phrase1 == 0:
+                return 0.0
+            return max(0, -math.log(p_phrase1))
+        
+        # Co-occurrence: P(si, sj) = Hits(si, sj) / N
         co_occur_count = self.phrase_stats[phrase1]["co_occurrences"].get(phrase2, 0)
         p_both = co_occur_count / total_docs
         
@@ -118,6 +123,7 @@ class RelatednessMeasure:
         if p_phrase1 == 0 or p_phrase2 == 0 or p_both == 0:
             return 0.0
         
+        # Paper Eq. 6: PMI(si, sj) = log(P(si,sj) / (P(si) * P(sj)))
         pmi_value = math.log(p_both / (p_phrase1 * p_phrase2))
         return max(0, pmi_value)  # Use non-negative PMI
 
@@ -254,7 +260,7 @@ class RELIN:
         """
         Compute the relatedness matrix M between features.
         
-        Mp,q = Rel(Prop(fp), Prop(fq)) * Rel(Val(fp), Val(fq))
+        Mp,q = sqrt(Rel(Prop(fp), Prop(fq)) * Rel(Val(fp), Val(fq)))  (Paper Eq. 5)
         
         Args:
             features: List of features to compute relatedness for
@@ -277,8 +283,14 @@ class RELIN:
         
         # Normalize each column to make it stochastic
         col_sums = M.sum(axis=0)
-        col_sums[col_sums == 0] = 1  # Avoid division by zero
+        zero_cols = col_sums == 0
+        col_sums[zero_cols] = 1  # Avoid division by zero
         M = M / col_sums
+        
+        # For columns that were all zero, use uniform distribution
+        # (analogous to dangling nodes in PageRank)
+        if np.any(zero_cols):
+            M[:, zero_cols] = 1.0 / n
         
         return M
     
@@ -304,7 +316,9 @@ class RELIN:
                 else:
                     info = self.informativeness_calc.compute_self_information(fi)
                 
-                J[i, j] = max(info, 1e-10)  # Ensure numerical stability
+                # Paper Eq. 9: Jp,q = SelfInfo(fp|fq) = -log(P(fp|fq))
+                # When p==q, P(fp|fp) = 1 so SelfInfo = 0 (surfer shouldn't jump to itself)
+                J[i, j] = info
         
         # Normalize each column to make it stochastic (uniform if all zeros)
         col_sums = J.sum(axis=0)
@@ -352,24 +366,17 @@ class RELIN:
         # Initialize uniform distribution
         x = np.ones(n) / n
         
-        # Power iteration to convergence
+        # Paper Eq. 2-3: Power iteration x(t+1) = T * x(t), converges to x*
+        # T = (M·Δ + J·Λ) is column-stochastic, so x remains a probability vector.
         for _ in range(self.iterations):
-            x = transition_matrix @ x
-            # Ensure numerical stability
-            x = np.nan_to_num(x, nan=1e-10, posinf=1.0, neginf=1e-10)
-            x_sum = x.sum()
+            x_new = transition_matrix @ x
+            # Numerical safety only — should not be needed if matrices are correct
+            x_new = np.nan_to_num(x_new, nan=0.0, posinf=0.0, neginf=0.0)
+            x_sum = x_new.sum()
             if x_sum > 0:
-                x = x / x_sum
+                x = x_new / x_sum
             else:
                 x = np.ones(n) / n
-        
-        # Final normalization
-        x_sum = x.sum()
-        if x_sum > 0:
-            x = x / x_sum
-        else:
-            # Fallback to uniform distribution if convergence failed
-            x = np.ones(n) / n
         
         # Rank features and return top-k
         ranked = sorted(zip(features, x), key=lambda item: item[1], reverse=True)

@@ -53,25 +53,27 @@ class EntitySummarizer:
     def __init__(self, desc_file):
         self.desc_file = desc_file
         self.triples = []
+        self.all_triples = []  # All triples before filtering (for incoming edges)
         self.entities_data = defaultdict(list)
         self.features_map = defaultdict(dict)
     
     def parse_desc_file(self):
         """Parse the description file."""
         try:
+            all_entities_data = defaultdict(list)
             with open(self.desc_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     result = NTriplesHandler.parse_triple(line)
                     if result:
                         subject, predicate, obj, full_line = result
-                        self.triples.append((subject, predicate, obj))
-                        self.entities_data[subject].append((subject, predicate, obj))
+                        self.all_triples.append((subject, predicate, obj))
+                        all_entities_data[subject].append((subject, predicate, obj))
             
             # Find and keep only the primary entity (most triples)
-            if self.entities_data:
-                primary_entity = max(self.entities_data.items(), key=lambda x: len(x[1]))[0]
-                # Filter to keep only primary entity
-                self.entities_data = {primary_entity: self.entities_data[primary_entity]}
+            if all_entities_data:
+                primary_entity = max(all_entities_data.items(), key=lambda x: len(x[1]))[0]
+                self.entities_data = {primary_entity: all_entities_data[primary_entity]}
+                self.triples = all_entities_data[primary_entity]
             
             return True
         except Exception as e:
@@ -123,25 +125,46 @@ class EntitySummarizer:
         return results
     
     def map_selected_features_to_triples(self, summaries):
-        """Map selected features back to original triples."""
+        """Map selected features back to original triples.
+        
+        Searches both outgoing triples (entity as subject) and incoming triples
+        (entity as object) from the desc file, since RELIN considers both
+        directions per paper Def. 2.
+        """
         mapping = {}
         
         for entity_uri, entity_summaries in summaries.items():
             mapping[entity_uri] = {}
+            entity_clean = entity_uri.strip('<>')
             
             for k, summary in entity_summaries.items():
                 selected_triples = []
                 
                 # Get selected features
                 selected_features = set((f.prop, f.value) for f, _ in summary)
+                matched_features = set()
                 
-                # Match against original triples
+                # Match against outgoing triples (entity is subject)
                 for subject, predicate, obj in self.entities_data[entity_uri]:
                     prop_short = NTriplesHandler.extract_local_name(predicate)
                     obj_short = NTriplesHandler.extract_local_name(obj)
                     
                     if (prop_short, obj_short) in selected_features:
                         selected_triples.append((subject, predicate, obj))
+                        matched_features.add((prop_short, obj_short))
+                
+                # Match against incoming triples (entity is object)
+                unmatched = selected_features - matched_features
+                if unmatched:
+                    for subject, predicate, obj in self.all_triples:
+                        obj_clean = obj.strip('<>')
+                        src_clean = subject.strip('<>')
+                        if obj_clean == entity_clean and src_clean != entity_clean:
+                            p_short = NTriplesHandler.extract_local_name(predicate)
+                            s_short = NTriplesHandler.extract_local_name(subject)
+                            if (p_short, s_short) in unmatched:
+                                selected_triples.append((subject, predicate, obj))
+                                unmatched.discard((p_short, s_short))
                 
                 mapping[entity_uri][k] = selected_triples
         
@@ -209,9 +232,25 @@ def process_dataset(base_path, dataset_name, output_base):
                 for subject, predicate, obj in triples:
                     prop_short = NTriplesHandler.extract_local_name(predicate)
                     obj_short = NTriplesHandler.extract_local_name(obj)
+                    # Paper Def. 2: feature = (property, value) for outgoing edges
                     entity.add_feature(prop_short, obj_short)
                     phrases_in_entity.add(prop_short)
                     phrases_in_entity.add(obj_short)
+                
+                # Paper Def. 2: "We actually consider both incoming and outgoing
+                # edges (i.e. where e appears as target and source node)."
+                # Check all triples in the desc file where this entity is the object.
+                entity_clean = entity_uri.strip('<>')
+                for s, p, o in summarizer.all_triples:
+                    obj_clean = o.strip('<>')
+                    src_clean = s.strip('<>')
+                    if obj_clean == entity_clean and src_clean != entity_clean:
+                        p_short = NTriplesHandler.extract_local_name(p)
+                        s_short = NTriplesHandler.extract_local_name(s)
+                        # Incoming edge: property is same, value is the source
+                        entity.add_feature(p_short, s_short)
+                        phrases_in_entity.add(p_short)
+                        phrases_in_entity.add(s_short)
                 
                 # Count how many entities mention each phrase (for PMI, Eq. 6)
                 for phrase in phrases_in_entity:
