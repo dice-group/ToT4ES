@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/ontology/successor> <http://dbpedia.org/resource/Louis_XIII_of_France> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/after> <http://dbpedia.org/resource/Louis_XIII_of_France> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/issue> <http://dbpedia.org/resource/Louis_XIII_of_France> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Jeanne_III_of_Navarre> .
+<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/Jeanne_III_of_Navarre> .

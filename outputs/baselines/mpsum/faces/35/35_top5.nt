@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/president> <http://dbpedia.org/resource/Dmitry_Medvedev> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/primeMinister> <http://dbpedia.org/resource/Dmitry_Medvedev> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/successor> <http://dbpedia.org/resource/Dmitry_Medvedev> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/Dmitry_Medvedev> .
+<http://dbpedia.org/resource/Vladimir_Putin> <http://dbpedia.org/ontology/deputy> <http://dbpedia.org/resource/Mikhail_Kasyanov> .
