@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/ontology/restingPlace> <http://dbpedia.org/resource/Seattle> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/restingplace> <http://dbpedia.org/resource/Seattle> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://xmlns.com/foaf/0.1/homepage> <http://www.bruceleefoundation.com/> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/website> <http://www.bruceleefoundation.com/> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/ancestry> <http://dbpedia.org/resource/China> .
