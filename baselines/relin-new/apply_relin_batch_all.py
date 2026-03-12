@@ -321,9 +321,9 @@ def main():
     print("RELIN Batch Summary Generator - All Entities")
     print("=" * 80)
     
-    base_dir = "/home/asepff/Documents/Github/dice/ToT4ES/relin/datasets/ESBM_benchmark_v1.2"
-    faces_dir = "/home/asepff/Documents/Github/dice/ToT4ES/relin/datasets/FACES"
-    output_base = "/home/asepff/Documents/Github/dice/ToT4ES/relin/output"
+    base_dir = "../../datasets/ESBM_benchmark_v1.2"
+    faces_dir = "../../datasets/FACES"
+    output_base = "output"
     
     # Process ESBM datasets
     dbpedia_success, dbpedia_skip, dbpedia_error = process_dataset(
