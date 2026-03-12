@@ -166,7 +166,14 @@ class EntitySummarizer:
 
 
 def process_dataset(base_path, dataset_name, output_base):
-    """Process all entities in a dataset."""
+    """Process all entities in a dataset using corpus-wide statistics (paper-aligned).
+    
+    Two-pass approach:
+      Phase 1: Parse all entities, build corpus-wide phrase counts and co-occurrences
+               for PMI relatedness (Sect. 4.1) and conditional informativeness (Sect. 4.2).
+      Phase 2: Initialize RELIN once with the global statistics.
+      Phase 3: Generate summaries for each entity.
+    """
     print(f"\n{'=' * 80}")
     print(f"Processing {dataset_name.upper()} Dataset")
     print(f"{'=' * 80}\n")
@@ -174,42 +181,124 @@ def process_dataset(base_path, dataset_name, output_base):
     entity_dirs = sorted([d for d in Path(base_path).iterdir() if d.is_dir()], 
                          key=lambda x: int(x.name) if x.name.isdigit() else 0)
     
+    # ===== PHASE 1: Parse all entities and build corpus-wide statistics =====
+    # Paper Sect. 4.1 (Eq. 6): PMI requires corpus-wide phrase occurrence/co-occurrence.
+    # Paper Sect. 4.2 (Eq. 8): Informativeness requires counting across ALL entities E.
+    print("  Phase 1: Parsing all entities and building corpus statistics...")
+    
+    parsed_entities = {}  # entity_id -> (Entity, entity_uri, EntitySummarizer)
+    phrase_counts = defaultdict(int)        # phrase -> number of entities containing it
+    co_occurrence_counts = defaultdict(int)  # (p1, p2) -> number of entities with both
+    
+    for entity_dir in entity_dirs:
+        entity_id = entity_dir.name
+        desc_file = entity_dir / f"{entity_id}_desc.nt"
+        
+        if not desc_file.exists():
+            continue
+        
+        try:
+            summarizer = EntitySummarizer(str(desc_file))
+            if not summarizer.parse_desc_file():
+                continue
+            
+            for entity_uri, triples in summarizer.entities_data.items():
+                entity = Entity(entity_uri)
+                phrases_in_entity = set()
+                
+                for subject, predicate, obj in triples:
+                    prop_short = NTriplesHandler.extract_local_name(predicate)
+                    obj_short = NTriplesHandler.extract_local_name(obj)
+                    entity.add_feature(prop_short, obj_short)
+                    phrases_in_entity.add(prop_short)
+                    phrases_in_entity.add(obj_short)
+                
+                # Count how many entities mention each phrase (for PMI, Eq. 6)
+                for phrase in phrases_in_entity:
+                    phrase_counts[phrase] += 1
+                
+                # Count co-occurrences: how many entities mention both phrases
+                phrases_list = sorted(phrases_in_entity)
+                for idx_a in range(len(phrases_list)):
+                    for idx_b in range(idx_a + 1, len(phrases_list)):
+                        co_occurrence_counts[(phrases_list[idx_a], phrases_list[idx_b])] += 1
+                
+                parsed_entities[entity_id] = (entity, entity_uri, summarizer)
+        except Exception:
+            continue
+    
+    total_entities = len(parsed_entities)
+    print(f"    Parsed {total_entities} entities, "
+          f"{len(phrase_counts)} unique phrases, "
+          f"{len(co_occurrence_counts)} co-occurrence pairs")
+    
+    if total_entities == 0:
+        print("    No entities found. Skipping dataset.")
+        return 0, 0, 0
+    
+    # ===== PHASE 2: Initialize RELIN with corpus-wide statistics =====
+    print("  Phase 2: Initializing RELIN with corpus-wide statistics...")
+    
+    # Paper Sect. 6: lambda=0.85, iterations=10
+    relin = RELIN(lambda_param=0.85, iterations=10)
+    
+    # Train relatedness: total_docs = number of entity descriptions ("documents")
+    # add_co_occurrence stores both directions internally
+    relin.train_relatedness(
+        dict(phrase_counts), dict(co_occurrence_counts), total_docs=total_entities
+    )
+    
+    # Prepare informativeness using ALL entities
+    # Paper Eq. 8: P(fp|fq) = |{e in E | fp,fq in FS(e)}| / |{e in E | fq in FS(e)}|
+    all_entity_objects = [data[0] for data in parsed_entities.values()]
+    relin.prepare_informativeness(all_entity_objects)
+    
+    # ===== PHASE 3: Generate summaries for each entity =====
+    print(f"  Phase 3: Generating summaries...\n")
+    
     success_count = 0
     skip_count = 0
     error_count = 0
     
     for i, entity_dir in enumerate(entity_dirs, 1):
         entity_id = entity_dir.name
-        desc_file = entity_dir / f"{entity_id}_desc.nt"
         
         print(f"[{i:3d}/{len(entity_dirs)}] Entity {entity_id}...", end=" ")
         
-        if not desc_file.exists():
-            print(f"⊘ SKIP (no _desc.nt file)")
+        if entity_id not in parsed_entities:
+            print("⊘ SKIP")
             skip_count += 1
             continue
         
         try:
-            # Parse and process
-            summarizer = EntitySummarizer(str(desc_file))
-            if not summarizer.parse_desc_file():
-                error_count += 1
-                continue
+            entity, entity_uri, summarizer = parsed_entities[entity_id]
+            features = entity.get_features()
             
-            # Generate summaries
-            summaries = summarizer.get_entity_summaries(k_values=[5, 10], lambda_param=0.85)
+            # Generate summaries using the globally-initialized RELIN
+            entity_results = {}
+            for k in [5, 10]:
+                if k <= len(features):
+                    summary = relin.summarize(entity, k=k)
+                    entity_results[k] = summary
+                else:
+                    entity_results[k] = []
             
-            # Map to triples
+            summaries = {entity_uri: entity_results}
+            
+            # Map selected features back to original triples
             triple_mapping = summarizer.map_selected_features_to_triples(summaries)
             
             # Write output files
             summarizer.write_output_files(triple_mapping, output_base, dataset_name, entity_id)
             
-            # Count triples
-            total_triples = sum(len(triples) for entity_data in triple_mapping.values() 
-                              for triples in entity_data.values())
+            # Count triples per k value
+            triple_counts = {}
+            for entity_data in triple_mapping.values():
+                for k, triples in entity_data.items():
+                    triple_counts[k] = len(triples)
             
-            print(f"✓ ({total_triples} triples)")
+            counts_str = ", ".join(f"top{k}={n}" for k, n in sorted(triple_counts.items()))
+            print(f"✓ ({counts_str})")
             success_count += 1
             
         except Exception as e:

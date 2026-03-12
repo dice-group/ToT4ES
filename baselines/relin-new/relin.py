@@ -69,18 +69,23 @@ class RelatednessMeasure:
     def __init__(self):
         """Initialize the relatedness measure with phrase statistics."""
         self.phrase_stats = defaultdict(lambda: {"count": 0, "co_occurrences": {}})
+        self.total_docs = int(1e7)  # Default normalizing constant N
     
     def add_occurrence(self, phrase: str, count: int = 1):
         """Record occurrence of a phrase."""
         self.phrase_stats[phrase]["count"] += count
     
     def add_co_occurrence(self, phrase1: str, phrase2: str, count: int = 1):
-        """Record co-occurrence of two phrases."""
-        if phrase1 not in self.phrase_stats[phrase1]["co_occurrences"]:
+        """Record co-occurrence of two phrases (stored bidirectionally)."""
+        if phrase2 not in self.phrase_stats[phrase1]["co_occurrences"]:
             self.phrase_stats[phrase1]["co_occurrences"][phrase2] = 0
         self.phrase_stats[phrase1]["co_occurrences"][phrase2] += count
+        # Store reverse direction for symmetric PMI lookup
+        if phrase1 not in self.phrase_stats[phrase2]["co_occurrences"]:
+            self.phrase_stats[phrase2]["co_occurrences"][phrase1] = 0
+        self.phrase_stats[phrase2]["co_occurrences"][phrase1] += count
     
-    def pmi(self, phrase1: str, phrase2: str, total_docs: int = 1e7) -> float:
+    def pmi(self, phrase1: str, phrase2: str, total_docs: int = None) -> float:
         """
         Compute Pointwise Mutual Information (PMI) between two phrases.
         
@@ -89,11 +94,15 @@ class RelatednessMeasure:
         Args:
             phrase1: First phrase
             phrase2: Second phrase
-            total_docs: Total number of documents (normalization constant)
+            total_docs: Total number of documents (normalization constant).
+                       If None, uses the stored value from training.
         
         Returns:
-            PMI value (can be negative)
+            PMI value (non-negative)
         """
+        if total_docs is None:
+            total_docs = self.total_docs
+        
         if phrase1 == phrase2:
             return 1.0
         
@@ -223,6 +232,7 @@ class RELIN:
             co_occurrence_stats: Dictionary mapping (phrase1, phrase2) to co-occurrence counts
             total_docs: Total number of documents in corpus
         """
+        self.relatedness_measure.total_docs = total_docs
         for phrase, count in corpus_stats.items():
             self.relatedness_measure.add_occurrence(phrase, count)
         
@@ -262,7 +272,8 @@ class RELIN:
                 # Compute relatedness between values
                 val_rel = self.relatedness_measure.pmi(fi.value, fj.value)
                 
-                M[i, j] = prop_rel * val_rel
+                # Paper Eq. 5: M_p,q = sqrt(Rel(Prop(fp),Prop(fq)) * Rel(Val(fp),Val(fq)))
+                M[i, j] = math.sqrt(prop_rel * val_rel)
         
         # Normalize each column to make it stochastic
         col_sums = M.sum(axis=0)
@@ -388,7 +399,7 @@ def example_usage():
     entity2.add_feature("swrc:year", "2010")
     
     # Initialize RELIN
-    relin = RELIN(lambda_param=0.85, iterations=10)
+    relin = RELIN(lambda_param=1.0, iterations=10)
     
     # Simulate corpus statistics (in practice, these come from a real corpus)
     corpus_stats = {
