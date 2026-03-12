@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/almaMater> <http://dbpedia.org/resource/King's_College,_Cambridge> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Automatic_Computing_Engine> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Mathematics> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Cryptanalysis> .
+<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/workInstitutions> <http://dbpedia.org/resource/National_Physical_Laboratory_(United_Kingdom)> .

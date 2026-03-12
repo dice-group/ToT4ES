@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/website> <http://www.facebook.com/joebiden/> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/website> <http://www.twitter.com/joebiden/> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/Richard_Lugar> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/termPeriod> <http://dbpedia.org/resource/Joe_Biden__4> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/religion> <http://dbpedia.org/resource/Catholic_Church> .

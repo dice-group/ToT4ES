@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/Electropop> .
+<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/producer> <http://dbpedia.org/resource/DJ_Frank_E> .
+<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/Dance-pop> .
+<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/writer> <http://dbpedia.org/resource/Peter_Svensson> .
+<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/property/album> <http://dbpedia.org/resource/My_World_(EP)> .

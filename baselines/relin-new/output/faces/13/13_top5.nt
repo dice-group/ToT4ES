@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/leaderName> <http://dbpedia.org/resource/Pieter_Hilhorst> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Amsterdam> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/ontology/leaderName> <http://dbpedia.org/resource/Maarten_van_Poelgeest> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/link> <http://whc.unesco.org/en/list/1349/> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/subdivisionName> <http://dbpedia.org/resource/Netherlands> .

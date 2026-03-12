@@ -1,0 +1,10 @@
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://xmlns.com/foaf/0.1/name> "Saint-Raphaël"@en .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Object100002684> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/AdministrativeDistrict108491826> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Region108630985> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Place> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/YagoGeoEntity> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/thumbnail> <http://commons.wikimedia.org/wiki/Special:FilePath/MairieStRaphaël.JPG?width=300> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://www.w3.org/2003/01/geo/wgs84_pos#long> "6.7684"^^<http://www.w3.org/2001/XMLSchema#float> .
+<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/postalCode> "83700 and 83530" .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/ontology/successor> <http://dbpedia.org/resource/George_M._Bibb> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Common_law_marriage> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Robert_L._McHatton> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/branch> <http://dbpedia.org/resource/United_States_Army> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Richard_Mentor_Johnson> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/company> <http://dbpedia.org/resource/FremantleMedia> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/property/presenter> <http://dbpedia.org/resource/Steve_Harvey> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/property/location> <http://dbpedia.org/resource/Universal_Studios> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/property/location> <http://dbpedia.org/resource/Atlanta_Civic_Center> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/property/runtime> <http://dbpedia.org/resource/CBS> .

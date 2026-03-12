@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/Passy,_Haute-Savoie> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/ESPCI> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Marie_Curie> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Polonium> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/Sancellemoz> .

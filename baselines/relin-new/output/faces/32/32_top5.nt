@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Aladdin_(1992_Disney_film)> <http://dbpedia.org/ontology/producer> <http://dbpedia.org/resource/John_Musker> .
+<http://dbpedia.org/resource/Aladdin_(1992_Disney_film)> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Douglas_Seale> .
+<http://dbpedia.org/resource/Aladdin_(1992_Disney_film)> <http://dbpedia.org/ontology/starring> <http://dbpedia.org/resource/Douglas_Seale> .
+<http://dbpedia.org/resource/Aladdin_(1992_Disney_film)> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Jonathan_Freeman_(actor)> .
+<http://dbpedia.org/resource/Aladdin_(1992_Disney_film)> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Aladdinposter.jpg/200px-Aladdinposter.jpg> .

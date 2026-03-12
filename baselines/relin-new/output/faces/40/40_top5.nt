@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/establishedEvent> <http://dbpedia.org/resource/Unification_of_Norway> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/timeZoneDst> <http://dbpedia.org/resource/Central_European_Time> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/demonym> <http://dbpedia.org/resource/Norwegians> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/leaderTitle> <http://dbpedia.org/resource/Parliament_of_Norway> .
+<http://dbpedia.org/resource/Norway> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Norway?oldid=547313779> .
