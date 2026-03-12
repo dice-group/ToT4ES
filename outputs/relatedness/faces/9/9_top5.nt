@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Hydrogen_bomb> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/doctoralAdvisor> <http://dbpedia.org/resource/Werner_Heisenberg> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/property/placeOfBirth> <http://dbpedia.org/resource/Austria-Hungary> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/Leipzig_University> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/property/deathPlace> <http://dbpedia.org/resource/Stanford,_California> .

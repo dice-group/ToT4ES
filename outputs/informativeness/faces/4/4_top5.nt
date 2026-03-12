@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/occupation> <http://dbpedia.org/resource/Bill_Gates__1> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/occupation> <http://dbpedia.org/resource/Bill_Gates__2> .
-<http://dbpedia.org/resource/Bill_Gates> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Bill_Gates?oldid=548580337> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/parents> <http://dbpedia.org/resource/Mary_Maxwell_Gates> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Bill_Gates> .

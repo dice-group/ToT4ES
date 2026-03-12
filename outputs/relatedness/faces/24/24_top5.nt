@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Ferrari> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Ferrari> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/property/founder> <http://dbpedia.org/resource/Enzo_Ferrari> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/keyPerson> <http://dbpedia.org/resource/Piero_Ferrari> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/property/type> <http://dbpedia.org/resource/Societ%C3%A0_per_azioni> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/locationCountry> <http://dbpedia.org/resource/Italy> .

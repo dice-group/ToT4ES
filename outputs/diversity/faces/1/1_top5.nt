@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Barack_Obama> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Barack_Obama?oldid=548538288> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/almaMater> <http://dbpedia.org/resource/Occidental_College> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/profession> <http://dbpedia.org/resource/Community_organizing> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/George_W._Bush> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/children> <http://dbpedia.org/resource/Malia_Obama> .

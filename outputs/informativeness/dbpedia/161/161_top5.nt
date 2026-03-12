@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Can_U_Get_wit_It> <http://dbpedia.org/ontology/subsequentWork> <http://dbpedia.org/resource/Think_of_You_(Usher_song)> .
-<http://dbpedia.org/resource/Can_U_Get_wit_It> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Instrumentality103575240> .
-<http://dbpedia.org/resource/Can_U_Get_wit_It> <http://dbpedia.org/ontology/producer> <http://dbpedia.org/resource/DeVante_Swing> .
-<http://dbpedia.org/resource/Can_U_Get_wit_It> <http://dbpedia.org/ontology/writer> <http://dbpedia.org/resource/DeVante_Swing> .
-<http://dbpedia.org/resource/Can_U_Get_wit_It> <http://dbpedia.org/ontology/musicalArtist> <http://dbpedia.org/resource/Usher_(singer)> .

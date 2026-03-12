@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/format> <http://dbpedia.org/resource/Multichannel_television_sound> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Beverly_Hills,_90210> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/Teen_drama> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Lindsay_Price> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Kathleen_Robertson> .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Juhan_Muks> <http://www.w3.org/2000/01/rdf-schema#label> "Juhan Muks" .
-<http://dbpedia.org/resource/Juhan_Muks> <http://xmlns.com/foaf/0.1/surname> "Muks" .
-<http://dbpedia.org/resource/Juhan_Muks> <http://purl.org/dc/elements/1.1/description> "Estonian artist" .
-<http://dbpedia.org/resource/Juhan_Muks> <http://dbpedia.org/ontology/birthYear> "1899" .
-<http://dbpedia.org/resource/Juhan_Muks> <http://xmlns.com/foaf/0.1/givenName> "Juhan" .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Stara_Bučka> <http://dbpedia.org/ontology/elevation> "262.2" .
-<http://dbpedia.org/resource/Stara_Bučka> <http://dbpedia.org/ontology/areaTotal> "2950000.0" .
-<http://dbpedia.org/resource/Stara_Bučka> <http://dbpedia.org/ontology/isPartOf> <http://dbpedia.org/resource/Lower_Carniola> .
-<http://dbpedia.org/resource/Stara_Bučka> <http://www.w3.org/2000/01/rdf-schema#label> "Stara Bučka" .
-<http://dbpedia.org/resource/Stara_Bučka> <http://www.w3.org/2003/01/geo/wgs84_pos#lat> "45.9213" .
