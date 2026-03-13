@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/creator> <http://dbpedia.org/resource/Michael_Berk> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/creator> <http://dbpedia.org/resource/Douglas_Schwartz> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/executiveProducer> <http://dbpedia.org/resource/Gregory_J._Bonann> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/location> <http://dbpedia.org/resource/Hawaii> .
+<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/distributor> <http://dbpedia.org/resource/All_American_Television> .

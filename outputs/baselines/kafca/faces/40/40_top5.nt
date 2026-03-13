@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/demonym> <http://dbpedia.org/resource/Norwegians> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/west> <http://dbpedia.org/resource/Atlantic_Ocean> .
+<http://dbpedia.org/resource/Norway> <http://xmlns.com/foaf/0.1/homepage> <http://www.norway.no/> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/leaderTitle> <http://dbpedia.org/resource/Norwegian_parliamentary_election,_2009> .
+<http://dbpedia.org/resource/Norway> <http://dbpedia.org/property/leaderTitle> <http://dbpedia.org/resource/Monarchy_of_Norway> .

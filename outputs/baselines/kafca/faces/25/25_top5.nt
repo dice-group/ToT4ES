@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Crysis_2> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/modes> <http://dbpedia.org/resource/Multiplayer_video_game> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/modes> <http://dbpedia.org/resource/Single-player_video_game> .
+<http://dbpedia.org/resource/Crysis_2> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Crysis_2?oldid=548566038> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/ontology/genre> <http://dbpedia.org/resource/First-person_shooter> .

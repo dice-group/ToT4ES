@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/religion> <http://dbpedia.org/resource/Agnostic> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/boards> <http://dbpedia.org/resource/Berkshire_Hathaway> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/almaMater> <http://dbpedia.org/resource/Harvard_University> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/parent> <http://dbpedia.org/resource/Mary_Maxwell_Gates> .
+<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Melinda_Gates> .
