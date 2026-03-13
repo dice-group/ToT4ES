@@ -1,5 +1,5 @@
-<http://dbpedia.org/resource/Operation_Hump> <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:Conflicts_in_1965> .
-<http://dbpedia.org/resource/Operation_Hump> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Contest107456188> .
-<http://dbpedia.org/resource/Operation_Hump> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/BattlesOfTheVietnamWarInvolvingAustralia> .
-<http://dbpedia.org/resource/Operation_Hump> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/ConflictsIn1965> .
-<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/combatant> "22pxViet Cong" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/causalties> "48 US killed" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/causalties> "many more wounded" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/causalties> "2 Australian MIA (located and repatriated to Australia 5 June 2007)" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/strength> "Total Force around 400" .
+<http://dbpedia.org/resource/Operation_Hump> <http://dbpedia.org/ontology/strength> "around 1200" .

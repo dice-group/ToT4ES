@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Pennsylvania> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/successor> <http://dbpedia.org/resource/Ted_Kaufman> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Jill_Biden> .
+<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/Beau_Biden> .
+<http://dbpedia.org/resource/Joe_Biden> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Joe_Biden> .

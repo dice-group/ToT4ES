@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/ontology/occupation> <http://dbpedia.org/resource/Chinese_martial_arts> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/ontology/restingPlace> <http://dbpedia.org/resource/Lake_View_Cemetery_(Seattle)> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/ancestry> <http://dbpedia.org/resource/Shunde_District> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/children> <http://dbpedia.org/resource/Brandon_Lee> .
+<http://dbpedia.org/resource/Bruce_Lee> <http://dbpedia.org/property/deathPlace> <http://dbpedia.org/resource/Kowloon_Tong> .

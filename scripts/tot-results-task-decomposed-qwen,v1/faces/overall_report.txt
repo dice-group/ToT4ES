@@ -1,0 +1,17 @@
+═══════════════════════════════════════════════════════════
+Task-Decomposed ToT Processing Report
+═══════════════════════════════════════════════════════════
+Start time:           2026-03-03 09:36:31
+End time:             2026-03-03 20:19:36
+Total runtime:        38584s
+
+Results:
+  Processed:          49
+  Skipped:            1
+  Total checked:      49
+  Avg time per entity: 787.43s
+
+Output locations:
+  Results saved to:   tot-results-task-decomposed/faces
+  Logs saved to:      logs/tot_task_decomposed/faces
+═══════════════════════════════════════════════════════════

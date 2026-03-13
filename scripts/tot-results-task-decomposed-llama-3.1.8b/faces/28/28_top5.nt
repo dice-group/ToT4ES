@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Seychelles> <http://dbpedia.org/ontology/anthem> <http://dbpedia.org/resource/Koste_Seselwa> .
+<http://dbpedia.org/resource/Seychelles> <http://dbpedia.org/property/languages> <http://dbpedia.org/resource/Seychellois_Creole> .
+<http://dbpedia.org/resource/Seychelles> <http://dbpedia.org/property/capital> <http://dbpedia.org/resource/Victoria,_Seychelles> .
+<http://dbpedia.org/resource/Seychelles> <http://dbpedia.org/property/timeZone> <http://dbpedia.org/resource/Seychelles_Time> .
+<http://dbpedia.org/resource/Seychelles> <http://dbpedia.org/property/callingCode> <http://dbpedia.org/resource/Telephone_numbers_in_Seychelles> .
