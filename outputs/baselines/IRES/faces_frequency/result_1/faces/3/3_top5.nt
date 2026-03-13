@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Radium> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Radioactive_decay> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Marie_Curie> .
+<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/doctoralStudents> <http://dbpedia.org/resource/%C3%93scar_Moreno> .
+<http://dbpedia.org/resource/Marie_Curie> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Marie_Curie?oldid=547107936> .

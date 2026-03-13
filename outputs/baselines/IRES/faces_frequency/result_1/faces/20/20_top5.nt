@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Yukon_River> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Yukon_River> .
+<http://dbpedia.org/resource/Yukon_River> <http://dbpedia.org/ontology/mouthPosition> <http://dbpedia.org/resource/Yukon_River__mouthPosition__1> .
+<http://dbpedia.org/resource/Yukon_River> <http://dbpedia.org/ontology/sourcePlace> <http://dbpedia.org/resource/Atlin_District> .
+<http://dbpedia.org/resource/Yukon_River> <http://dbpedia.org/ontology/sourceCountry> <http://dbpedia.org/resource/Canada> .
+<http://dbpedia.org/resource/Yukon_River> <http://dbpedia.org/ontology/mouthRegion> <http://dbpedia.org/resource/Alaska> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Ferrari-Logo.svg/200px-Ferrari-Logo.svg.png> .
+<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/property/type> <http://dbpedia.org/resource/Joint-stock_company> .
+<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/locationCity> <http://dbpedia.org/resource/Maranello> .
+<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/owner> <http://dbpedia.org/resource/Piero_Ferrari> .
+<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/foundedBy> <http://dbpedia.org/resource/Enzo_Ferrari> .

@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Friends> <http://dbpedia.org/property/creator> <http://dbpedia.org/resource/David_Crane_(producer)> .
+<http://dbpedia.org/resource/Friends> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Matt_LeBlanc> .
+<http://dbpedia.org/resource/Friends> <http://dbpedia.org/ontology/executiveProducer> <http://dbpedia.org/resource/Marta_Kauffman> .
+<http://dbpedia.org/resource/Friends> <http://dbpedia.org/property/starring> <http://dbpedia.org/resource/Matthew_Perry> .
+<http://dbpedia.org/resource/Friends> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Friends_titles.jpg/200px-Friends_titles.jpg> .

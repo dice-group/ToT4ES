@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/ontology/computingMedia> <http://dbpedia.org/resource/Digital_distribution> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/modes> <http://dbpedia.org/resource/Single-player_video_game> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/composer> <http://dbpedia.org/resource/Lorne_Balfe> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Crysis_2_cover.png/200px-Crysis_2_cover.png> .
+<http://dbpedia.org/resource/Crysis_2> <http://dbpedia.org/property/genre> <http://dbpedia.org/resource/Video_game_music> .

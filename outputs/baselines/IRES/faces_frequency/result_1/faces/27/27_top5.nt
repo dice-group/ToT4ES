@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/format> <http://dbpedia.org/resource/Multichannel_television_sound> .
+<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/starring> <http://dbpedia.org/resource/James_Eckhouse> .
+<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/distributor> <http://dbpedia.org/resource/CBS_Television_Distribution> .
+<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/distributor> <http://dbpedia.org/resource/Worldvision_Enterprises> .
+<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/starring> <http://dbpedia.org/resource/Ian_Ziering> .

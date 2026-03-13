@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/John_J._Crittenden> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/after> <http://dbpedia.org/resource/John_Tyler> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/after> <http://dbpedia.org/resource/George_M._Dallas> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/branch> <http://dbpedia.org/resource/United_States_Army> .
+<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Stephen_Ormsby> .
