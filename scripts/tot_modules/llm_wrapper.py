@@ -9,6 +9,12 @@ from typing import List, Dict
 import torch
 import requests
 from transformers import pipeline
+import warnings
+import logging
+
+# Suppress tokenizer warnings about max_length vs max_new_tokens
+warnings.filterwarnings("ignore", message=".*max_length.*max_new_tokens.*")
+logging.getLogger("transformers.generation.utils").setLevel(logging.ERROR)
 
 
 class Llama32Chat:
@@ -43,6 +49,8 @@ class Llama32Chat:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        # Clear max_length to avoid conflicts with max_new_tokens
+        self.tokenizer.model_max_length = 2147483647  # Use a very large value instead of model default
 
     def chat(
         self,
@@ -123,10 +131,8 @@ class Qwen3CoderChat:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-        # Set pad_token for batching support
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        # Clear max_length to avoid conflicts with max_new_tokens
+        self.tokenizer.model_max_length = 2147483647  # Use a very large value instead of model default
 
     def chat(
         self,

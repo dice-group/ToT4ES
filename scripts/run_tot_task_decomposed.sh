@@ -97,6 +97,7 @@ for f in "${nt_files[@]}"; do
   cmd="CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_task_decomposed.py \
     --nt \"$f\" \
     --dataset \"$DATASET\" \
+    --output-dir \"$OUT\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
     --model-id \"$MODEL_ID\""
