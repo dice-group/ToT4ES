@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Initialize conda - adjust path if conda is in different location
+if [ -f "$HOME/.bashrc" ]; then
+  source "$HOME/.bashrc"
+fi
+
+# Activate conda environment (update environment name as needed)
+# If using llm-cuda environment from /upb/users/.../llm-cuda:
+if command -v conda &> /dev/null; then
+  conda activate llm-cuda 2>/dev/null || echo "Warning: Could not activate llm-cuda, proceeding with current environment"
+fi
+
 # Process all DBpedia entities with Task-Decomposed ToT
 
 ROOT="../datasets/ESBM_benchmark_v1.2/lmdb_data"
