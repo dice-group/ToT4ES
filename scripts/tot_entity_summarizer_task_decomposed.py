@@ -19,6 +19,10 @@ import os
 import sys
 import torch
 
+# Ensure GPU 1 is used if CUDA_VISIBLE_DEVICES is set
+if "CUDA_VISIBLE_DEVICES" in os.environ:
+    torch.cuda.set_device(0)  # Once CUDA_VISIBLE_DEVICES restricts GPUs, 0 refers to the first visible one
+
 sys.path.insert(0, os.path.dirname(__file__))
 
 from tot_modules import (
@@ -146,18 +150,34 @@ def main():
     # Setup LLMs
     print(f"\nInitializing LLMs...")
     print(f"  Default model: {args.model_id}")
+    print(f"  GPU available: {torch.cuda.is_available()}")
+    print(f"  GPU count: {torch.cuda.device_count()}")
+    if torch.cuda.is_available():
+        print(f"  Current GPU: {torch.cuda.current_device()}")
+        print(f"  GPU name: {torch.cuda.get_device_name(0)}")
+    if "CUDA_VISIBLE_DEVICES" in os.environ:
+        print(f"  CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
+    print(f"  Device to use: {device_to_use}")
+    print(f"  Using GPU 1 for computation")
+    
+    # Determine device: if CUDA_VISIBLE_DEVICES is set, use device 0 in the restricted context
+    if "CUDA_VISIBLE_DEVICES" in os.environ:
+        device_to_use = "cuda:0"  # Use the first visible GPU (which is the one specified)
+    else:
+        device_to_use = "auto"  # Otherwise auto-select
+    
     if args.model_id.lower().startswith("ollama:"):
         llm = OllamaChat(model_id=args.model_id)
     elif "qwen3-coder" in args.model_id.lower() or "Qwen3-coder" in args.model_id:
         llm = Qwen3CoderChat(
             model_id=args.model_id,
-            device_map="auto",
+            device_map=device_to_use,
             torch_dtype=torch.bfloat16,
         )
     else:
         llm = Llama32Chat(
             model_id=args.model_id,
-            device_map="auto",
+            device_map=device_to_use,
             torch_dtype=torch.bfloat16,
         )
     

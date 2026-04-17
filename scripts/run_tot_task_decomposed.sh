@@ -12,7 +12,7 @@ LOGS="logs/tot_task_decomposed/faces"
 DATASET="faces"
 MAX_SUMMARY_LEN=10
 N_CANDIDATES_PER_TASK=3
-GPU_DEVICE=3
+GPU_DEVICE=1  # Change to 0 or 1 (you have 2 GPUs available)
 LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
