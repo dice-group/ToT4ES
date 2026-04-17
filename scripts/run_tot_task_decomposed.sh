@@ -5,8 +5,8 @@ set -euo pipefail
 
 ROOT="../datasets/ESBM_benchmark_v1.2/lmdb_data"
 #ROOT="../datasets/FACES/faces_data"
-OUT="outputs/tot_task_decomposed/lmdb"
-LOGS="logs/tot_task_decomposed/lmdb"
+OUT="outputs/tot_task_decomposed"
+LOGS="logs/tot_task_decomposed"
 
 # Configuration
 DATASET="lmdb"
