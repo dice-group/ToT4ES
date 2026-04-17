@@ -147,6 +147,12 @@ def main():
     
     entity_id = os.path.basename(os.path.dirname(args.nt))
     
+    # Determine device: if CUDA_VISIBLE_DEVICES is set, use device 0 in the restricted context
+    if "CUDA_VISIBLE_DEVICES" in os.environ:
+        device_to_use = "cuda:0"  # Use the first visible GPU (which is the one specified)
+    else:
+        device_to_use = "auto"  # Otherwise auto-select
+    
     # Setup LLMs
     print(f"\nInitializing LLMs...")
     print(f"  Default model: {args.model_id}")
@@ -159,12 +165,6 @@ def main():
         print(f"  CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
     print(f"  Device to use: {device_to_use}")
     print(f"  Using GPU 1 for computation")
-    
-    # Determine device: if CUDA_VISIBLE_DEVICES is set, use device 0 in the restricted context
-    if "CUDA_VISIBLE_DEVICES" in os.environ:
-        device_to_use = "cuda:0"  # Use the first visible GPU (which is the one specified)
-    else:
-        device_to_use = "auto"  # Otherwise auto-select
     
     if args.model_id.lower().startswith("ollama:"):
         llm = OllamaChat(model_id=args.model_id)
