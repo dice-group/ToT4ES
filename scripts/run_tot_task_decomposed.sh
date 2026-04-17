@@ -77,9 +77,17 @@ for f in "${nt_files[@]}"; do
   current=$((current + 1))
   id="$(basename "$(dirname "$f")")"
   
-  # Skip if output .nt file already exists (indicates processing completed)
-  if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
-    echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
+  # Check if results already exist (skip to resume processing)
+  expected_output="$OUT/$id/${id}_top${MAX_SUMMARY_LEN}.nt"
+  if [ -f "$expected_output" ]; then
+    echo "[$current/$total_to_process] [$id] ⊘ Skipped (results exist)"
+    skipped_count=$((skipped_count + 1))
+    continue
+  fi
+  
+  # Also check for any existing .nt file in output directory (backward compatibility)
+  if [ -d "$OUT/$id" ] && [ -n "$(find "$OUT/$id" -maxdepth 1 -name "${id}_top*.nt" 2>/dev/null)" ]; then
+    echo "[$current/$total_to_process] [$id] ⊘ Skipped (results already exist)"
     skipped_count=$((skipped_count + 1))
     continue
   fi
