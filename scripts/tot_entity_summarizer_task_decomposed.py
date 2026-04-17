@@ -19,16 +19,10 @@ import os
 import sys
 import torch
 
-# Ensure GPU 1 is used if CUDA_VISIBLE_DEVICES is set
-if "CUDA_VISIBLE_DEVICES" in os.environ:
-    torch.cuda.set_device(0)  # Once CUDA_VISIBLE_DEVICES restricts GPUs, 0 refers to the first visible one
-
 sys.path.insert(0, os.path.dirname(__file__))
 
 from tot_modules import (
     Llama32Chat,
-    Qwen3CoderChat,
-    OllamaChat,
     decode_state_to_triples,
     load_entity_description_from_nt,
     entity_heuristic_calculator,
@@ -60,7 +54,7 @@ def parse_arguments():
     parser.add_argument(
         "--model-id",
         default="meta-llama/Llama-3.2-3B-Instruct",
-        help="Default HuggingFace model ID (used if task-specific models not provided; use 'Qwen/Qwen3-coder-30B' for Qwen3-coder)",
+        help="Default HuggingFace model ID (used if task-specific models not provided)",
     )
     parser.add_argument(
         "--model-relatedness",
@@ -104,13 +98,7 @@ def parse_arguments():
         "--breadth-limit",
         type=int,
         default=3,
-        help="Beam width (only used for BFS)",
-    )
-    parser.add_argument(
-        "--search-algorithm",
-        choices=["bfs", "dfs"],
-        default="bfs",
-        help="Search algorithm: bfs (breadth-first) or dfs (depth-first)",
+        help="Beam width",
     )
     parser.add_argument(
         "--no-verbose",
@@ -147,39 +135,14 @@ def main():
     
     entity_id = os.path.basename(os.path.dirname(args.nt))
     
-    # Determine device: if CUDA_VISIBLE_DEVICES is set, use device 0 in the restricted context
-    if "CUDA_VISIBLE_DEVICES" in os.environ:
-        device_to_use = "cuda:0"  # Use the first visible GPU (which is the one specified)
-    else:
-        device_to_use = "auto"  # Otherwise auto-select
-    
     # Setup LLMs
     print(f"\nInitializing LLMs...")
     print(f"  Default model: {args.model_id}")
-    print(f"  GPU available: {torch.cuda.is_available()}")
-    print(f"  GPU count: {torch.cuda.device_count()}")
-    if torch.cuda.is_available():
-        print(f"  Current GPU: {torch.cuda.current_device()}")
-        print(f"  GPU name: {torch.cuda.get_device_name(0)}")
-    if "CUDA_VISIBLE_DEVICES" in os.environ:
-        print(f"  CUDA_VISIBLE_DEVICES: {os.environ['CUDA_VISIBLE_DEVICES']}")
-    print(f"  Device to use: {device_to_use}")
-    print(f"  Using GPU 1 for computation")
-    
-    if args.model_id.lower().startswith("ollama:"):
-        llm = OllamaChat(model_id=args.model_id)
-    elif "qwen3-coder" in args.model_id.lower() or "Qwen3-coder" in args.model_id:
-        llm = Qwen3CoderChat(
-            model_id=args.model_id,
-            device_map=device_to_use,
-            torch_dtype=torch.bfloat16,
-        )
-    else:
-        llm = Llama32Chat(
-            model_id=args.model_id,
-            device_map=device_to_use,
-            torch_dtype=torch.bfloat16,
-        )
+    llm = Llama32Chat(
+        model_id=args.model_id,
+        device_map="auto",
+        torch_dtype=torch.bfloat16,
+    )
     
     # Initialize task-specific LLMs if provided
     llm_relatedness = None
@@ -189,71 +152,35 @@ def main():
     
     if args.model_relatedness:
         print(f"  Relatedness model: {args.model_relatedness}")
-        if args.model_relatedness.lower().startswith("ollama:"):
-            llm_relatedness = OllamaChat(model_id=args.model_relatedness)
-        elif "qwen3-coder" in args.model_relatedness.lower() or "Qwen3-coder" in args.model_relatedness:
-            llm_relatedness = Qwen3CoderChat(
-                model_id=args.model_relatedness,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
-        else:
-            llm_relatedness = Llama32Chat(
-                model_id=args.model_relatedness,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
+        llm_relatedness = Llama32Chat(
+            model_id=args.model_relatedness,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     if args.model_informativeness:
         print(f"  Informativeness model: {args.model_informativeness}")
-        if args.model_informativeness.lower().startswith("ollama:"):
-            llm_informativeness = OllamaChat(model_id=args.model_informativeness)
-        elif "qwen3-coder" in args.model_informativeness.lower() or "Qwen3-coder" in args.model_informativeness:
-            llm_informativeness = Qwen3CoderChat(
-                model_id=args.model_informativeness,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
-        else:
-            llm_informativeness = Llama32Chat(
-                model_id=args.model_informativeness,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
+        llm_informativeness = Llama32Chat(
+            model_id=args.model_informativeness,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     if args.model_diversity:
         print(f"  Diversity model: {args.model_diversity}")
-        if args.model_diversity.lower().startswith("ollama:"):
-            llm_diversity = OllamaChat(model_id=args.model_diversity)
-        elif "qwen3-coder" in args.model_diversity.lower() or "Qwen3-coder" in args.model_diversity:
-            llm_diversity = Qwen3CoderChat(
-                model_id=args.model_diversity,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
-        else:
-            llm_diversity = Llama32Chat(
-                model_id=args.model_diversity,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
+        llm_diversity = Llama32Chat(
+            model_id=args.model_diversity,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     if args.model_evaluation:
         print(f"  Evaluation model: {args.model_evaluation}")
-        if args.model_evaluation.lower().startswith("ollama:"):
-            llm_evaluation = OllamaChat(model_id=args.model_evaluation)
-        elif "qwen3-coder" in args.model_evaluation.lower() or "Qwen3-coder" in args.model_evaluation:
-            llm_evaluation = Qwen3CoderChat(
-                model_id=args.model_evaluation,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
-        else:
-            llm_evaluation = Llama32Chat(
-                model_id=args.model_evaluation,
-                device_map="auto",
-                torch_dtype=torch.bfloat16,
-            )
+        llm_evaluation = Llama32Chat(
+            model_id=args.model_evaluation,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
     
     # Create task-specific prompt generators
     print("\nCreating task-specific prompts...")
@@ -297,14 +224,10 @@ def main():
     
     # Run search
     print("\n" + "="*70)
-    print(f"Starting Task-Decomposed Search ({args.search_algorithm.upper()})...")
+    print("Starting Task-Decomposed Search...")
     print("="*70)
     
-    if args.search_algorithm == "bfs":
-        best_state = tot.bfs(verbose=not args.no_verbose)
-    else:
-        best_state = tot.dfs(verbose=not args.no_verbose)
-        
+    best_state = tot.bfs(verbose=not args.no_verbose)
     best_triples = decode_state_to_triples(best_state, all_triples)
     
     # Display results

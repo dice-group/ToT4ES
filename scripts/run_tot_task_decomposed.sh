@@ -12,7 +12,7 @@ LOGS="logs/tot_task_decomposed/faces"
 DATASET="faces"
 MAX_SUMMARY_LEN=10
 N_CANDIDATES_PER_TASK=3
-GPU_DEVICE=1  # Change to 0 or 1 (you have 2 GPUs available)
+GPU_DEVICE=3
 LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
@@ -59,18 +59,6 @@ echo "  Input data: $ROOT"
 echo "  Output directory: $OUT"
 echo "  Log directory: $LOGS"
 echo ""
-
-# Safety check: warn if output directory exists with different MAX_SUMMARY_LEN
-if [ -d "$OUT" ] && [ -n "$(find "$OUT" -name "*.nt" 2>/dev/null | head -1)" ]; then
-  existing_file=$(find "$OUT" -name "*.nt" 2>/dev/null | head -1)
-  existing_len=$(echo "$existing_file" | grep -oP 'top\K\d+' || echo "unknown")
-  if [ "$existing_len" != "unknown" ] && [ "$existing_len" != "$MAX_SUMMARY_LEN" ]; then
-    echo "⚠️  WARNING: Existing results use top${existing_len}, but current setting is top${MAX_SUMMARY_LEN}"
-    echo "           Results will be REPROCESSED with the new setting!"
-    echo ""
-  fi
-fi
-
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
@@ -89,15 +77,11 @@ for f in "${nt_files[@]}"; do
   current=$((current + 1))
   id="$(basename "$(dirname "$f")")"
   
-  # Check if ANY results already exist (any *.nt file in output directory)
-  # This catches ALL previous runs regardless of MAX_SUMMARY_LEN setting
-  if [ -d "$OUT/$id" ]; then
-    existing_results=$(find "$OUT/$id" -maxdepth 1 -name "${id}_top*.nt" 2>/dev/null | wc -l)
-    if [ "$existing_results" -gt 0 ]; then
-      echo "[$current/$total_to_process] [$id] ⊘ Skipped ($(echo "$OUT/$id"/${id}_top*.nt | tr ' ' ','))"
-      skipped_count=$((skipped_count + 1))
-      continue
-    fi
+  # Skip if output .nt file already exists (indicates processing completed)
+  if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
+    echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
+    skipped_count=$((skipped_count + 1))
+    continue
   fi
   
   proc_start=$(date +%s)
@@ -115,7 +99,6 @@ for f in "${nt_files[@]}"; do
     --dataset \"$DATASET\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
-    --output-dir \"$OUT\" \
     --model-id \"$MODEL_ID\""
 
   # Add task-specific models if defined

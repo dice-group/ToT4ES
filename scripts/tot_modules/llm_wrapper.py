@@ -1,60 +1,13 @@
-
-from typing import List, Dict
-import requests
-
-class OllamaChat:
-    """
-    Wrapper for using Ollama API as a chat LLM backend.
-    """
-    def __init__(self, model_id: str = "qwen:latest", base_url: str = "http://localhost:11434"):
-        self.model_id = model_id.replace("ollama:", "")
-        self.base_url = base_url.rstrip("/")
-
-    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.0, max_new_tokens: int = 1024, n: int = 1) -> List[str]:
-        # Ollama expects a single prompt string, so we concatenate messages
-        prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
-        results = []
-        for _ in range(n):
-            payload = {
-                "model": self.model_id,
-                "prompt": prompt,
-                "options": {
-                    "temperature": temperature,
-                    "num_predict": max_new_tokens
-                }
-            }
-            response = requests.post(f"{self.base_url}/api/generate", json=payload)
-            response.raise_for_status()
-            # Robustly handle multi-line/streamed JSON responses
-            try:
-                # Try standard JSON first
-                data = response.json()
-                results.append(data.get("response", "").strip())
-            except (requests.exceptions.JSONDecodeError, ValueError, Exception):
-                # Fallback: parse each line as JSON and concatenate 'response' fields
-                import json
-                lines = response.text.strip().splitlines()
-                response_text = ""
-                for line in lines:
-                    try:
-                        obj = json.loads(line)
-                        response_text += obj.get("response", "")
-                    except Exception:
-                        continue
-                results.append(response_text.strip())
-        return results
-
-    def __repr__(self) -> str:
-        return f"OllamaChat(model={self.model_id}, base_url={self.base_url})"
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
-LLM Wrapper for LLaMA 3.2
+LLM Wrapper for LLaMA 3.2 and other models
 """
 
 from typing import List, Dict
 import torch
+import requests
 from transformers import pipeline
 
 
@@ -86,10 +39,6 @@ class Llama32Chat:
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
-        # Set pad_token for batching support
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.pipe.tokenizer.pad_token_id = self.tokenizer.pad_token_id
 
     def chat(
         self,
@@ -166,10 +115,6 @@ class Qwen3CoderChat:
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
-        # Set pad_token for batching support
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.pipe.tokenizer.pad_token_id = self.tokenizer.pad_token_id
 
     def chat(
         self,
@@ -217,3 +162,49 @@ class Qwen3CoderChat:
 
     def __repr__(self) -> str:
         return f"Qwen3CoderChat(model={self.model_id})"
+
+
+class OllamaChat:
+    """
+    Wrapper for using Ollama API as a chat LLM backend.
+    """
+    def __init__(self, model_id: str = "qwen:latest", base_url: str = "http://localhost:11434"):
+        self.model_id = model_id.replace("ollama:", "")
+        self.base_url = base_url.rstrip("/")
+
+    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.0, max_new_tokens: int = 1024, n: int = 1) -> List[str]:
+        # Ollama expects a single prompt string, so we concatenate messages
+        prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
+        results = []
+        for _ in range(n):
+            payload = {
+                "model": self.model_id,
+                "prompt": prompt,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_new_tokens
+                }
+            }
+            response = requests.post(f"{self.base_url}/api/generate", json=payload)
+            response.raise_for_status()
+            # Robustly handle multi-line/streamed JSON responses
+            try:
+                # Try standard JSON first
+                data = response.json()
+                results.append(data.get("response", "").strip())
+            except (requests.exceptions.JSONDecodeError, ValueError, Exception):
+                # Fallback: parse each line as JSON and concatenate 'response' fields
+                import json
+                lines = response.text.strip().splitlines()
+                response_text = ""
+                for line in lines:
+                    try:
+                        obj = json.loads(line)
+                        response_text += obj.get("response", "")
+                    except Exception:
+                        continue
+                results.append(response_text.strip())
+        return results
+
+    def __repr__(self) -> str:
+        return f"OllamaChat(model={self.model_id}, base_url={self.base_url})"

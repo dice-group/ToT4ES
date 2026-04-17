@@ -3,7 +3,6 @@ import re
 import glob
 import numpy as np
 import datetime
-from typing import Optional, List, Dict, Tuple, Any
 
 # ------------------------------------------------------------
 # Triple normalization & robust lookup
@@ -136,7 +135,7 @@ def _candidate_roots(db_path: str) -> list:
     roots.append(db_path)
     return [os.path.abspath(r) for r in roots]
 
-def _find_first(paths: list) -> Optional[str]:
+def _find_first(paths: list) -> str | None:
     for p in paths:
         if os.path.isfile(p):
             return p
