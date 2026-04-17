@@ -78,7 +78,7 @@ for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
   
   # Skip if output .nt file already exists (indicates processing completed)
-  if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
+  if [ -f "$OUT/$DATASET/$id/${id}_top10.nt" ] || [ -f "$OUT/$DATASET/$id/${id}_top5.nt" ]; then
     echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
     skipped_count=$((skipped_count + 1))
     continue
@@ -87,8 +87,8 @@ for f in "${nt_files[@]}"; do
   proc_start=$(date +%s)
   echo ""
   echo "[$current/$total_to_process] [$id] Processing: $f"
-  echo "  → Output: $OUT/$id/"
-  echo "  → Log: $LOGS/$id/"
+  echo "  → Output: $OUT/$DATASET/$id/"
+  echo "  → Log: $LOGS/$DATASET/$id/"
 
   # Ensure per-entity output/log directories exist
   mkdir -p "$OUT/$id" "$LOGS/$id"
