@@ -59,6 +59,18 @@ echo "  Input data: $ROOT"
 echo "  Output directory: $OUT"
 echo "  Log directory: $LOGS"
 echo ""
+
+# Safety check: warn if output directory exists with different MAX_SUMMARY_LEN
+if [ -d "$OUT" ] && [ -n "$(find "$OUT" -name "*.nt" 2>/dev/null | head -1)" ]; then
+  existing_file=$(find "$OUT" -name "*.nt" 2>/dev/null | head -1)
+  existing_len=$(echo "$existing_file" | grep -oP 'top\K\d+' || echo "unknown")
+  if [ "$existing_len" != "unknown" ] && [ "$existing_len" != "$MAX_SUMMARY_LEN" ]; then
+    echo "⚠️  WARNING: Existing results use top${existing_len}, but current setting is top${MAX_SUMMARY_LEN}"
+    echo "           Results will be REPROCESSED with the new setting!"
+    echo ""
+  fi
+fi
+
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
@@ -77,19 +89,15 @@ for f in "${nt_files[@]}"; do
   current=$((current + 1))
   id="$(basename "$(dirname "$f")")"
   
-  # Check if results already exist (skip to resume processing)
-  expected_output="$OUT/$id/${id}_top${MAX_SUMMARY_LEN}.nt"
-  if [ -f "$expected_output" ]; then
-    echo "[$current/$total_to_process] [$id] ⊘ Skipped (results exist)"
-    skipped_count=$((skipped_count + 1))
-    continue
-  fi
-  
-  # Also check for any existing .nt file in output directory (backward compatibility)
-  if [ -d "$OUT/$id" ] && [ -n "$(find "$OUT/$id" -maxdepth 1 -name "${id}_top*.nt" 2>/dev/null)" ]; then
-    echo "[$current/$total_to_process] [$id] ⊘ Skipped (results already exist)"
-    skipped_count=$((skipped_count + 1))
-    continue
+  # Check if ANY results already exist (any *.nt file in output directory)
+  # This catches ALL previous runs regardless of MAX_SUMMARY_LEN setting
+  if [ -d "$OUT/$id" ]; then
+    existing_results=$(find "$OUT/$id" -maxdepth 1 -name "${id}_top*.nt" 2>/dev/null | wc -l)
+    if [ "$existing_results" -gt 0 ]; then
+      echo "[$current/$total_to_process] [$id] ⊘ Skipped ($(echo "$OUT/$id"/${id}_top*.nt | tr ' ' ','))"
+      skipped_count=$((skipped_count + 1))
+      continue
+    fi
   fi
   
   proc_start=$(date +%s)
@@ -107,6 +115,7 @@ for f in "${nt_files[@]}"; do
     --dataset \"$DATASET\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
+    --output-dir \"$OUT\" \
     --model-id \"$MODEL_ID\""
 
   # Add task-specific models if defined
