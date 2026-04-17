@@ -55,10 +55,19 @@ Entity: {entity_label}
 
 Your ONLY goal is to select the triple that is MOST RELATED/CENTRAL to this entity.
 
+RELATEDNESS SCORING RULES:
+- Score 1.0 (Select): Core identity properties unique to this entity
+  Example: Person → occupation, nationality, role
+  Example: Place → coordinates, population, country
+- Score 0.5 (Maybe): Generic properties shared by entity type
+  Example: rdf:type, rdfs:label (too generic)
+- Score 0.1 (Avoid): Metadata, irrelevant properties
+  Example: Internal IDs, timestamps, formalities
+
 Focus on:
-1. Core predicates that define the entity's identity (e.g., rdf:type, rdfs:label)
-2. Properties frequently used to describe this type of entity
-3. Values that are highly specific and central to this entity
+1. Central predicates that define WHO/WHAT this entity is
+2. Properties frequently used for this entity TYPE
+3. Values highly specific to THIS entity (not generic)
 4. Triples that best answer "What is this entity?"
 
 Already selected:
@@ -67,7 +76,7 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-Task: Select ONE triple index that is MOST RELATED to the entity.{exclusion_note}
+Task: Select ONE triple index that is MOST RELATED/CENTRAL to the entity.{exclusion_note}
 
 Output ONLY the integer index:
 """.strip()
@@ -120,13 +129,30 @@ You are an INFORMATIVENESS expert for entity summarization.
 Entity: {entity_label}
 
 Your ONLY goal is to select the triple that provides the MOST INFORMATIVE content.
+Informativeness = How RARE, SPECIFIC, and UNIQUE is this information?
+
+INFORMATIVENESS SCORING RULES:
+- Score 1.0 (Select): Rare predicates + Specific unique values
+  Example: "nobelPrize: Physics 1923" (only 0.01% have this)
+  Example: "disease: MalignantMelanoma" (specific medical term)
+  Why: Very surprising, distinguishes this entity
+
+- Score 0.5 (Acceptable): Common predicates + Specific values
+  Example: "birthDate: 1965-03-15" (everyone has birth date, but this specific date is unique)
+  Example: "employer: Apple Inc" (company is known, but relationship is specific)
+  Why: Moderate information gain
+
+- Score 0.1 (Avoid): Generic predicates + Generic values
+  Example: "rdf:type: Person" (95% have this, generic category)
+  Example: "name: <same as label>" (redundant with rdfs:label)
+  Why: No surprises, wastes summary space
 
 Focus on:
-1. Rare/uncommon predicates (not generic like rdf:type)
-2. Specific, detailed values (not generic categories)
-3. Facts that provide unique, non-obvious information
-4. Triples with deep ontological specificity
-5. Information NOT already covered by selected triples
+1. RARE predicates (not rdf:type, rdfs:label, birthDate)
+2. SPECIFIC, detailed values (not broad categories like "Person", "Organization")
+3. Facts providing UNIQUE, non-obvious information
+4. Information NOT already covered by selected triples
+5. Properties that DISTINGUISH this entity from others
 
 Already selected:
 {selected_text}
@@ -187,13 +213,38 @@ You are a DIVERSITY/COVERAGE expert for entity summarization.
 Entity: {entity_label}
 
 Your ONLY goal is to select the triple that MAXIMIZES DIVERSITY and coverage.
+Diversity = Covering DIFFERENT ASPECTS and AVOIDING REDUNDANCY
+
+DIVERSITY SCORING RULES:
+- Score 1.0 (Select): Different predicate type + Different semantic aspect
+  Example: If selected has [birthDate, birthPlace], pick [occupation]
+  Example: If selected has [employer], pick [award] (different role)
+  Why: Maximizes information variety
+
+- Score 0.5 (Acceptable): Same predicate family but different value
+  Example: If selected has [birthPlace: Berlin], pick [workPlace: Paris]
+  Example: If selected has [award: Nobel], pick [award: Emmy]
+  Why: Moderate diversity benefit
+
+- Score 0.1 (Avoid): Redundant with already selected
+  Example: If selected has [birthDate], avoid [deathDate] (both temporal)
+  Example: If selected has [birthPlace], avoid [hometown] (same semantic role)
+  Why: Wastes summary space on similar information
+
+Semantic Roles to Consider:
+- TEMPORAL: birthDate, deathDate, founded, era
+- SPATIAL: birthPlace, workPlace, location, country
+- ACHIEVEMENT: award, nobelPrize, degree, publication
+- IDENTITY: rdf:type, occupation, role, nationality
+- RELATIONSHIPS: spouse, child, employer, colleague
+- CHARACTERISTICS: height, language, disease, alias
 
 Focus on:
-1. Different predicate types than already selected
-2. Different semantic roles (location, time, relationship, attribute, etc.)
-3. Values that are dissimilar to already selected values
-4. Covering different aspects of the entity (biography, work, relations, etc.)
-5. Avoiding redundancy with existing selections
+1. Different PREDICATE TYPES than already selected (e.g., avoid date when date selected)
+2. Different SEMANTIC ROLES (location, time, achievement, etc.)
+3. Values DISSIMILAR to already selected (don't cluster similar facts)
+4. Covering DIFFERENT ASPECTS of the entity (bio, work, relations, achievements)
+5. AVOIDING REDUNDANCY (don't repeat similar predicates)
 
 Already selected:
 {selected_text}
@@ -222,8 +273,20 @@ def make_combined_evaluation_prompt(
         formatted_states = []
         n_triples = len(all_triples)
 
-        for idx, state in enumerate(states):
-            triple_ids: List[int] = []
+1. RELATEDNESS (R): How central/essential are the triples to entity identity?
+   - 1.0: All triples define core identity (occupation, nationality, type)
+   - 0.5: Mix of identity and contextual properties
+   - 0.0: No identity properties, only generic metadata
+
+2. INFORMATIVENESS (I): How unique/rare/valuable is the information?
+   - 1.0: Rare facts (unique achievements, rare properties < 5% frequency)
+   - 0.5: Mixed (common predicates + specific values)
+   - 0.0: Generic facts (rdf:type, generic labels, common properties > 90%)
+
+3. COVERAGE (C): How diverse are the aspects covered?
+   - 1.0: All different predicate types (temporal, spatial, achievement, identity, etc.)
+   - 0.5: Mostly different (1-2 predicate type overlaps)
+   - 0.0: Highly redundant (multiple temporal, multiple spatial, clustered facts)
             if state.strip():
                 triple_ids = [
                     int(x) for x in state.strip().splitlines() if x.strip().isdigit()
