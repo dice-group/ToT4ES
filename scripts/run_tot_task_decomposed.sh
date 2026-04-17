@@ -13,6 +13,7 @@ DATASET="faces"
 MAX_SUMMARY_LEN=10
 N_CANDIDATES_PER_TASK=3
 GPU_DEVICE=3
+LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
 MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
@@ -34,6 +35,11 @@ if ((${#nt_files[@]}==0)); then
   echo "No *_desc.nt files found under: $ROOT"
   echo "Check the path or rename your files to '<id>_desc.nt'."
   exit 1
+fi
+
+# Limit number of entities for testing if specified
+if (( LIMIT_ENTITIES > 0 )); then
+  nt_files=("${nt_files[@]:0:$LIMIT_ENTITIES}")
 fi
 
 echo "═══════════════════════════════════════════════════════════"
