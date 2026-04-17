@@ -16,7 +16,7 @@ GPU_DEVICE=1
 LIMIT_ENTITIES=2  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
-MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
+MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
@@ -91,7 +91,7 @@ for f in "${nt_files[@]}"; do
   echo "  → Log: $LOGS/$DATASET/$id/"
 
   # Ensure per-entity output/log directories exist
-  mkdir -p "$OUT/$id" "$LOGS/$id"
+  mkdir -p "$OUT/$DATASET/$id" "$LOGS/$DATASET/$id"
 
   # Build command
   cmd="CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_task_decomposed.py \
