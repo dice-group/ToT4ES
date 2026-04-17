@@ -273,20 +273,8 @@ def make_combined_evaluation_prompt(
         formatted_states = []
         n_triples = len(all_triples)
 
-1. RELATEDNESS (R): How central/essential are the triples to entity identity?
-   - 1.0: All triples define core identity (occupation, nationality, type)
-   - 0.5: Mix of identity and contextual properties
-   - 0.0: No identity properties, only generic metadata
-
-2. INFORMATIVENESS (I): How unique/rare/valuable is the information?
-   - 1.0: Rare facts (unique achievements, rare properties < 5% frequency)
-   - 0.5: Mixed (common predicates + specific values)
-   - 0.0: Generic facts (rdf:type, generic labels, common properties > 90%)
-
-3. COVERAGE (C): How diverse are the aspects covered?
-   - 1.0: All different predicate types (temporal, spatial, achievement, identity, etc.)
-   - 0.5: Mostly different (1-2 predicate type overlaps)
-   - 0.0: Highly redundant (multiple temporal, multiple spatial, clustered facts)
+        for idx, state in enumerate(states):
+            triple_ids: List[int] = []
             if state.strip():
                 triple_ids = [
                     int(x) for x in state.strip().splitlines() if x.strip().isdigit()
@@ -309,9 +297,21 @@ def make_combined_evaluation_prompt(
 You are evaluating RDF triple summaries for entity: {entity_label}
 
 Rate each summary on 3 criteria (scale 0.0 to 1.0):
-- RELATEDNESS (R): How central are triples to entity identity?
-- INFORMATIVENESS (I): How unique/valuable is the information?
-- COVERAGE (C): How diverse are the aspects covered?
+
+1. RELATEDNESS (R): How central/essential are the triples to entity identity?
+   - 1.0: All triples define core identity (occupation, nationality, type)
+   - 0.5: Mix of identity and contextual properties
+   - 0.0: No identity properties, only generic metadata
+
+2. INFORMATIVENESS (I): How unique/rare/valuable is the information?
+   - 1.0: Rare facts (unique achievements, rare properties < 5% frequency)
+   - 0.5: Mixed (common predicates + specific values)
+   - 0.0: Generic facts (rdf:type, generic labels, common properties > 90%)
+
+3. COVERAGE (C): How diverse are the aspects covered?
+   - 1.0: All different predicate types (temporal, spatial, achievement, identity, etc.)
+   - 0.5: Mostly different (1-2 predicate type overlaps)
+   - 0.0: Highly redundant (multiple temporal, multiple spatial, clustered facts)
 
 IMPORTANT: Output EXACTLY one line per summary in this format:
 SUMMARY_0: R=0.8 I=0.7 C=0.9
