@@ -43,6 +43,24 @@ try:
 except ImportError:
     _semantic_available = False
 
+# LMDB-specific semantic components
+try:
+    from .uri_utils import (
+        extract_uri_type,
+        extract_uri_id,
+        categorize_uri,
+        uri_to_debug_string,
+    )
+    from .knowledge_extractor import (
+        EntityKnowledgeExtractor,
+        create_lmdb_knowledge_extractor,
+    )
+    from .lmdb_semantic_analyzer import LMDBSemanticAnalyzer
+    
+    _lmdb_available = True
+except ImportError:
+    _lmdb_available = False
+
 __all__ = [
     'TreeNode',
     'Llama32Chat',
@@ -72,4 +90,15 @@ if _semantic_available:
         'make_semantic_relatedness_prompt',
         'make_semantic_informativeness_prompt',
         'make_semantic_diversity_prompt',
+    ])
+
+if _lmdb_available:
+    __all__.extend([
+        'extract_uri_type',
+        'extract_uri_id',
+        'categorize_uri',
+        'uri_to_debug_string',
+        'EntityKnowledgeExtractor',
+        'create_lmdb_knowledge_extractor',
+        'LMDBSemanticAnalyzer',
     ])
