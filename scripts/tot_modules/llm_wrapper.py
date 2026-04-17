@@ -39,6 +39,10 @@ class Llama32Chat:
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
+        # Set pad_token for batching support
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
     def chat(
         self,
@@ -115,6 +119,14 @@ class Qwen3CoderChat:
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
+        # Set pad_token for batching support
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        # Set pad_token for batching support
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
     def chat(
         self,
