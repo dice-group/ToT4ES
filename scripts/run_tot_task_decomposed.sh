@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Initialize conda - adjust path if conda is in different location
-if [ -f "$HOME/.bashrc" ]; then
-  source "$HOME/.bashrc"
-fi
-
-# Activate conda environment (update environment name as needed)
-# If using llm-cuda environment from /upb/users/.../llm-cuda:
-if command -v conda &> /dev/null; then
-  conda activate llm-cuda 2>/dev/null || echo "Warning: Could not activate llm-cuda, proceeding with current environment"
-fi
-
 # Process all DBpedia entities with Task-Decomposed ToT
 
 ROOT="../datasets/ESBM_benchmark_v1.2/lmdb_data"
@@ -27,7 +16,7 @@ GPU_DEVICE=1
 LIMIT_ENTITIES=2  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
-MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
+MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
