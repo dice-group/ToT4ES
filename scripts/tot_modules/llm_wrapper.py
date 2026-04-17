@@ -82,7 +82,7 @@ class Llama32Chat:
             "text-generation",
             model=model_id,
             tokenizer=model_id,
-            torch_dtype=torch_dtype,
+            dtype=torch_dtype,
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
@@ -158,7 +158,7 @@ class Qwen3CoderChat:
             "text-generation",
             model=model_id,
             tokenizer=model_id,
-            torch_dtype=torch_dtype,
+            dtype=torch_dtype,
             device_map=device_map,
         )
         self.tokenizer = self.pipe.tokenizer
