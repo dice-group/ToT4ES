@@ -16,7 +16,7 @@ GPU_DEVICE=1
 LIMIT_ENTITIES=2  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
-MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
+MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
@@ -78,7 +78,7 @@ for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
   
   # Skip if output .nt file already exists (indicates processing completed)
-  if [ -f "$OUT/$id/${id}_top10.nt" ] || [ -f "$OUT/$id/${id}_top5.nt" ]; then
+  if [ -f "$OUT/$DATASET/$id/${id}_top10.nt" ] || [ -f "$OUT/$DATASET/$id/${id}_top5.nt" ]; then
     echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
     skipped_count=$((skipped_count + 1))
     continue
@@ -87,11 +87,11 @@ for f in "${nt_files[@]}"; do
   proc_start=$(date +%s)
   echo ""
   echo "[$current/$total_to_process] [$id] Processing: $f"
-  echo "  → Output: $OUT/$id/"
-  echo "  → Log: $LOGS/$id/"
+  echo "  → Output: $OUT/$DATASET/$id/"
+  echo "  → Log: $LOGS/$DATASET/$id/"
 
   # Ensure per-entity output/log directories exist
-  mkdir -p "$OUT/$id" "$LOGS/$id"
+  mkdir -p "$OUT/$DATASET/$id" "$LOGS/$DATASET/$id"
 
   # Build command
   cmd="CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_task_decomposed.py \
