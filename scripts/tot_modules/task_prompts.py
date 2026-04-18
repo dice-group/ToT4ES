@@ -12,17 +12,40 @@ from typing import Callable, List
 def make_relatedness_prompt(
     entity_label: str,
     all_triples: List[str],
+    predicate_frequencies: dict = None,
 ) -> Callable[[str, str], str]:
     """
-    Create prompt for RELATEDNESS-focused triple selection.
+    Create prompt for RELATEDNESS-focused triple selection with explicit criteria.
     
     Args:
         entity_label: Human-readable entity name
         all_triples: Complete list of triples for this entity
+        predicate_frequencies: Dict mapping predicates to their occurrence count
+                              (used to identify core/central predicates)
         
     Returns:
         Function that generates relatedness-focused prompts
     """
+    
+    def _extract_predicate(triple: str) -> str:
+        """Extract predicate from RDF triple string."""
+        parts = triple.split()
+        if len(parts) >= 2:
+            return parts[1]
+        return ""
+    
+    def _get_core_predicates(top_n: int = 8) -> str:
+        """Get most common/core predicates from corpus statistics."""
+        if not predicate_frequencies:
+            return "Not available in this run."
+        
+        sorted_preds = sorted(
+            predicate_frequencies.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
+        core = [p for p, _ in sorted_preds[:top_n]]
+        return ", ".join(core) if core else "Analysis shows no clear core predicates"
     
     def _inner(input_seq: str, state: str) -> str:
         selected_ids: List[int] = []
@@ -47,19 +70,24 @@ def make_relatedness_prompt(
             exclusion_note = ""
 
         candidates_text = "\n".join(candidate_lines) if candidate_lines else "<no candidates>"
+        core_preds_text = _get_core_predicates()
 
         return f"""
-You are a RELATEDNESS expert for entity summarization.
+You are evaluating triples for RELATEDNESS to the entity.
 
 Entity: {entity_label}
 
-Your ONLY goal is to select the triple that is MOST RELATED/CENTRAL to this entity.
+RELATEDNESS DEFINITION:
+A triple is RELATED/CENTRAL if it:
+1. CENTRALITY: Uses core/frequent predicates that define entity types (identity, classification, basic properties)
+2. SPECIFICITY: Provides distinctive values NOT generic descriptions
+3. ESSENTIALITY: Best answers "What fundamentally IS this entity?"
 
-Focus on:
-1. Core predicates that define the entity's identity (e.g., rdf:type, rdfs:label)
-2. Properties frequently used to describe this type of entity
-3. Values that are highly specific and central to this entity
-4. Triples that best answer "What is this entity?"
+DOMAIN CONTEXT - Core/frequent predicates (entity-defining):
+{core_preds_text}
+
+SELECTION CRITERION:
+Choose the candidate combining: Centrality (frequent predicate?) + Specificity (distinctive value?) + Essentiality (defines the entity?)
 
 Already selected:
 {selected_text}
@@ -67,7 +95,8 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-Task: Select ONE triple index that is MOST RELATED to the entity.{exclusion_note}
+For each candidate, briefly evaluate: predicate frequency + value specificity + whether it defines the entity.
+Select ONE triple index that is MOST RELATED/CENTRAL to the entity.{exclusion_note}
 
 Output ONLY the integer index:
 """.strip()
@@ -78,17 +107,50 @@ Output ONLY the integer index:
 def make_informativeness_prompt(
     entity_label: str,
     all_triples: List[str],
+    predicate_frequencies: dict = None,
+    selected_triples: List[int] = None,
 ) -> Callable[[str, str], str]:
     """
-    Create prompt for INFORMATIVENESS-focused triple selection.
+    Create prompt for INFORMATIVENESS-focused triple selection with explicit criteria.
     
     Args:
         entity_label: Human-readable entity name
         all_triples: Complete list of triples for this entity
+        predicate_frequencies: Dict mapping predicates to their occurrence count in corpus
+                              (used to identify rare predicates)
+        selected_triples: List of indices already selected (for topic coverage tracking)
         
     Returns:
         Function that generates informativeness-focused prompts
     """
+    
+    def _extract_predicate(triple: str) -> str:
+        """Extract predicate from RDF triple string."""
+        parts = triple.split()
+        if len(parts) >= 2:
+            return parts[1]
+        return ""
+    
+    def _get_selected_predicates(selected_ids: List[int]) -> set:
+        """Get set of predicates already selected."""
+        predicates = set()
+        for idx in selected_ids:
+            if 1 <= idx <= len(all_triples):
+                pred = _extract_predicate(all_triples[idx - 1])
+                predicates.add(pred)
+        return predicates
+    
+    def _get_rare_predicates(top_n: int = 8) -> str:
+        """Get rare predicates from corpus statistics."""
+        if not predicate_frequencies:
+            return "Not available in this run."
+        
+        sorted_preds = sorted(
+            predicate_frequencies.items(),
+            key=lambda x: x[1]
+        )
+        rare = [p for p, _ in sorted_preds[:top_n]]
+        return ", ".join(rare) if rare else "Analysis shows no clear rare predicates"
     
     def _inner(input_seq: str, state: str) -> str:
         selected_ids: List[int] = []
@@ -113,20 +175,31 @@ def make_informativeness_prompt(
             exclusion_note = ""
 
         candidates_text = "\n".join(candidate_lines) if candidate_lines else "<no candidates>"
+        
+        covered_predicates = _get_selected_predicates(selected_ids)
+        covered_predicates_text = ", ".join(covered_predicates) if covered_predicates else "None yet"
+        rare_preds_text = _get_rare_predicates()
 
         return f"""
-You are an INFORMATIVENESS expert for entity summarization.
+You are evaluating triples for INFORMATIVENESS.
 
 Entity: {entity_label}
 
-Your ONLY goal is to select the triple that provides the MOST INFORMATIVE content.
+INFORMATIVENESS DEFINITION:
+A triple is informative if it combines:
+1. RARITY: Uses uncommon predicates (not generic like rdf:type, rdfs:label, or rdf:comment)
+2. NOVELTY: Introduces predicates NOT already in your selection
+3. SPECIFICITY: Provides concrete, detailed values (not generic categories/descriptions)
 
-Focus on:
-1. Rare/uncommon predicates (not generic like rdf:type)
-2. Specific, detailed values (not generic categories)
-3. Facts that provide unique, non-obvious information
-4. Triples with deep ontological specificity
-5. Information NOT already covered by selected triples
+DOMAIN CONTEXT - Rare predicates in this dataset:
+{rare_preds_text}
+
+CURRENT STATE - Already selected predicates:
+{covered_predicates_text}
+
+SELECTION CRITERION:
+Choose the candidate with highest information gain:
+- PredicateRarity (is it uncommon?) + TopicNovelty (covers new predicate?) + Specificity (concrete value?)
 
 Already selected:
 {selected_text}
@@ -134,7 +207,8 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-Task: Select ONE triple index that is MOST INFORMATIVE.{exclusion_note}
+For each candidate, briefly evaluate: predicate rarity + topic coverage + value specificity.
+Select ONE triple index that is MOST INFORMATIVE (best combines rarity + novelty + specificity).{exclusion_note}
 
 Output ONLY the integer index:
 """.strip()
@@ -145,17 +219,61 @@ Output ONLY the integer index:
 def make_diversity_prompt(
     entity_label: str,
     all_triples: List[str],
+    semantic_roles: dict = None,
 ) -> Callable[[str, str], str]:
     """
-    Create prompt for DIVERSITY/COVERAGE-focused triple selection.
+    Create prompt for DIVERSITY/COVERAGE-focused triple selection with explicit coverage analysis.
     
     Args:
         entity_label: Human-readable entity name
         all_triples: Complete list of triples for this entity
+        semantic_roles: Dict mapping predicates to semantic role categories
+                        (e.g., {"dbpedia:birthPlace": "location", "dbo:birthDate": "time"})
         
     Returns:
         Function that generates diversity-focused prompts
     """
+    
+    def _extract_predicate(triple: str) -> str:
+        """Extract predicate from RDF triple string."""
+        parts = triple.split()
+        if len(parts) >= 2:
+            return parts[1]
+        return ""
+    
+    def _get_semantic_roles_coverage(selected_ids: List[int]) -> str:
+        """Analyze coverage of semantic roles in selection."""
+        if not semantic_roles:
+            return "Not available in this run."
+        
+        covered_roles = {}
+        for idx in selected_ids:
+            if 1 <= idx <= len(all_triples):
+                pred = _extract_predicate(all_triples[idx - 1])
+                role = semantic_roles.get(pred, "other")
+                covered_roles[role] = covered_roles.get(role, 0) + 1
+        
+        if not covered_roles:
+            return "None yet (no roles covered)"
+        
+        return ", ".join([f"{role}({count})" for role, count in sorted(covered_roles.items())])
+    
+    def _get_available_roles(selected_ids: List[int]) -> str:
+        """Get semantic roles NOT yet covered in candidates."""
+        if not semantic_roles:
+            return "Not available in this run."
+        
+        covered_roles = set()
+        for idx in selected_ids:
+            if 1 <= idx <= len(all_triples):
+                pred = _extract_predicate(all_triples[idx - 1])
+                role = semantic_roles.get(pred, "other")
+                covered_roles.add(role)
+        
+        all_roles = set(semantic_roles.values())
+        available_roles = all_roles - covered_roles
+        
+        return ", ".join(sorted(available_roles)) if available_roles else "All roles already covered"
     
     def _inner(input_seq: str, state: str) -> str:
         selected_ids: List[int] = []
@@ -180,20 +298,29 @@ def make_diversity_prompt(
             exclusion_note = ""
 
         candidates_text = "\n".join(candidate_lines) if candidate_lines else "<no candidates>"
+        coverage_text = _get_semantic_roles_coverage(selected_ids)
+        available_roles_text = _get_available_roles(selected_ids)
 
         return f"""
-You are a DIVERSITY/COVERAGE expert for entity summarization.
+You are evaluating triples for DIVERSITY and coverage.
 
 Entity: {entity_label}
 
-Your ONLY goal is to select the triple that MAXIMIZES DIVERSITY and coverage.
+DIVERSITY DEFINITION:
+A triple MAXIMIZES DIVERSITY if it:
+1. ROLE VARIETY: Covers semantic roles NOT yet represented (location, time, relationship, attribute, etc.)
+2. PREDICATE NOVELTY: Uses predicates different from already selected (no redundant predicates)
+3. PERSPECTIVE BREADTH: Views entity from different aspects (not just repeating the same type of info)
 
-Focus on:
-1. Different predicate types than already selected
-2. Different semantic roles (location, time, relationship, attribute, etc.)
-3. Values that are dissimilar to already selected values
-4. Covering different aspects of the entity (biography, work, relations, etc.)
-5. Avoiding redundancy with existing selections
+CURRENT STATE - Semantic roles covered:
+{coverage_text}
+
+AVAILABLE OPPORTUNITIES - Roles NOT yet covered:
+{available_roles_text}
+
+SELECTION CRITERION:
+Choose the candidate with highest diversity impact:
+- RoleNovelty (covers missing semantic role?) + PredicateNovelty (different predicate?) + PerspectiveBreadth (new aspect?)
 
 Already selected:
 {selected_text}
@@ -201,7 +328,8 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-Task: Select ONE triple index that MAXIMIZES DIVERSITY.{exclusion_note}
+For each candidate, briefly evaluate: semantic role novelty + predicate distinctness + perspective breadth.
+Select ONE triple index that MAXIMIZES DIVERSITY and coverage.{exclusion_note}
 
 Output ONLY the integer index:
 """.strip()

@@ -114,6 +114,68 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def _categorize_semantic_roles(all_triples):
+    """
+    Categorize predicates by semantic roles for diversity evaluation.
+    
+    Args:
+        all_triples: List of RDF triple strings
+        
+    Returns:
+        Dict mapping predicates to semantic role categories
+    """
+    # Semantic role patterns based on common predicate names
+    role_patterns = {
+        'location': ['place', 'location', 'birthplace', 'birthPlace', 'deathplace', 'deathPlace', 'hometown'],
+        'time': ['date', 'born', 'died', 'founded', 'year', 'birthdate', 'birthDate', 'deathdate', 'deathDate'],
+        'relationship': ['knows', 'friend', 'spouse', 'parent', 'child', 'sibling', 'related', 'ownedBy', 'owns'],
+        'attribute': ['name', 'label', 'title', 'description', 'comment', 'type', 'class', 'category'],
+        'work': ['work', 'wrote', 'created', 'author', 'composed', 'directed', 'produced', 'album', 'book', 'film'],
+        'organization': ['member', 'organization', 'company', 'institution', 'team', 'group', 'affiliation'],
+    }
+    
+    semantic_roles = {}
+    for triple in all_triples:
+        parts = triple.split(maxsplit=2)
+        if len(parts) >= 2:
+            predicate = parts[1]
+            if predicate not in semantic_roles:
+                # Extract the predicate name (last part after ':' or '/')
+                pred_name = predicate.split('/')[-1].split(':')[-1].lower()
+                
+                # Match against patterns
+                assigned_role = 'other'
+                for role, patterns in role_patterns.items():
+                    if any(pattern in pred_name for pattern in patterns):
+                        assigned_role = role
+                        break
+                
+                semantic_roles[predicate] = assigned_role
+    
+    return semantic_roles
+
+
+def _compute_predicate_frequencies(all_triples):
+    """
+    Compute predicate frequency distribution from triples.
+    Used to identify rare/uncommon predicates for informativeness evaluation.
+    
+    Args:
+        all_triples: List of RDF triple strings
+        
+    Returns:
+        Dict mapping predicates to occurrence count
+    """
+    predicates = {}
+    for triple in all_triples:
+        # Extract predicate (second element in RDF triple)
+        parts = triple.split(maxsplit=2)
+        if len(parts) >= 2:
+            predicate = parts[1]
+            predicates[predicate] = predicates.get(predicate, 0) + 1
+    return predicates
+
+
 def main():
     """Main execution."""
     args = parse_arguments()
@@ -132,6 +194,15 @@ def main():
     entity_label, all_triples = load_entity_description_from_nt(args.nt)
     print(f"  Entity: {entity_label}")
     print(f"  Triples: {len(all_triples)}")
+    
+    # Compute predicate frequencies for informativeness evaluation
+    predicate_frequencies = _compute_predicate_frequencies(all_triples)
+    print(f"  Unique predicates: {len(predicate_frequencies)}")
+    
+    # Categorize predicates by semantic roles for diversity evaluation
+    semantic_roles = _categorize_semantic_roles(all_triples)
+    unique_roles = set(semantic_roles.values())
+    print(f"  Semantic roles identified: {', '.join(sorted(unique_roles))}")
     
     entity_id = os.path.basename(os.path.dirname(args.nt))
     
@@ -186,9 +257,21 @@ def main():
     print("\nCreating task-specific prompts...")
     input_seq = "\n".join(all_triples)
     
-    get_relatedness_prompt = make_relatedness_prompt(entity_label, all_triples)
-    get_informativeness_prompt = make_informativeness_prompt(entity_label, all_triples)
-    get_diversity_prompt = make_diversity_prompt(entity_label, all_triples)
+    get_relatedness_prompt = make_relatedness_prompt(
+        entity_label,
+        all_triples,
+        predicate_frequencies=predicate_frequencies,
+    )
+    get_informativeness_prompt = make_informativeness_prompt(
+        entity_label,
+        all_triples,
+        predicate_frequencies=predicate_frequencies,
+    )
+    get_diversity_prompt = make_diversity_prompt(
+        entity_label,
+        all_triples,
+        semantic_roles=semantic_roles,
+    )
     get_eval_prompt = make_combined_evaluation_prompt(entity_label, all_triples)
     
     print("  ✓ Relatedness prompt created")
