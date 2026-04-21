@@ -3,17 +3,18 @@ set -euo pipefail
 
 # Process all DBpedia entities with Task-Decomposed ToT
 
-ROOT="../datasets/ESBM_benchmark_v1.2/lmdb_data"
+#ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
 #ROOT="../datasets/FACES/faces_data"
+ROOT="../datasets/WikiES_benchmark/WikiCinema-s-test_data"
 OUT="outputs/tot_task_decomposed"
 LOGS="logs/tot_task_decomposed"
 
 # Configuration
-DATASET="lmdb"
+DATASET="wikicinema-s"
 MAX_SUMMARY_LEN=5
 N_CANDIDATES_PER_TASK=3
 GPU_DEVICE=1
-LIMIT_ENTITIES=2  # Set to 0 to process all, or change to 2, 5, etc. for testing
+LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
 MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
@@ -78,7 +79,7 @@ for f in "${nt_files[@]}"; do
   id="$(basename "$(dirname "$f")")"
   
   # Skip if output .nt file already exists (indicates processing completed)
-  if [ -f "$OUT/$DATASET/$id/${id}_top10.nt" ] || [ -f "$OUT/$DATASET/$id/${id}_top5.nt" ]; then
+  if [ -f "$OUT/$DATASET/$id/${id}_top${MAX_SUMMARY_LEN}.nt" ]; then
     echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
     skipped_count=$((skipped_count + 1))
     continue
@@ -117,7 +118,7 @@ for f in "${nt_files[@]}"; do
   fi
 
   # Redirect output
-  cmd="$cmd > \"$LOGS/$id/stdout.log\" 2> \"$LOGS/$id/stderr.log\""
+  cmd="$cmd > \"$LOGS/$DATASET/$id/stdout.log\" 2> \"$LOGS/$DATASET/$id/stderr.log\""
 
   # Execute
   echo "  → Executing Python script..."
@@ -127,8 +128,8 @@ for f in "${nt_files[@]}"; do
     echo "  ✓ [$id] Success (completed in ${proc_time}s)"
     processed_count=$((processed_count + 1))
   else
-    echo "  ✗ [$id] Failed (see $LOGS/$id/stderr.log)"
-    tail -10 "$LOGS/$id/stderr.log" | sed 's/^/    /'
+    echo "  ✗ [$id] Failed (see $LOGS/$DATASET/$id/stderr.log)"
+    tail -10 "$LOGS/$DATASET/$id/stderr.log" | sed 's/^/    /'
   fi
   entity_count=$((entity_count + 1))
 done
