@@ -3,245 +3,151 @@ set -euo pipefail
 
 # Process WikiES benchmark test data with ToT entity summarization
 
-# ============================================================================
+# Configuration - customize these for different benchmark types
+ROOT="../datasets/WikiES_benchmark/WikiCinema-s-test_data"
+OUT="outputs/tot_wikies"
+LOGS="logs/tot_wikies"
+
 # Configuration
-# ============================================================================
-
-# Get script directory and resolve to project root
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-
-# Dataset directories - one for each benchmark type
-DATASET_DIRS=(
-  "$PROJECT_ROOT/datasets/WikiES_benchmark/WikiCinema-s-test_data"
-  "$PROJECT_ROOT/datasets/WikiES_benchmark/WikiLitArt-s-test_data"
-  "$PROJECT_ROOT/datasets/WikiES_benchmark/WikiPro-s-test_data"
-  "$PROJECT_ROOT/datasets/WikiES_benchmark/WikiProFem-s-test_data"
-)
-
-OUT="$PROJECT_ROOT/outputs/tot_wikies"
-LOGS="$PROJECT_ROOT/logs/tot_wikies"
-
-# ToT Configuration
-DATASET_NAME="wikies"
+DATASET="wikicinema-s"
 MAX_SUMMARY_LEN=5
-N_CANDIDATES=5
-N_EVALS=3
-BREADTH_LIMIT=3
+N_CANDIDATES_PER_TASK=3
 GPU_DEVICE=0
-LIMIT_ENTITIES=0  # Set to 0 for all, or e.g. 5 for quick test
+LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 5, 10, etc. for testing
 
-# Model
+# Model configuration (customize as needed)
 MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
-
-# ============================================================================
-# Script setup
-# ============================================================================
+# Uncomment to use task-specific models:
+# MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
+# MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
+# MODEL_DIVERSITY="meta-llama/Llama-3.2-3B-Instruct"
+# MODEL_EVALUATION="meta-llama/Llama-3.2-3B-Instruct"
 
 mkdir -p "$OUT" "$LOGS"
+
+# Make globs vanish instead of staying literal when they don't match
 shopt -s nullglob
 
-# Parse arguments for overrides
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --max-len)
-      MAX_SUMMARY_LEN="$2"
-      shift 2
-      ;;
-    --n-candidates)
-      N_CANDIDATES="$2"  
-      shift 2
-      ;;
-    --n-evals)
-      N_EVALS="$2"
-      shift 2
-      ;;
-    --breadth)
-      BREADTH_LIMIT="$2"
-      shift 2
-      ;;
-    --limit)
-      LIMIT_ENTITIES="$2"
-      shift 2
-      ;;
-    --gpu)
-      GPU_DEVICE="$2"
-      shift 2
-      ;;
-    --model)
-      MODEL_ID="$2"
-      shift 2
-      ;;
-    *)
-      echo "Unknown option: $1"
-      exit 1
-      ;;
-  esac
-done
+# Collect all *_desc.nt files exactly one level under ROOT
+nt_files=("$ROOT"/*/*_desc.nt)
 
-# ============================================================================
-# Collect all entities from all benchmark types
-# ============================================================================
-
-all_nt_files=()
-benchmark_types=()
-
-for dataset_dir in "${DATASET_DIRS[@]}"; do
-  if [ ! -d "$dataset_dir" ]; then
-    echo "WARNING: Dataset directory not found: $dataset_dir"
-    continue
-  fi
-  
-  # Collect *_desc.nt files one level deep: entity_id/entity_id_desc.nt
-  nt_files=("$dataset_dir"/*_desc.nt)
-  
-  if ((${#nt_files[@]} == 0)); then
-    # Try nested pattern if flat pattern didn't work
-    nt_files=("$dataset_dir"/*/*_desc.nt)
-  fi
-  
-  if ((${#nt_files[@]} > 0)); then
-    for f in "${nt_files[@]}"; do
-      all_nt_files+=("$f")
-    done
-    
-    type_name=$(basename "$dataset_dir" | sed 's/-test_data//')
-    benchmark_types+=("$type_name")
-  fi
-done
-
-# Check if any files found
-if ((${#all_nt_files[@]} == 0)); then
-  echo "ERROR: No *_desc.nt files found in any dataset directories:"
-  for dir in "${DATASET_DIRS[@]}"; do
-    echo "  - $dir"
-  done
+if ((${#nt_files[@]} == 0)); then
+  echo "No *_desc.nt files found under: $ROOT"
+  echo "Check the path or rename your files to '{entity_id}_{entity_id}_desc.nt'."
   exit 1
 fi
 
-# Apply limit if specified
+# Limit number of entities for testing if specified
 if (( LIMIT_ENTITIES > 0 )); then
-  all_nt_files=("${all_nt_files[@]:0:$LIMIT_ENTITIES}")
+  nt_files=("${nt_files[@]:0:$LIMIT_ENTITIES}")
 fi
 
-# ============================================================================
-# Print header
-# ============================================================================
-
-echo "═══════════════════════════════════════════════════════════════════════"
-echo "ToT4ES - WikiES Benchmark Entity Summarization"
-echo "═══════════════════════════════════════════════════════════════════════"
+echo "═══════════════════════════════════════════════════════════"
+echo "Task-Decomposed ToT - WikiES Benchmark Entity Processing"
+echo "═══════════════════════════════════════════════════════════"
+echo "Total entities found: ${#nt_files[@]} to process"
 echo ""
 echo "Configuration:"
-echo "  Dataset name:       $DATASET_NAME"
-echo "  Max summary length: $MAX_SUMMARY_LEN triples"
-echo "  Thought candidates: $N_CANDIDATES"
-echo "  Evaluation votes:   $N_EVALS"
-echo "  Breadth limit:      $BREADTH_LIMIT"
-echo "  Model:              $MODEL_ID"
-echo "  GPU device:         $GPU_DEVICE"
-echo ""
-echo "Benchmark types:"
-for type in $(printf '%s\n' "${benchmark_types[@]}" | sort -u); do
-  echo "  - $type"
-done
+echo "  Dataset: $DATASET"
+echo "  Max summary length: $MAX_SUMMARY_LEN"
+echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
+echo "  GPU device: $GPU_DEVICE"
+echo "  Model: $MODEL_ID"
 echo ""
 echo "Paths:"
-echo "  Output directory:   $OUT"
-echo "  Log directory:      $LOGS"
+echo "  Input data: $ROOT"
+echo "  Output directory: $OUT"
+echo "  Log directory: $LOGS"
 echo ""
-echo "Total entities to process: ${#all_nt_files[@]}"
-echo "═══════════════════════════════════════════════════════════════════════"
+echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-# ============================================================================
-# Main processing loop
-# ============================================================================
-
+# Timing: record start time
 start_time=$(date +%s)
 start_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-
+entity_count=0
 processed_count=0
 skipped_count=0
-failed_count=0
-failed_entities=()
 
-total_to_process=${#all_nt_files[@]}
+# Process each entity
+total_to_process=${#nt_files[@]}
 current=0
 
-for nt_file in "${all_nt_files[@]}"; do
+for f in "${nt_files[@]}"; do
   current=$((current + 1))
+  id="$(basename "$(dirname "$f")")"
   
-  # Extract entity ID from path: .../1234/1234_desc.nt -> 1234
-  entity_id="$(basename "$(dirname "$nt_file")")"
-  
-  # Extract benchmark type from path
-  benchmark_type=$(echo "$nt_file" | sed -E 's|.*WikiES_benchmark/([^/]*)-test_data.*|\1|')
-  
-  # Determine dataset label for output
-  dataset_label="WikiES_${benchmark_type}"
-  
-  # Check if already processed
-  output_file="$OUT/$dataset_label/$entity_id/${entity_id}_top${MAX_SUMMARY_LEN}.nt"
-  if [ -f "$output_file" ]; then
-    echo "[$current/$total_to_process] [$entity_id] ⊘ Skipped (output exists)"
+  # Skip if output .nt file already exists (indicates processing completed)
+  if [ -f "$OUT/$DATASET/$id/${id}_top${MAX_SUMMARY_LEN}.nt" ]; then
+    echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
     skipped_count=$((skipped_count + 1))
     continue
   fi
   
   proc_start=$(date +%s)
   echo ""
-  echo "[$current/$total_to_process] [$entity_id] Processing: $nt_file"
-  echo "  → Type: $benchmark_type"
-  echo "  → Output: $OUT/$dataset_label/$entity_id/"
-  
-  # Create per-entity directories
-  mkdir -p "$OUT/$dataset_label/$entity_id" "$LOGS/$dataset_label/$entity_id"
-  
-  # Build and execute Python command
-  cmd="cd \"$PROJECT_ROOT\" && CUDA_VISIBLE_DEVICES=$GPU_DEVICE python scripts/tot_entity_summarizer.py \
-    --nt \"$nt_file\" \
-    --dataset \"$dataset_label\" \
+  echo "[$current/$total_to_process] [$id] Processing: $f"
+  echo "  → Output: $OUT/$DATASET/$id/"
+  echo "  → Log: $LOGS/$DATASET/$id/"
+
+  # Ensure per-entity output/log directories exist
+  mkdir -p "$OUT/$DATASET/$id" "$LOGS/$DATASET/$id"
+
+  # Build command
+  cmd="CUDA_VISIBLE_DEVICES=$GPU_DEVICE python tot_entity_summarizer_task_decomposed.py \
+    --nt \"$f\" \
+    --dataset \"$DATASET\" \
+    --output-dir \"$OUT\" \
     --max-summary-len $MAX_SUMMARY_LEN \
-    --n-candidates $N_CANDIDATES \
-    --n-evals $N_EVALS \
-    --breadth-limit $BREADTH_LIMIT \
-    --model-id \"$MODEL_ID\" \
-    --no-verbose"
-  
-  if eval "$cmd" > "$LOGS/$dataset_label/$entity_id/stdout.log" 2> "$LOGS/$dataset_label/$entity_id/stderr.log"; then
+    --n-candidates-per-task $N_CANDIDATES_PER_TASK \
+    --model-id \"$MODEL_ID\""
+
+  # Add task-specific models if defined
+  if [ -n "${MODEL_RELATEDNESS:-}" ]; then
+    cmd="$cmd --model-relatedness \"$MODEL_RELATEDNESS\""
+  fi
+  if [ -n "${MODEL_INFORMATIVENESS:-}" ]; then
+    cmd="$cmd --model-informativeness \"$MODEL_INFORMATIVENESS\""
+  fi
+  if [ -n "${MODEL_DIVERSITY:-}" ]; then
+    cmd="$cmd --model-diversity \"$MODEL_DIVERSITY\""
+  fi
+  if [ -n "${MODEL_EVALUATION:-}" ]; then
+    cmd="$cmd --model-evaluation \"$MODEL_EVALUATION\""
+  fi
+
+  # Redirect output
+  cmd="$cmd > \"$LOGS/$DATASET/$id/stdout.log\" 2> \"$LOGS/$DATASET/$id/stderr.log\""
+
+  # Execute
+  echo "  → Executing Python script..."
+  if eval "$cmd"; then
     proc_end=$(date +%s)
     proc_time=$((proc_end - proc_start))
-    echo "  ✓ Success (${proc_time}s)"
+    echo "  ✓ [$id] Success (completed in ${proc_time}s)"
     processed_count=$((processed_count + 1))
   else
-    echo "  ✗ Failed (see $LOGS/$dataset_label/$entity_id/stderr.log)"
-    tail -5 "$LOGS/$dataset_label/$entity_id/stderr.log" | sed 's/^/    /'
-    failed_count=$((failed_count + 1))
-    failed_entities+=("$entity_id")
+    echo "  ✗ [$id] Failed (see $LOGS/$DATASET/$id/stderr.log)"
+    tail -10 "$LOGS/$DATASET/$id/stderr.log" | sed 's/^/    /'
   fi
+  entity_count=$((entity_count + 1))
 done
 
-# ============================================================================
-# Final reporting
-# ============================================================================
-
+# Timing: record end time and calculate total and average
 end_time=$(date +%s)
 end_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 total_time=$((end_time - start_time))
 
 if (( processed_count > 0 )); then
   avg_time=$(awk "BEGIN {printf \"%.2f\", $total_time/$processed_count}")
-  success_rate=$(awk "BEGIN {printf \"%.1f\", 100*$processed_count/($processed_count+$skipped_count+$failed_count)}")
 else
   avg_time=0
-  success_rate=0
 fi
 
 echo ""
-echo "═══════════════════════════════════════════════════════════════════════"
+echo "═══════════════════════════════════════════════════════════"
 echo "Processing Summary"
-echo "═══════════════════════════════════════════════════════════════════════"
+echo "═══════════════════════════════════════════════════════════"
 echo "Start time:           $start_timestamp"
 echo "End time:             $end_timestamp"
 echo "Total runtime:        ${total_time}s"
@@ -249,41 +155,20 @@ echo ""
 echo "Results:"
 echo "  Processed:          $processed_count"
 echo "  Skipped:            $skipped_count"
-echo "  Failed:             $failed_count"
-echo "  Success rate:       ${success_rate}%"
+echo "  Total checked:      $entity_count"
 echo "  Avg time per entity: ${avg_time}s"
 echo ""
-
-if (( failed_count > 0 )); then
-  echo "Failed entities:"
-  for id in "${failed_entities[@]}"; do
-    echo "  - $id"
-  done
-  echo ""
-fi
-
 echo "Output locations:"
 echo "  Results saved to:   $OUT"
 echo "  Logs saved to:      $LOGS"
-echo "═══════════════════════════════════════════════════════════════════════"
+echo "═══════════════════════════════════════════════════════════"
 
-# ============================================================================
-# Save report file
-# ============================================================================
-
+# Save summary to overall_report.txt
 REPORT_FILE="$OUT/overall_report.txt"
 {
-  echo "═══════════════════════════════════════════════════════════════════════"
-  echo "ToT4ES WikiES Benchmark - Experiment Report"
-  echo "═══════════════════════════════════════════════════════════════════════"
-  echo ""
-  echo "Configuration:"
-  echo "  Max summary length: $MAX_SUMMARY_LEN"
-  echo "  Thought candidates: $N_CANDIDATES"
-  echo "  Evaluation votes:   $N_EVALS"
-  echo "  Breadth limit:      $BREADTH_LIMIT"
-  echo "  Model:              $MODEL_ID"
-  echo ""
+  echo "═══════════════════════════════════════════════════════════"
+  echo "Task-Decomposed ToT - WikiES Benchmark Processing Report"
+  echo "═══════════════════════════════════════════════════════════"
   echo "Start time:           $start_timestamp"
   echo "End time:             $end_timestamp"
   echo "Total runtime:        ${total_time}s"
@@ -291,26 +176,14 @@ REPORT_FILE="$OUT/overall_report.txt"
   echo "Results:"
   echo "  Processed:          $processed_count"
   echo "  Skipped:            $skipped_count"
-  echo "  Failed:             $failed_count"
-  echo "  Success rate:       ${success_rate}%"
+  echo "  Total checked:      $entity_count"
   echo "  Avg time per entity: ${avg_time}s"
   echo ""
-  if (( failed_count > 0 )); then
-    echo "Failed entities:"
-    for id in "${failed_entities[@]}"; do
-      echo "  - $id"
-    done
-    echo ""
-  fi
   echo "Output locations:"
   echo "  Results saved to:   $OUT"
   echo "  Logs saved to:      $LOGS"
-  echo "═══════════════════════════════════════════════════════════════════════"
+  echo "═══════════════════════════════════════════════════════════"
 } | tee "$REPORT_FILE"
 
 echo ""
-if (( failed_count == 0 )); then
-  echo "✓ All processing complete successfully!"
-else
-  echo "⚠ Processing complete with $failed_count failures. Check logs for details."
-fi
+echo "✓ All processing complete!"
