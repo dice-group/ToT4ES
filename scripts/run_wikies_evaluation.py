@@ -82,17 +82,19 @@ def average_precision(predicted: Sequence[str], gold: Sequence[str]) -> float:
     return precision_sum / len(gold) if hit_count > 0 else 0.0
 
 
-def f1_at_k(predicted: Sequence[str], gold: Sequence[str]) -> float:
-    if not predicted or not gold:
-        return 0.0
+def f1_precision_recall_at_k(
+    predicted: Sequence[str],
+    gold: Sequence[str],
+    topk: int,
+) -> Sequence[float]:
+    if not gold or topk <= 0:
+        return 0.0, 0.0, 0.0
 
     corr = len([triple for triple in predicted if triple in gold])
-    if corr == 0:
-        return 0.0
-
-    precision = corr / len(predicted)
+    precision = corr / topk
     recall = corr / len(gold)
-    return 2 * precision * recall / (precision + recall)
+    f1 = 2 * precision * recall / (precision + recall) if corr != 0 else 0.0
+    return f1, precision, recall
 
 
 def parse_topk(raw: str) -> List[int]:
@@ -243,12 +245,15 @@ def evaluate_domain(
     pred_dirs: Sequence[Path],
     topk_values: Sequence[int],
     missing_as_zero: bool,
+    f1_only: bool,
 ) -> List[dict]:
     entity_dirs = sorted([d for d in test_dir.iterdir() if d.is_dir()], key=lambda p: p.name)
     rows: List[dict] = []
 
     for k in topk_values:
         metric_f1: List[float] = []
+        metric_precision: List[float] = []
+        metric_recall: List[float] = []
         metric_ndcg: List[float] = []
         metric_map: List[float] = []
 
@@ -264,8 +269,11 @@ def evaluate_domain(
                 missing_gold += 1
                 if missing_as_zero:
                     metric_f1.append(0.0)
-                    metric_ndcg.append(0.0)
-                    metric_map.append(0.0)
+                    if not f1_only:
+                        metric_precision.append(0.0)
+                        metric_recall.append(0.0)
+                        metric_ndcg.append(0.0)
+                        metric_map.append(0.0)
                 continue
 
             pred_path = resolve_pred_file(pred_dirs, entity_id, k)
@@ -273,8 +281,11 @@ def evaluate_domain(
                 missing_pred += 1
                 if missing_as_zero:
                     metric_f1.append(0.0)
-                    metric_ndcg.append(0.0)
-                    metric_map.append(0.0)
+                    if not f1_only:
+                        metric_precision.append(0.0)
+                        metric_recall.append(0.0)
+                        metric_ndcg.append(0.0)
+                        metric_map.append(0.0)
                 continue
 
             gold = read_nt_file(gold_path)
@@ -282,13 +293,16 @@ def evaluate_domain(
             if len(pred) > k:
                 pred = pred[:k]
 
-            f1 = f1_at_k(pred, gold)
-            ndcg = ndcg_score(pred, gold)
-            map_score = average_precision(pred, gold)
+            f1, precision, recall = f1_precision_recall_at_k(pred, gold, k)
 
             metric_f1.append(f1)
-            metric_ndcg.append(ndcg)
-            metric_map.append(map_score)
+            if not f1_only:
+                ndcg = ndcg_score(pred, gold)
+                map_score = average_precision(pred, gold)
+                metric_precision.append(precision)
+                metric_recall.append(recall)
+                metric_ndcg.append(ndcg)
+                metric_map.append(map_score)
             evaluated += 1
 
         total_entities = len(entity_dirs)
@@ -305,35 +319,55 @@ def evaluate_domain(
                 "missing_prediction": missing_pred,
                 "coverage": coverage,
                 "f1": float(np.sum(metric_f1) / denominator) if metric_f1 else 0.0,
-                "ndcg": float(np.sum(metric_ndcg) / denominator) if metric_ndcg else 0.0,
-                "map": float(np.sum(metric_map) / denominator) if metric_map else 0.0,
             }
         )
+
+        if not f1_only:
+            rows[-1]["precision"] = float(np.sum(metric_precision) / denominator) if metric_precision else 0.0
+            rows[-1]["recall"] = float(np.sum(metric_recall) / denominator) if metric_recall else 0.0
+            rows[-1]["ndcg"] = float(np.sum(metric_ndcg) / denominator) if metric_ndcg else 0.0
+            rows[-1]["map"] = float(np.sum(metric_map) / denominator) if metric_map else 0.0
 
     return rows
 
 
-def print_results(rows: Iterable[dict]) -> None:
+def print_results(rows: Iterable[dict], f1_only: bool) -> None:
     print("=" * 78)
     print("WikiES Benchmark (Test Data) Evaluation")
     print("=" * 78)
-    print(
-        f"{'Domain':<15} {'K':<4} {'Eval/Total':<12} {'MissPred':<9} {'Cov':<8} "
-        f"{'F1':<10} {'NDCG':<10} {'MAP':<10}"
-    )
+    if f1_only:
+        print(
+            f"{'Domain':<15} {'K':<4} {'Eval/Total':<12} {'MissPred':<9} {'Cov':<8} "
+            f"{'F1':<10}"
+        )
+    else:
+        print(
+            f"{'Domain':<15} {'K':<4} {'Eval/Total':<12} {'MissPred':<9} {'Cov':<8} "
+            f"{'F1':<10} {'Prec':<10} {'Recall':<10} {'MAP':<10} {'NDCG':<10}"
+        )
     print("-" * 78)
     for row in rows:
-        print(
-            f"{row['domain']:<15} {row['k']:<4} "
-            f"{row['entities_evaluated']}/{row['entities_total']:<12} "
-            f"{row['missing_prediction']:<9} "
-            f"{row['coverage']:<8.2%} "
-            f"{row['f1']:<10.4f} {row['ndcg']:<10.4f} {row['map']:<10.4f}"
-        )
+        if f1_only:
+            print(
+                f"{row['domain']:<15} {row['k']:<4} "
+                f"{row['entities_evaluated']}/{row['entities_total']:<12} "
+                f"{row['missing_prediction']:<9} "
+                f"{row['coverage']:<8.2%} "
+                f"{row['f1']:<10.4f}"
+            )
+        else:
+            print(
+                f"{row['domain']:<15} {row['k']:<4} "
+                f"{row['entities_evaluated']}/{row['entities_total']:<12} "
+                f"{row['missing_prediction']:<9} "
+                f"{row['coverage']:<8.2%} "
+                f"{row['f1']:<10.4f} {row['precision']:<10.4f} {row['recall']:<10.4f} "
+                f"{row['map']:<10.4f} {row['ndcg']:<10.4f}"
+            )
     print("=" * 78)
 
 
-def write_csv(rows: Sequence[dict], output_path: Path) -> None:
+def write_csv(rows: Sequence[dict], output_path: Path, f1_only: bool) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "domain",
@@ -344,9 +378,9 @@ def write_csv(rows: Sequence[dict], output_path: Path) -> None:
         "missing_prediction",
         "coverage",
         "f1",
-        "ndcg",
-        "map",
     ]
+    if not f1_only:
+        fieldnames.extend(["precision", "recall", "ndcg", "map"])
     with output_path.open("w", newline="", encoding="utf-8") as writer_handle:
         writer = csv.DictWriter(writer_handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -416,6 +450,11 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional CSV file path for evaluation table.",
     )
+    parser.add_argument(
+        "--f1-only",
+        action="store_true",
+        help="Only compute/report F1 (skip precision/recall/MAP/NDCG).",
+    )
     return parser.parse_args()
 
 
@@ -443,13 +482,14 @@ def main() -> None:
             pred_dirs=pred_dirs,
             topk_values=topk_values,
             missing_as_zero=missing_as_zero,
+            f1_only=args.f1_only,
         )
         all_rows.extend(rows)
 
-    print_results(all_rows)
+    print_results(all_rows, f1_only=args.f1_only)
 
     if args.csv_out is not None:
-        write_csv(all_rows, args.csv_out)
+        write_csv(all_rows, args.csv_out, f1_only=args.f1_only)
         print(f"Saved CSV: {args.csv_out}")
 
 
