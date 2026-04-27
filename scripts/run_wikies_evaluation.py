@@ -46,6 +46,62 @@ def read_nt_file(path: Path) -> List[str]:
     return triples
 
 
+def read_nt_file_raw(path: Path) -> List[str]:
+    triples: List[str] = []
+    with path.open("r", encoding="utf-8") as reader:
+        for line in reader:
+            value = line.strip()
+            if not value:
+                continue
+            triples.append(value)
+    return triples
+
+
+def write_nt_file(path: Path, triples: Sequence[str]) -> None:
+    with path.open("w", encoding="utf-8") as writer:
+        for triple in triples:
+            writer.write(triple.rstrip() + "\n")
+
+
+def prepare_missing_gold_topk_files(test_dirs: Dict[str, Path]) -> Dict[str, int]:
+    created_top5 = 0
+    created_top10 = 0
+    skipped_no_gold = 0
+
+    for test_dir in test_dirs.values():
+        entity_dirs = [directory for directory in test_dir.iterdir() if directory.is_dir()]
+        for entity_dir in entity_dirs:
+            entity_id = entity_dir.name
+            gold_path = entity_dir / f"{entity_id}_gold.nt"
+            gold_top5_path = entity_dir / f"{entity_id}_gold_top5.nt"
+            gold_top10_path = entity_dir / f"{entity_id}_gold_top10.nt"
+
+            if not gold_path.is_file():
+                skipped_no_gold += 1
+                continue
+
+            gold_triples = read_nt_file_raw(gold_path)
+            n_triples = len(gold_triples)
+
+            if n_triples >= 10:
+                if not gold_top5_path.is_file():
+                    write_nt_file(gold_top5_path, gold_triples[:5])
+                    created_top5 += 1
+                if not gold_top10_path.is_file():
+                    write_nt_file(gold_top10_path, gold_triples[:10])
+                    created_top10 += 1
+            elif 5 < n_triples < 10:
+                if not gold_top5_path.is_file():
+                    write_nt_file(gold_top5_path, gold_triples[:5])
+                    created_top5 += 1
+
+    return {
+        "created_top5": created_top5,
+        "created_top10": created_top10,
+        "skipped_no_gold": skipped_no_gold,
+    }
+
+
 def ndcg_score(predicted: Sequence[str], gold: Sequence[str]) -> float:
     if not predicted or not gold:
         return 0.0
@@ -468,7 +524,15 @@ def main() -> None:
     test_dirs = resolve_test_dirs(args.wikies_root, domains, test_overrides)
     pred_dirs_map = resolve_prediction_dirs(args.pred_root, domains, pred_overrides)
 
+    prep_summary = prepare_missing_gold_topk_files(test_dirs)
+
     print_resolved_inputs(test_dirs, pred_dirs_map)
+    print(
+        "Prepared gold files: "
+        f"created_top5={prep_summary['created_top5']}, "
+        f"created_top10={prep_summary['created_top10']}, "
+        f"missing_gold_nt={prep_summary['skipped_no_gold']}"
+    )
     missing_as_zero = not args.exclude_missing
 
     all_rows: List[dict] = []
