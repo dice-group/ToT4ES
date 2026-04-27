@@ -90,7 +90,7 @@ def prepare_missing_gold_topk_files(test_dirs: Dict[str, Path]) -> Dict[str, int
                 if not gold_top10_path.is_file():
                     write_nt_file(gold_top10_path, gold_triples[:10])
                     created_top10 += 1
-            elif 5 < n_triples < 10:
+            elif 5 <= n_triples < 10:
                 if not gold_top5_path.is_file():
                     write_nt_file(gold_top5_path, gold_triples[:5])
                     created_top5 += 1
@@ -496,9 +496,9 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated K values, e.g. 5,10.",
     )
     parser.add_argument(
-        "--exclude-missing",
+        "--include-missing",
         action="store_true",
-        help="Exclude missing gold/prediction entities from averaging.",
+        help="Include missing gold/prediction entities as zero scores (divide by total entities).",
     )
     parser.add_argument(
         "--csv-out",
@@ -533,7 +533,9 @@ def main() -> None:
         f"created_top10={prep_summary['created_top10']}, "
         f"missing_gold_nt={prep_summary['skipped_no_gold']}"
     )
-    missing_as_zero = not args.exclude_missing
+    # Fair mode by default: average over evaluated entities only.
+    # Use --include-missing to revert to averaging over total entities.
+    missing_as_zero = args.include_missing
 
     all_rows: List[dict] = []
 
