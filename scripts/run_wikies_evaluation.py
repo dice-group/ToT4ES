@@ -3,7 +3,7 @@ import argparse
 import csv
 import re
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
 
@@ -132,6 +132,25 @@ def parse_domains(raw: str) -> List[str]:
     return unique
 
 
+def parse_domain_path_overrides(raw: Optional[str]) -> Dict[str, Path]:
+    if not raw:
+        return {}
+
+    result: Dict[str, Path] = {}
+    items = [token.strip() for token in raw.split(",") if token.strip()]
+    for item in items:
+        if "=" not in item:
+            raise ValueError(
+                f"Invalid path override '{item}'. Expected format: domain=/absolute/or/relative/path"
+            )
+        domain_raw, path_raw = item.split("=", 1)
+        domain = normalize_domain_name(domain_raw.strip())
+        directory = Path(path_raw.strip()).expanduser().resolve()
+        result[domain] = directory
+
+    return result
+
+
 def discover_prediction_dirs(pred_root: Path) -> Dict[str, List[Path]]:
     discovered: Dict[str, List[Path]] = {domain: [] for domain in SUPPORTED_DOMAINS}
     if not pred_root.exists():
@@ -150,6 +169,60 @@ def discover_prediction_dirs(pred_root: Path) -> Dict[str, List[Path]]:
             discovered[key].append(child)
 
     return discovered
+
+
+def resolve_test_dirs(
+    wikies_root: Path,
+    domains: Sequence[str],
+    overrides: Dict[str, Path],
+) -> Dict[str, Path]:
+    test_dirs: Dict[str, Path] = {}
+    for domain in domains:
+        if domain in overrides:
+            test_dir = overrides[domain]
+        else:
+            test_dir = wikies_root / SUPPORTED_DOMAINS[domain]
+
+        if not test_dir.is_dir():
+            raise FileNotFoundError(f"Test folder not found for {domain}: {test_dir}")
+        test_dirs[domain] = test_dir
+
+    return test_dirs
+
+
+def resolve_prediction_dirs(
+    pred_root: Path,
+    domains: Sequence[str],
+    overrides: Dict[str, Path],
+) -> Dict[str, List[Path]]:
+    discovered = discover_prediction_dirs(pred_root)
+    resolved: Dict[str, List[Path]] = {}
+
+    for domain in domains:
+        if domain in overrides:
+            domain_dir = overrides[domain]
+            if not domain_dir.is_dir():
+                raise FileNotFoundError(
+                    f"Prediction folder override not found for {domain}: {domain_dir}"
+                )
+            resolved[domain] = [domain_dir]
+        else:
+            resolved[domain] = discovered.get(domain, [])
+
+    return resolved
+
+
+def print_resolved_inputs(
+    test_dirs: Dict[str, Path],
+    pred_dirs_map: Dict[str, List[Path]],
+) -> None:
+    print("Resolved input directories:")
+    for domain in sorted(test_dirs.keys()):
+        pred_dirs = pred_dirs_map.get(domain, [])
+        pred_label = ", ".join(str(path) for path in pred_dirs) if pred_dirs else "<none found>"
+        print(f"  - {domain}")
+        print(f"    test: {test_dirs[domain]}")
+        print(f"    pred: {pred_label}")
 
 
 def resolve_pred_file(
@@ -309,6 +382,24 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--test-dirs",
+        type=str,
+        default=None,
+        help=(
+            "Optional per-domain test directory overrides. "
+            "Format: wikicinema-s=/path1,wikipro-s=/path2"
+        ),
+    )
+    parser.add_argument(
+        "--pred-dirs",
+        type=str,
+        default=None,
+        help=(
+            "Optional per-domain prediction directory overrides. "
+            "Format: wikicinema-s=/path1,wikipro-s=/path2"
+        ),
+    )
+    parser.add_argument(
         "--topk",
         type=str,
         default="5,10",
@@ -333,18 +424,19 @@ def main() -> None:
     domains = parse_domains(args.domains)
     topk_values = parse_topk(args.topk)
 
-    pred_discovery = discover_prediction_dirs(args.pred_root)
+    test_overrides = parse_domain_path_overrides(args.test_dirs)
+    pred_overrides = parse_domain_path_overrides(args.pred_dirs)
+    test_dirs = resolve_test_dirs(args.wikies_root, domains, test_overrides)
+    pred_dirs_map = resolve_prediction_dirs(args.pred_root, domains, pred_overrides)
+
+    print_resolved_inputs(test_dirs, pred_dirs_map)
     missing_as_zero = not args.exclude_missing
 
     all_rows: List[dict] = []
 
     for domain in domains:
-        test_folder_name = SUPPORTED_DOMAINS[domain]
-        test_dir = args.wikies_root / test_folder_name
-        if not test_dir.is_dir():
-            raise FileNotFoundError(f"Test folder not found: {test_dir}")
-
-        pred_dirs = pred_discovery.get(domain, [])
+        test_dir = test_dirs[domain]
+        pred_dirs = pred_dirs_map.get(domain, [])
         rows = evaluate_domain(
             domain_key=domain,
             test_dir=test_dir,
