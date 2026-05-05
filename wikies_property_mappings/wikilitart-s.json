@@ -1,0 +1,2108 @@
+{
+  "dataset": "wikilitart-s",
+  "display_name": "WikiLitArt-s",
+  "jsonld_source": "/home/asepff/Documents/Github/new-dice/ToT4ES/wiki-entity-summarization/croissant/WikiLitArt-s-test.json",
+  "predicate_count": 350,
+  "predicates": {
+    "P31": {
+      "id": 0,
+      "predicate": "P31",
+      "label": "instance of",
+      "description": "that class of which this subject is a particular example and member; different from P279 (subclass of); for example: K2 is an instance of mountain; volcano is a subclass of mountain (and an instance of volcanic landform)"
+    },
+    "P170": {
+      "id": 1,
+      "predicate": "P170",
+      "label": "creator",
+      "description": "maker of this creative work or other object (where no more specific property exists)"
+    },
+    "P106": {
+      "id": 2,
+      "predicate": "P106",
+      "label": "occupation",
+      "description": "\"occupation of a person; see also \"\"field of work\"\" (Property:P101), \"\"position held\"\" (Property:P39)\""
+    },
+    "P50": {
+      "id": 3,
+      "predicate": "P50",
+      "label": "author",
+      "description": "main creator(s) of a written work (use on works, not humans); use P2093 when Wikidata item is unknown or does not exist"
+    },
+    "P7937": {
+      "id": 4,
+      "predicate": "P7937",
+      "label": "form of creative work",
+      "description": "structure of a creative work"
+    },
+    "P175": {
+      "id": 5,
+      "predicate": "P175",
+      "label": "performer",
+      "description": "actor, musician, band or other performer associated with this role or musical work"
+    },
+    "P1303": {
+      "id": 6,
+      "predicate": "P1303",
+      "label": "instrument",
+      "description": "musical instrument that a person plays or teaches or used in a music occupation"
+    },
+    "P276": {
+      "id": 7,
+      "predicate": "P276",
+      "label": "location",
+      "description": "location of the object, structure or event. In the case of an administrative entity as containing item use P131. For statistical entities use P8138. In the case of a geographic entity use P706. Use P7153 for locations associated with the object."
+    },
+    "P921": {
+      "id": 8,
+      "predicate": "P921",
+      "label": "main subject",
+      "description": "primary topic of a work (see also P180: depicts)"
+    },
+    "P6216": {
+      "id": 9,
+      "predicate": "P6216",
+      "label": "copyright status",
+      "description": "copyright status for intellectual creations like works of art, publications, software, etc."
+    },
+    "P195": {
+      "id": 10,
+      "predicate": "P195",
+      "label": "collection",
+      "description": "art, museum, archival, or bibliographic collection the subject is part of"
+    },
+    "P1346": {
+      "id": 11,
+      "predicate": "P1346",
+      "label": "winner",
+      "description": "\"winner of a competition or similar event, not to be used for awards (instead use \"\"award received\"\" (P166) on awardee's item, possibly qualified with \"\"for work\"\" (P1686)) or for wars or battles\""
+    },
+    "P26": {
+      "id": 12,
+      "predicate": "P26",
+      "label": "spouse",
+      "description": "\"the subject has the object as their spouse (husband, wife, partner, etc.). Use \"\"unmarried partner\"\" (P451) for non-married companions\""
+    },
+    "P1441": {
+      "id": 13,
+      "predicate": "P1441",
+      "label": "present in work",
+      "description": "this (fictional or fictionalized) entity or person appears in that work as part of the narration (use P2860 for works citing other works, P361/P1433 for works being part of other works, P1343 for entities described in non-fictional accounts)"
+    },
+    "P1411": {
+      "id": 14,
+      "predicate": "P1411",
+      "label": "nominated for",
+      "description": "\"award nomination received by a person, organisation or creative work (inspired from \"\"award received\"\" (Property:P166))\""
+    },
+    "P1196": {
+      "id": 15,
+      "predicate": "P1196",
+      "label": "manner of death",
+      "description": "general circumstances of a person's death; e.g. natural causes, accident, suicide, homicide, etc. Use 'cause of death' (P509) for the specific physiological mechanism, e.g. heart attack, trauma, pneumonia..."
+    },
+    "P527": {
+      "id": 16,
+      "predicate": "P527",
+      "label": "has part(s)",
+      "description": "\"part of this subject; inverse property of \"\"part of\"\" (P361). See also \"\"has parts of the class\"\" (P2670).\""
+    },
+    "P86": {
+      "id": 17,
+      "predicate": "P86",
+      "label": "composer",
+      "description": "\"person(s) who wrote the music [for lyricist, use \"\"lyrics by\"\" (P676)]\""
+    },
+    "P4224": {
+      "id": 18,
+      "predicate": "P4224",
+      "label": "category contains",
+      "description": "category contains elements that are instances of this item"
+    },
+    "P407": {
+      "id": 19,
+      "predicate": "P407",
+      "label": "language of work or name",
+      "description": "\"language associated with this creative work (such as books, shows, songs, broadcasts or websites) or a name (for persons use \"\"native language\"\" (P103) and \"\"languages spoken, written or signed\"\" (P1412))\""
+    },
+    "P1889": {
+      "id": 20,
+      "predicate": "P1889",
+      "label": "different from",
+      "description": "item that is different from another item, with which it may be confused"
+    },
+    "P676": {
+      "id": 21,
+      "predicate": "P676",
+      "label": "lyrics by",
+      "description": "author of song lyrics"
+    },
+    "P108": {
+      "id": 22,
+      "predicate": "P108",
+      "label": "employer",
+      "description": "person or organization for which the subject works or worked"
+    },
+    "P1269": {
+      "id": 23,
+      "predicate": "P1269",
+      "label": "facet of",
+      "description": "topic of which this item is an aspect, item that offers a broader perspective on the same topic"
+    },
+    "P131": {
+      "id": 24,
+      "predicate": "P131",
+      "label": "located in the administrative territorial entity",
+      "description": "the item is located on the territory of the following administrative entity. Use P276 for specifying locations that are non-administrative places and for items about events. Use P1382 if the item falls only partially into the administrative entity."
+    },
+    "P127": {
+      "id": 25,
+      "predicate": "P127",
+      "label": "owned by",
+      "description": "owner of the subject"
+    },
+    "P21": {
+      "id": 26,
+      "predicate": "P21",
+      "label": "sex or gender",
+      "description": "sex or gender identity of human or animal. For human: male, female, non-binary, intersex, transgender female, transgender male, agender. For animal: male organism, female organism. Groups of same gender use subclass of (P279)"
+    },
+    "P734": {
+      "id": 27,
+      "predicate": "P734",
+      "label": "family name",
+      "description": "part of full name of person"
+    },
+    "P161": {
+      "id": 28,
+      "predicate": "P161",
+      "label": "cast member",
+      "description": "\"actor in the subject production [use \"\"character role\"\" (P453) and/or \"\"name of the character role\"\" (P4633) as qualifiers] [use \"\"voice actor\"\" (P725) for voice-only role]\""
+    },
+    "P2061": {
+      "id": 29,
+      "predicate": "P2061",
+      "label": "aspect ratio (W:H)",
+      "description": "image width to height ratio of films, photographs, and other images"
+    },
+    "P1431": {
+      "id": 30,
+      "predicate": "P1431",
+      "label": "executive producer",
+      "description": "executive producer of a movie or TV show"
+    },
+    "P2341": {
+      "id": 31,
+      "predicate": "P2341",
+      "label": "indigenous to",
+      "description": "place that a language, folk dance, cooking style, food, species or other cultural expression is found (or was originally found)"
+    },
+    "P87": {
+      "id": 32,
+      "predicate": "P87",
+      "label": "librettist",
+      "description": "author of the libretto (words) of an opera, operetta, oratorio or cantata, or of the book of a musical"
+    },
+    "P272": {
+      "id": 33,
+      "predicate": "P272",
+      "label": "production company",
+      "description": "company that produced this film, audio or performing arts work"
+    },
+    "P10661": {
+      "id": 34,
+      "predicate": "P10661",
+      "label": "exhibited creator",
+      "description": "intellectual or creative entity (person or organization) responsible for the elements exhibited"
+    },
+    "P102": {
+      "id": 35,
+      "predicate": "P102",
+      "label": "member of political party",
+      "description": "the political party of which a person is or has been a member or otherwise affiliated"
+    },
+    "P58": {
+      "id": 36,
+      "predicate": "P58",
+      "label": "screenwriter",
+      "description": "person(s) who wrote the script for subject item"
+    },
+    "P136": {
+      "id": 37,
+      "predicate": "P136",
+      "label": "genre",
+      "description": "creative work's genre or an artist's field of work (P101). Use main subject (P921) to relate creative works to their topic"
+    },
+    "P364": {
+      "id": 38,
+      "predicate": "P364",
+      "label": "original language of film or TV show",
+      "description": "\"language in which a film or a performance work was originally created. Deprecated for written works and songs; use P407 (\"\"language of work or name\"\") instead.\""
+    },
+    "P39": {
+      "id": 39,
+      "predicate": "P39",
+      "label": "position held",
+      "description": "subject currently or formerly holds the object position or public office"
+    },
+    "P1038": {
+      "id": 40,
+      "predicate": "P1038",
+      "label": "relative",
+      "description": "\"family member (qualify with \"\"type of kinship\"\", P1039; for direct family member please use specific property)\""
+    },
+    "P186": {
+      "id": 41,
+      "predicate": "P186",
+      "label": "made from material",
+      "description": "material the subject or the object is made of or derived from (do not confuse with P10672 which is used for processes)"
+    },
+    "P301": {
+      "id": 42,
+      "predicate": "P301",
+      "label": "category's main topic",
+      "description": "primary topic of the subject Wikimedia category"
+    },
+    "P155": {
+      "id": 43,
+      "predicate": "P155",
+      "label": "follows",
+      "description": "\"immediately prior item in a series of which the subject is a part, preferably use as qualifier of P179 [if the subject has replaced the preceding item, e.g. political offices, use \"\"replaces\"\" (P1365)]\""
+    },
+    "P22": {
+      "id": 44,
+      "predicate": "P22",
+      "label": "father",
+      "description": "\"male parent of the subject. For stepfather, use \"\"stepparent\"\" (P3448)\""
+    },
+    "P156": {
+      "id": 45,
+      "predicate": "P156",
+      "label": "followed by",
+      "description": "\"immediately following item in a series of which the subject is a part, preferably use as qualifier of P179 [if the subject has been replaced, e.g. political offices, use \"\"replaced by\"\" (P1366)]\""
+    },
+    "P40": {
+      "id": 46,
+      "predicate": "P40",
+      "label": "child",
+      "description": "subject has object as child. Do not use for stepchildren"
+    },
+    "P180": {
+      "id": 47,
+      "predicate": "P180",
+      "label": "depicts",
+      "description": "entity visually depicted in an image, literarily described in a work, or otherwise incorporated into an audiovisual or other medium; see also P921, 'main subject'"
+    },
+    "P166": {
+      "id": 48,
+      "predicate": "P166",
+      "label": "award received",
+      "description": "award or recognition received by a person, organization or creative work"
+    },
+    "P17": {
+      "id": 49,
+      "predicate": "P17",
+      "label": "country",
+      "description": "sovereign state of this item (not to be used for human beings)"
+    },
+    "P138": {
+      "id": 50,
+      "predicate": "P138",
+      "label": "named after",
+      "description": "\"entity or event that inspired the subject's name, or namesake (in at least one language). Qualifier \"\"applies to name\"\" (P5168) can be used to indicate which one\""
+    },
+    "P1884": {
+      "id": 51,
+      "predicate": "P1884",
+      "label": "hair color",
+      "description": "person's hair color. Use P585 as qualifier if there's more than one value"
+    },
+    "P971": {
+      "id": 52,
+      "predicate": "P971",
+      "label": "category combines topics",
+      "description": "this category combines (intersects) these two or more topics"
+    },
+    "P870": {
+      "id": 53,
+      "predicate": "P870",
+      "label": "instrumentation",
+      "description": "combination of musical instruments employed in a composition or accompanying a (folk) dance"
+    },
+    "P47": {
+      "id": 54,
+      "predicate": "P47",
+      "label": "shares border with",
+      "description": "countries or administrative subdivisions, of equal level, that this item borders, either by land or water. A single common point is enough."
+    },
+    "P361": {
+      "id": 55,
+      "predicate": "P361",
+      "label": "part of",
+      "description": "\"object of which the subject is a part (if this subject is already part of object A which is a part of object B, then please only make the subject part of object A). Inverse property of \"\"has part\"\" (P527, see also \"\"has parts of the class\"\" (P2670)).\""
+    },
+    "P6379": {
+      "id": 56,
+      "predicate": "P6379",
+      "label": "has works in the collection",
+      "description": "collection that has works of this person or organisation (use archive location P485 for the archives)"
+    },
+    "P3300": {
+      "id": 57,
+      "predicate": "P3300",
+      "label": "musical conductor",
+      "description": "the person who directs a musical group, orchestra or chorus"
+    },
+    "P1343": {
+      "id": 58,
+      "predicate": "P1343",
+      "label": "described by source",
+      "description": "work where this item is described"
+    },
+    "P747": {
+      "id": 59,
+      "predicate": "P747",
+      "label": "has edition or translation",
+      "description": "link to an edition of this item"
+    },
+    "P1809": {
+      "id": 60,
+      "predicate": "P1809",
+      "label": "choreographer",
+      "description": "person(s) who did the choreography"
+    },
+    "P1433": {
+      "id": 61,
+      "predicate": "P1433",
+      "label": "published in",
+      "description": "larger work that a given work was published in, like a book, journal or music album"
+    },
+    "P509": {
+      "id": 62,
+      "predicate": "P509",
+      "label": "cause of death",
+      "description": "underlying or immediate cause of death. Underlying cause (e.g. car accident, stomach cancer) preferred. Use 'manner of death' (P1196) for broadest category, e.g. natural causes, accident, homicide, suicide"
+    },
+    "P658": {
+      "id": 63,
+      "predicate": "P658",
+      "label": "tracklist",
+      "description": "audio tracks contained in this release"
+    },
+    "P3373": {
+      "id": 64,
+      "predicate": "P3373",
+      "label": "sibling",
+      "description": "\"the subject and the object have the same parents (brother, sister, etc.); use \"\"relative\"\" (P1038) for siblings-in-law (brother-in-law, sister-in-law, etc.) and step-siblings (step-brothers, step-sisters, etc.)\""
+    },
+    "P5008": {
+      "id": 65,
+      "predicate": "P5008",
+      "label": "on focus list of Wikimedia project",
+      "description": "property to indicate that an item is of particular interest for a Wikimedia project. This property does not add notability. Items should not be created with this property if they are not notable for Wikidata. See also P6104, P972, P2354."
+    },
+    "P144": {
+      "id": 66,
+      "predicate": "P144",
+      "label": "based on",
+      "description": "the work(s) used as the basis for subject item"
+    },
+    "P1877": {
+      "id": 67,
+      "predicate": "P1877",
+      "label": "after a work by",
+      "description": "artist whose work strongly inspired/ was copied in this item"
+    },
+    "P462": {
+      "id": 68,
+      "predicate": "P462",
+      "label": "color",
+      "description": "color of subject"
+    },
+    "P57": {
+      "id": 69,
+      "predicate": "P57",
+      "label": "director",
+      "description": "director(s) of film, TV-series, stageplay, video game or similar"
+    },
+    "P279": {
+      "id": 70,
+      "predicate": "P279",
+      "label": "subclass of",
+      "description": "this item is a subclass (subset) of that item; all instances of these items are instances of those items; different from P31 (instance of), e.g.: K2 is an instance of mountain; volcano is a subclass of mountain (and an instance of volcanic landform)."
+    },
+    "P840": {
+      "id": 71,
+      "predicate": "P840",
+      "label": "narrative location",
+      "description": "the narrative of the work is set in this location"
+    },
+    "P162": {
+      "id": 72,
+      "predicate": "P162",
+      "label": "producer",
+      "description": "person(s) who produced the film, musical work, theatrical production, etc. (for film, this does not include executive producers, associate producers, etc.) [for production company, use P272, video games - use P178]"
+    },
+    "P344": {
+      "id": 73,
+      "predicate": "P344",
+      "label": "director of photography",
+      "description": "person responsible for the framing, lighting, and filtration of the subject work"
+    },
+    "P495": {
+      "id": 74,
+      "predicate": "P495",
+      "label": "country of origin",
+      "description": "country of origin of this item (creative work, food, phrase, product, etc.)"
+    },
+    "P135": {
+      "id": 75,
+      "predicate": "P135",
+      "label": "movement",
+      "description": "literary, artistic, scientific or philosophical movement or scene associated with this person or work. For political ideologies use P1142."
+    },
+    "P61": {
+      "id": 76,
+      "predicate": "P61",
+      "label": "discoverer or inventor",
+      "description": "subject who discovered, first described, invented, or developed this discovery or invention"
+    },
+    "P750": {
+      "id": 77,
+      "predicate": "P750",
+      "label": "distributed by",
+      "description": "distributor of a creative work; distributor for a record label; news agency; film distributor"
+    },
+    "P551": {
+      "id": 78,
+      "predicate": "P551",
+      "label": "residence",
+      "description": "the place where the person is or has been, resident"
+    },
+    "P937": {
+      "id": 79,
+      "predicate": "P937",
+      "label": "work location",
+      "description": "location where persons or organisations were actively participating in employment, business or other work"
+    },
+    "P735": {
+      "id": 80,
+      "predicate": "P735",
+      "label": "given name",
+      "description": "first name or another given name of this person; values used with the property should not link disambiguations nor family names"
+    },
+    "P1412": {
+      "id": 81,
+      "predicate": "P1412",
+      "label": "languages spoken, written or signed",
+      "description": "language(s) that a person or a people speaks, writes or signs, including the native language(s)"
+    },
+    "P2348": {
+      "id": 82,
+      "predicate": "P2348",
+      "label": "time period",
+      "description": "time period (historic period or era, sports season, theatre season, legislative period etc.) in which the subject occurred"
+    },
+    "P19": {
+      "id": 83,
+      "predicate": "P19",
+      "label": "place of birth",
+      "description": "most specific known (e.g. city instead of country, or hospital instead of city) birth location of a person, animal or fictional character"
+    },
+    "P1050": {
+      "id": 84,
+      "predicate": "P1050",
+      "label": "medical condition",
+      "description": "any state relevant to the health of an organism, including diseases and positive conditions"
+    },
+    "P140": {
+      "id": 85,
+      "predicate": "P140",
+      "label": "religion or worldview",
+      "description": "religion of a person, organization or religious building, or associated with this subject"
+    },
+    "P69": {
+      "id": 86,
+      "predicate": "P69",
+      "label": "educated at",
+      "description": "educational institution attended by subject"
+    },
+    "P674": {
+      "id": 87,
+      "predicate": "P674",
+      "label": "characters",
+      "description": "characters which appear in this item (like plays, operas, operettas, books, comics, films, TV series, video games)"
+    },
+    "P291": {
+      "id": 88,
+      "predicate": "P291",
+      "label": "place of publication",
+      "description": "geographical place of publication of the edition (use 1st edition when referring to works)"
+    },
+    "P10527": {
+      "id": 89,
+      "predicate": "P10527",
+      "label": "documentation files at",
+      "description": "institution that holds documentation files about the subject"
+    },
+    "P737": {
+      "id": 90,
+      "predicate": "P737",
+      "label": "influenced by",
+      "description": "this person, idea, etc. is informed by that other person, idea, etc., e.g. âHeidegger was influenced by Aristotleâ"
+    },
+    "P172": {
+      "id": 91,
+      "predicate": "P172",
+      "label": "ethnic group",
+      "description": "subject's ethnicity (consensus is that a VERY high standard of proof is needed for this field to be used. In general this means 1) the subject claims it themselves, or 2) it is widely agreed on by scholars, or 3) is fictional and portrayed as such)"
+    },
+    "P437": {
+      "id": 92,
+      "predicate": "P437",
+      "label": "distribution format",
+      "description": "method (or type) of distribution for the subject"
+    },
+    "P767": {
+      "id": 93,
+      "predicate": "P767",
+      "label": "contributor to the creative work or subject",
+      "description": "person or organization that contributed to a subject: co-creator of a creative work or subject"
+    },
+    "P2283": {
+      "id": 94,
+      "predicate": "P2283",
+      "label": "uses",
+      "description": "item or concept used by the subject or in the operation (see also instrument [P1303] and armament [P520])"
+    },
+    "P725": {
+      "id": 95,
+      "predicate": "P725",
+      "label": "voice actor",
+      "description": "\"performer of a spoken role in a creative work such as animation, video game, radio drama, or dubbing over [use \"\"character role\"\" (P453) as qualifier] [use \"\"cast member\"\" (P161) for live acting]\""
+    },
+    "P1552": {
+      "id": 96,
+      "predicate": "P1552",
+      "label": "has quality",
+      "description": "the entity has an inherent or distinguishing non-material characteristic"
+    },
+    "P910": {
+      "id": 97,
+      "predicate": "P910",
+      "label": "topic's main category",
+      "description": "main Wikimedia category"
+    },
+    "P264": {
+      "id": 98,
+      "predicate": "P264",
+      "label": "record label",
+      "description": "brand and trademark associated with the marketing of subject music recordings and music videos"
+    },
+    "P8345": {
+      "id": 99,
+      "predicate": "P8345",
+      "label": "media franchise",
+      "description": "this creative work belongs to this media franchise"
+    },
+    "P110": {
+      "id": 100,
+      "predicate": "P110",
+      "label": "illustrator",
+      "description": "person drawing the pictures or taking the photographs in a book"
+    },
+    "P800": {
+      "id": 101,
+      "predicate": "P800",
+      "label": "notable work",
+      "description": "notable scientific, artistic or literary work, or other work of significance among subject's works"
+    },
+    "P27": {
+      "id": 102,
+      "predicate": "P27",
+      "label": "country of citizenship",
+      "description": "the object is a country that recognizes the subject as its citizen"
+    },
+    "P20": {
+      "id": 103,
+      "predicate": "P20",
+      "label": "place of death",
+      "description": "most specific known (e.g. city instead of country, or hospital instead of city) death location of a person, animal or fictional character"
+    },
+    "P9139": {
+      "id": 104,
+      "predicate": "P9139",
+      "label": "first family name in Portuguese name",
+      "description": "first (generally maternal) family name in Portuguese names"
+    },
+    "P6886": {
+      "id": 105,
+      "predicate": "P6886",
+      "label": "writing language",
+      "description": "language in which the writer has written their work"
+    },
+    "P1424": {
+      "id": 106,
+      "predicate": "P1424",
+      "label": "topic's main template",
+      "description": "the main template relating to a topic"
+    },
+    "P3092": {
+      "id": 107,
+      "predicate": "P3092",
+      "label": "film crew member",
+      "description": "member of the crew creating an audiovisual work, used for miscellaneous roles qualified with the job title when no specific property exists. Don't use if such a property is available: notably for cast member (P161), director (P57), etc."
+    },
+    "P3931": {
+      "id": 108,
+      "predicate": "P3931",
+      "label": "copyright holder",
+      "description": "person or organisation who holds the copyright of a work according to the Berne Convention"
+    },
+    "P159": {
+      "id": 109,
+      "predicate": "P159",
+      "label": "headquarters location",
+      "description": "city, where an organization's headquarters is or has been situated. Use P276 qualifier for specific building"
+    },
+    "P1344": {
+      "id": 110,
+      "predicate": "P1344",
+      "label": "participant in",
+      "description": "event in which a person or organization was/is a participant; inverse of P710 or P1923"
+    },
+    "P3306": {
+      "id": 111,
+      "predicate": "P3306",
+      "label": "ICAA rating",
+      "description": "rating in the Spanish motion picture content rating system"
+    },
+    "P451": {
+      "id": 112,
+      "predicate": "P451",
+      "label": "unmarried partner",
+      "description": "\"someone with whom the person is in a relationship without being married. Use \"\"spouse\"\" (P26) for married couples\""
+    },
+    "P802": {
+      "id": 113,
+      "predicate": "P802",
+      "label": "student",
+      "description": "notable student(s) of the subject individual"
+    },
+    "P101": {
+      "id": 114,
+      "predicate": "P101",
+      "label": "field of work",
+      "description": "specialization of a person or organization; see P106 for the occupation"
+    },
+    "P607": {
+      "id": 115,
+      "predicate": "P607",
+      "label": "conflict",
+      "description": "battles, wars or other military engagements in which the person or item participated"
+    },
+    "P241": {
+      "id": 116,
+      "predicate": "P241",
+      "label": "military branch",
+      "description": "branch to which this military unit, award, office, or person belongs, e.g. Royal Navy"
+    },
+    "P1283": {
+      "id": 117,
+      "predicate": "P1283",
+      "label": "filmography",
+      "description": "\"item for the list of films a person has contributed to. Don't use it to add film items. Instead, add actors as \"\"cast member\"\" (P161) on items for films, directors with \"\"director\"\" (P57)\""
+    },
+    "P25": {
+      "id": 118,
+      "predicate": "P25",
+      "label": "mother",
+      "description": "\"female parent of the subject. For stepmother, use \"\"stepparent\"\" (P3448)\""
+    },
+    "P410": {
+      "id": 119,
+      "predicate": "P410",
+      "label": "military rank",
+      "description": "\"military rank achieved by a person (should usually have a \"\"start time\"\" qualifier), or military rank associated with a position\""
+    },
+    "P2363": {
+      "id": 120,
+      "predicate": "P2363",
+      "label": "NMHH film rating",
+      "description": "rating of a film in the Hungarian film rating system"
+    },
+    "P9493": {
+      "id": 121,
+      "predicate": "P9493",
+      "label": "artist files at",
+      "description": "institution or collection that holds artist files about the subject"
+    },
+    "P485": {
+      "id": 122,
+      "predicate": "P485",
+      "label": "archives at",
+      "description": "the institution holding the subject's archives"
+    },
+    "P371": {
+      "id": 123,
+      "predicate": "P371",
+      "label": "presenter",
+      "description": "main role in presenting a radio or television program or a performing arts show"
+    },
+    "P629": {
+      "id": 124,
+      "predicate": "P629",
+      "label": "edition or translation of",
+      "description": "is an edition or translation of this entity"
+    },
+    "P98": {
+      "id": 125,
+      "predicate": "P98",
+      "label": "editor",
+      "description": "person who checks and correct a work (such as a book, newspaper, academic journal, etc.) to comply with a rules of certain genre"
+    },
+    "P1040": {
+      "id": 126,
+      "predicate": "P1040",
+      "label": "film editor",
+      "description": "person who works with the raw footage, selecting shots and combining them into sequences to create a finished motion picture"
+    },
+    "P6439": {
+      "id": 127,
+      "predicate": "P6439",
+      "label": "has lyrics",
+      "description": "work whose text is used as the lyrics of this work"
+    },
+    "P112": {
+      "id": 128,
+      "predicate": "P112",
+      "label": "founded by",
+      "description": "founder or co-founder of this organization, religion or place"
+    },
+    "P1532": {
+      "id": 129,
+      "predicate": "P1532",
+      "label": "country for sport",
+      "description": "country a person or a team represents when playing a sport"
+    },
+    "P641": {
+      "id": 130,
+      "predicate": "P641",
+      "label": "sport",
+      "description": "sport that the subject participates or participated in or is associated with"
+    },
+    "P1066": {
+      "id": 131,
+      "predicate": "P1066",
+      "label": "student of",
+      "description": "person who has taught this person"
+    },
+    "P463": {
+      "id": 132,
+      "predicate": "P463",
+      "label": "member of",
+      "description": "organization, club or musical group to which the subject belongs. Do not use for membership in ethnic or social groups, nor for holding a political position, such as a member of parliament (use P39 for that)."
+    },
+    "P1981": {
+      "id": 133,
+      "predicate": "P1981",
+      "label": "FSK film rating",
+      "description": "\"permitted audience of a film, according to the German film-rating system (add PrÃ¼fnummer with qualifier \"\"P2676\"\")\""
+    },
+    "P3342": {
+      "id": 134,
+      "predicate": "P3342",
+      "label": "significant person",
+      "description": "person linked to the item in any possible way"
+    },
+    "P2079": {
+      "id": 135,
+      "predicate": "P2079",
+      "label": "fabrication method",
+      "description": "method, process or technique used to grow, cook, weave, build, assemble, manufacture the item"
+    },
+    "P115": {
+      "id": 136,
+      "predicate": "P115",
+      "label": "home venue",
+      "description": "home stadium or venue of a sports team or applicable performing arts organization"
+    },
+    "P655": {
+      "id": 137,
+      "predicate": "P655",
+      "label": "translator",
+      "description": "agent who adapts any kind of written text from one language to another"
+    },
+    "P7763": {
+      "id": 138,
+      "predicate": "P7763",
+      "label": "copyright status as a creator",
+      "description": "states if the body of work published during the lifetime of this creator is still copyrighted or in the public domain"
+    },
+    "P2650": {
+      "id": 139,
+      "predicate": "P2650",
+      "label": "interested in",
+      "description": "item of special or vested interest to this person or organisation"
+    },
+    "P179": {
+      "id": 140,
+      "predicate": "P179",
+      "label": "part of the series",
+      "description": "series which contains the subject"
+    },
+    "P826": {
+      "id": 141,
+      "predicate": "P826",
+      "label": "tonality",
+      "description": "key of a musical composition"
+    },
+    "P823": {
+      "id": 142,
+      "predicate": "P823",
+      "label": "speaker",
+      "description": "person who is speaker for this event, ceremony, keynote, presentation or in a literary work"
+    },
+    "P84": {
+      "id": 143,
+      "predicate": "P84",
+      "label": "architect",
+      "description": "person or architectural firm responsible for designing this building"
+    },
+    "P4969": {
+      "id": 144,
+      "predicate": "P4969",
+      "label": "derivative work",
+      "description": "new work of art (film, book, software, etc.) derived from major part of this work"
+    },
+    "P119": {
+      "id": 145,
+      "predicate": "P119",
+      "label": "place of burial",
+      "description": "location of grave, resting place, place of ash-scattering, etc. (e.g., town/city or cemetery) for a person or animal. There may be several places: e.g., re-burials, parts of body buried separately."
+    },
+    "P710": {
+      "id": 146,
+      "predicate": "P710",
+      "label": "participant",
+      "description": "\"person, group of people or organization (object) that actively takes/took part in an event or process (subject). Preferably qualify with \"\"object has role\"\" (P3831). Use P1923 for participants that are teams.\""
+    },
+    "P1080": {
+      "id": 147,
+      "predicate": "P1080",
+      "label": "from narrative universe",
+      "description": "subject's fictional entity is in the object narrative. See also P1441 (present in work) and P1445 (fictional universe described in)"
+    },
+    "P123": {
+      "id": 148,
+      "predicate": "P123",
+      "label": "publisher",
+      "description": "organization or person responsible for publishing books, periodicals, printed music, podcasts, games or software"
+    },
+    "P2438": {
+      "id": 149,
+      "predicate": "P2438",
+      "label": "narrator",
+      "description": "narrator, character or person that tells the story"
+    },
+    "P5059": {
+      "id": 150,
+      "predicate": "P5059",
+      "label": "modified version of",
+      "description": "indicates the work or one of its versions which served as a basis for the adaptation or arrangement resulting in the given version of the work"
+    },
+    "P2789": {
+      "id": 151,
+      "predicate": "P2789",
+      "label": "connects with",
+      "description": "item with which the item is physically connected"
+    },
+    "P360": {
+      "id": 152,
+      "predicate": "P360",
+      "label": "is a list of",
+      "description": "common element between all listed items"
+    },
+    "P9419": {
+      "id": 153,
+      "predicate": "P9419",
+      "label": "personal library at",
+      "description": "institution holding the subjectâs personal library"
+    },
+    "P1142": {
+      "id": 154,
+      "predicate": "P1142",
+      "label": "political ideology",
+      "description": "political ideology of an organization or person or of a work (such as a newspaper)"
+    },
+    "P376": {
+      "id": 155,
+      "predicate": "P376",
+      "label": "located on astronomical body",
+      "description": "astronomical body on which features or places are situated"
+    },
+    "P2550": {
+      "id": 156,
+      "predicate": "P2550",
+      "label": "recording or performance of",
+      "description": "item is a recording or release of this composition"
+    },
+    "P275": {
+      "id": 157,
+      "predicate": "P275",
+      "label": "copyright license",
+      "description": "license under which this copyrighted work is released"
+    },
+    "P1753": {
+      "id": 158,
+      "predicate": "P1753",
+      "label": "list related to category",
+      "description": "Wikimedia list equivalent to a Wikimedia category"
+    },
+    "P1875": {
+      "id": 159,
+      "predicate": "P1875",
+      "label": "represented by",
+      "description": "person or agency that represents or manages the subject"
+    },
+    "P1853": {
+      "id": 160,
+      "predicate": "P1853",
+      "label": "blood type",
+      "description": "blood type of the human or animal"
+    },
+    "P6275": {
+      "id": 161,
+      "predicate": "P6275",
+      "label": "copyright representative",
+      "description": "person or organisation who represents the copyright for this person or work of art"
+    },
+    "P7084": {
+      "id": 162,
+      "predicate": "P7084",
+      "label": "related category",
+      "description": "Wikimedia category is related to this item"
+    },
+    "P915": {
+      "id": 163,
+      "predicate": "P915",
+      "label": "filming location",
+      "description": "\"actual place where this scene/film was shot. For the setting, use \"\"narrative location\"\" (P840)\""
+    },
+    "P9899": {
+      "id": 164,
+      "predicate": "P9899",
+      "label": "music created for",
+      "description": "a work, event, etc. for which a musical composition was created (e.g., a play for which incidental music was composed; a ballet for which ballet music was written; a film for which motion picture music was created)"
+    },
+    "P6942": {
+      "id": 165,
+      "predicate": "P6942",
+      "label": "animator",
+      "description": "person creating animated sequences out of still images"
+    },
+    "P53": {
+      "id": 166,
+      "predicate": "P53",
+      "label": "family",
+      "description": "family, including dynasty and nobility houses. Not family name (use P734 for family name)."
+    },
+    "P512": {
+      "id": 167,
+      "predicate": "P512",
+      "label": "academic degree",
+      "description": "academic degree that the person holds"
+    },
+    "P1327": {
+      "id": 168,
+      "predicate": "P1327",
+      "label": "partner in business or sport",
+      "description": "professional collaborator"
+    },
+    "P2408": {
+      "id": 169,
+      "predicate": "P2408",
+      "label": "set in period",
+      "description": "historical, contemporary, or future period, year, century or day the work or genre is set in or event featured in the story of the work"
+    },
+    "P171": {
+      "id": 170,
+      "predicate": "P171",
+      "label": "parent taxon",
+      "description": "closest parent taxon of the taxon in question"
+    },
+    "P1830": {
+      "id": 171,
+      "predicate": "P1830",
+      "label": "owner of",
+      "description": "entities owned by the subject"
+    },
+    "P1535": {
+      "id": 172,
+      "predicate": "P1535",
+      "label": "used by",
+      "description": "item or concept that makes use of the subject (use sub-properties when appropriate)"
+    },
+    "P1037": {
+      "id": 173,
+      "predicate": "P1037",
+      "label": "director / manager",
+      "description": "person who manages any kind of group"
+    },
+    "P2747": {
+      "id": 174,
+      "predicate": "P2747",
+      "label": "Filmiroda rating",
+      "description": "rating of a film in the former (2004â2011) Hungarian film rating system"
+    },
+    "P1268": {
+      "id": 175,
+      "predicate": "P1268",
+      "label": "represents",
+      "description": "organization, individual, or concept that an entity represents"
+    },
+    "P8371": {
+      "id": 176,
+      "predicate": "P8371",
+      "label": "references work, tradition or theory",
+      "description": "\"creative work, tradition or theory this creative work references by allusion, quote or similar means (for citations in scholarly and legal works use P2860, for other more specific properties have a look at \"\"see also\"\" on the property page)\""
+    },
+    "P825": {
+      "id": 177,
+      "predicate": "P825",
+      "label": "dedicated to",
+      "description": "person or organization to whom the subject was dedicated"
+    },
+    "P412": {
+      "id": 178,
+      "predicate": "P412",
+      "label": "voice type",
+      "description": "person's voice type. expected values: soprano, mezzo-soprano, contralto, countertenor, tenor, baritone, bass (and derivatives)"
+    },
+    "P793": {
+      "id": 179,
+      "predicate": "P793",
+      "label": "significant event",
+      "description": "significant or notable events associated with the subject"
+    },
+    "P1340": {
+      "id": 180,
+      "predicate": "P1340",
+      "label": "eye color",
+      "description": "color of the irises of a person's eyes"
+    },
+    "P749": {
+      "id": 181,
+      "predicate": "P749",
+      "label": "parent organization",
+      "description": "parent organization of an organization, opposite of subsidiaries (P355)"
+    },
+    "P103": {
+      "id": 182,
+      "predicate": "P103",
+      "label": "native language",
+      "description": "language or languages a person has learned from early childhood"
+    },
+    "P1423": {
+      "id": 183,
+      "predicate": "P1423",
+      "label": "template has topic",
+      "description": "topic related to template"
+    },
+    "P1454": {
+      "id": 184,
+      "predicate": "P1454",
+      "label": "legal form",
+      "description": "legal form of an entity"
+    },
+    "P941": {
+      "id": 185,
+      "predicate": "P941",
+      "label": "inspired by",
+      "description": "work, human, place or event which inspired this creative work or fictional entity"
+    },
+    "P547": {
+      "id": 186,
+      "predicate": "P547",
+      "label": "commemorates",
+      "description": "what the place, monument, memorial, or holiday, commemorates"
+    },
+    "P460": {
+      "id": 187,
+      "predicate": "P460",
+      "label": "said to be the same as",
+      "description": "this item is said to be the same as that item, but it's uncertain or disputed"
+    },
+    "P7153": {
+      "id": 188,
+      "predicate": "P7153",
+      "label": "significant place",
+      "description": "significant or notable places associated with the subject"
+    },
+    "P5970": {
+      "id": 189,
+      "predicate": "P5970",
+      "label": "MedierÃ¥det rating",
+      "description": "Rating of a film in the Danish movie content rating system"
+    },
+    "P2758": {
+      "id": 190,
+      "predicate": "P2758",
+      "label": "CNC film rating (France)",
+      "description": "category assigned to a film by the Board of Film Classification (CNC) which what audiences may view it in France"
+    },
+    "P3919": {
+      "id": 191,
+      "predicate": "P3919",
+      "label": "contributed to creative work",
+      "description": "\"person is cited as contributing to some creative or published work or series (qualify with \"\"subject has role\"\", P2868)\""
+    },
+    "P2517": {
+      "id": 192,
+      "predicate": "P2517",
+      "label": "category for recipients of this award",
+      "description": "link to Wikimedia category for recipients of this award"
+    },
+    "P2515": {
+      "id": 193,
+      "predicate": "P2515",
+      "label": "costume designer",
+      "description": "person who designed the costumes for a film, television programme, etc"
+    },
+    "P5021": {
+      "id": 194,
+      "predicate": "P5021",
+      "label": "assessment",
+      "description": "subject took the test or exam, or was assessed per test or method"
+    },
+    "P703": {
+      "id": 195,
+      "predicate": "P703",
+      "label": "found in taxon",
+      "description": "the taxon in which the item can be found"
+    },
+    "P2596": {
+      "id": 196,
+      "predicate": "P2596",
+      "label": "culture",
+      "description": "human culture or people (or several cultures) associated with this item"
+    },
+    "P1429": {
+      "id": 197,
+      "predicate": "P1429",
+      "label": "has pet",
+      "description": "pet that a person owns"
+    },
+    "P859": {
+      "id": 198,
+      "predicate": "P859",
+      "label": "sponsor",
+      "description": "organization or individual that sponsors this item"
+    },
+    "P972": {
+      "id": 199,
+      "predicate": "P972",
+      "label": "catalog",
+      "description": "catalog for the item, or, as a qualifier of P528 â catalog for which the 'catalog code' is valid"
+    },
+    "P3650": {
+      "id": 200,
+      "predicate": "P3650",
+      "label": "JMK film rating",
+      "description": "rating of a film in the Austrian film rating system"
+    },
+    "P137": {
+      "id": 201,
+      "predicate": "P137",
+      "label": "operator",
+      "description": "person, profession, or organization that operates the equipment, facility, or service"
+    },
+    "P36": {
+      "id": 202,
+      "predicate": "P36",
+      "label": "capital",
+      "description": "seat of government of a country, province, state or other type of administrative territorial entity"
+    },
+    "P397": {
+      "id": 203,
+      "predicate": "P397",
+      "label": "parent astronomical body",
+      "description": "major astronomical body the item belongs to"
+    },
+    "P3730": {
+      "id": 204,
+      "predicate": "P3730",
+      "label": "next higher rank",
+      "description": "\"higher rank or level in a ranked hierarchy like sport league, military ranks. If there are several possible, list each one and qualify with \"\"criterion used\"\" (P1013), avoid using ranks and date qualifiers. For sports leagues/taxa, use specific properties instead.\""
+    },
+    "P358": {
+      "id": 205,
+      "predicate": "P358",
+      "label": "discography",
+      "description": "item for list pages with discography of artist or band"
+    },
+    "P406": {
+      "id": 206,
+      "predicate": "P406",
+      "label": "soundtrack release",
+      "description": "music release that incorporates music directly recorded from the soundtrack of an audiovisual work"
+    },
+    "P608": {
+      "id": 207,
+      "predicate": "P608",
+      "label": "exhibition history",
+      "description": "exhibitions where the item is or was displayed"
+    },
+    "P740": {
+      "id": 208,
+      "predicate": "P740",
+      "label": "location of formation",
+      "description": "location where a group or organization was formed"
+    },
+    "P1811": {
+      "id": 209,
+      "predicate": "P1811",
+      "label": "list of episodes",
+      "description": "link to the article with the list of episodes for this series"
+    },
+    "P2670": {
+      "id": 210,
+      "predicate": "P2670",
+      "label": "has part(s) of the class",
+      "description": "the subject instance (the subject is not a class) has one or more parts of the object class"
+    },
+    "P2554": {
+      "id": 211,
+      "predicate": "P2554",
+      "label": "production designer",
+      "description": "person(s) responsible for overall aesthetic of the story of this motion picture, play, video game or similar; responsible for visual concept, producing interior, exterior, location, graphics, etc; deals with many and varied logistic related to this"
+    },
+    "P6872": {
+      "id": 212,
+      "predicate": "P6872",
+      "label": "has written for",
+      "description": "publication an author has contributed to"
+    },
+    "P91": {
+      "id": 213,
+      "predicate": "P91",
+      "label": "sexual orientation",
+      "description": "the sexual orientation of the person â use ONLY IF they have stated it themselves, unambiguously, or it has been widely agreed upon by historians after their death"
+    },
+    "P2679": {
+      "id": 214,
+      "predicate": "P2679",
+      "label": "author of foreword",
+      "description": "person who wrote the preface, foreword, or introduction of the book but who isn't an author of the rest of the book"
+    },
+    "P4584": {
+      "id": 215,
+      "predicate": "P4584",
+      "label": "first appearance",
+      "description": "work in which a fictional/mythical character or entity first appeared"
+    },
+    "P282": {
+      "id": 216,
+      "predicate": "P282",
+      "label": "writing system",
+      "description": "alphabet, character set or other system of writing used by a language, supported by a typeface"
+    },
+    "P5166": {
+      "id": 217,
+      "predicate": "P5166",
+      "label": "established from medical condition",
+      "description": "cell line or xenograft established from an individual person or animal with a specific medical condition"
+    },
+    "P1435": {
+      "id": 218,
+      "predicate": "P1435",
+      "label": "heritage designation",
+      "description": "heritage designation of a cultural or natural site"
+    },
+    "P421": {
+      "id": 219,
+      "predicate": "P421",
+      "label": "located in time zone",
+      "description": "time zone for this item"
+    },
+    "P726": {
+      "id": 220,
+      "predicate": "P726",
+      "label": "candidate",
+      "description": "person or party that is an option for an office in this election"
+    },
+    "P8852": {
+      "id": 221,
+      "predicate": "P8852",
+      "label": "facial hair",
+      "description": "style of cutting, arranging, or combing the hair on the subject's face (usually on the chin, cheeks, and upper lip region); beard"
+    },
+    "P669": {
+      "id": 222,
+      "predicate": "P669",
+      "label": "located on street",
+      "description": "\"street, road, or square, where the item is located. To add the number, use Property:P670 \"\"house number\"\" as qualifier. Use property P6375 \"\"street address\"\", if there is no item for the street\""
+    },
+    "P88": {
+      "id": 223,
+      "predicate": "P88",
+      "label": "commissioned by",
+      "description": "person or organization that commissioned this work"
+    },
+    "P105": {
+      "id": 224,
+      "predicate": "P105",
+      "label": "taxon rank",
+      "description": "level in a taxonomic hierarchy"
+    },
+    "P1576": {
+      "id": 225,
+      "predicate": "P1576",
+      "label": "lifestyle",
+      "description": "typical way of life of an individual, group, or culture"
+    },
+    "P812": {
+      "id": 226,
+      "predicate": "P812",
+      "label": "academic major",
+      "description": "major someone studied at college/university"
+    },
+    "P4908": {
+      "id": 227,
+      "predicate": "P4908",
+      "label": "season",
+      "description": "season of a television show or podcast series"
+    },
+    "P1455": {
+      "id": 228,
+      "predicate": "P1455",
+      "label": "list of works",
+      "description": "link to the article with the works of a person; use P358 for discographies"
+    },
+    "P8889": {
+      "id": 229,
+      "predicate": "P8889",
+      "label": "MTRCB rating",
+      "description": "rating of a film or television program in the Philippines"
+    },
+    "P664": {
+      "id": 230,
+      "predicate": "P664",
+      "label": "organizer",
+      "description": "person or institution organizing an event"
+    },
+    "P741": {
+      "id": 231,
+      "predicate": "P741",
+      "label": "playing hand",
+      "description": "hand used to play a racket sport"
+    },
+    "P1427": {
+      "id": 232,
+      "predicate": "P1427",
+      "label": "start point",
+      "description": "starting place of this journey, flight, voyage, trek, migration etc."
+    },
+    "P1444": {
+      "id": 233,
+      "predicate": "P1444",
+      "label": "destination point",
+      "description": "destination for this route (journey, flight, sailing, exploration, migration, etc.)"
+    },
+    "P6": {
+      "id": 234,
+      "predicate": "P6",
+      "label": "head of government",
+      "description": "head of the executive power of this town, city, municipality, state, country, or other governmental body"
+    },
+    "P2643": {
+      "id": 235,
+      "predicate": "P2643",
+      "label": "Carnegie Classification of Institutions of Higher Education",
+      "description": "classification of colleges and universities in the United States"
+    },
+    "P991": {
+      "id": 236,
+      "predicate": "P991",
+      "label": "successful candidate",
+      "description": "person(s) or political organization(s) elected after the election"
+    },
+    "P2354": {
+      "id": 237,
+      "predicate": "P2354",
+      "label": "has list",
+      "description": "Wikimedia list related to this subject"
+    },
+    "P425": {
+      "id": 238,
+      "predicate": "P425",
+      "label": "field of this occupation",
+      "description": "field corresponding to this occupation or profession (use only for occupations/professions - for people use Property:P101, for companies use P452)"
+    },
+    "P5028": {
+      "id": 239,
+      "predicate": "P5028",
+      "label": "sound designer",
+      "description": "person responsible for the sound on a stage, in a film or in a radio drama"
+    },
+    "P1151": {
+      "id": 240,
+      "predicate": "P1151",
+      "label": "topic's main Wikimedia portal",
+      "description": "Wikimedia portal associated with this topic"
+    },
+    "P3834": {
+      "id": 241,
+      "predicate": "P3834",
+      "label": "RTC film rating",
+      "description": "rating of a film in the Mexican film classification system"
+    },
+    "P4647": {
+      "id": 242,
+      "predicate": "P4647",
+      "label": "location of first performance",
+      "description": "location where a work was first debuted, performed or broadcasted"
+    },
+    "P511": {
+      "id": 243,
+      "predicate": "P511",
+      "label": "honorific prefix",
+      "description": "word or expression used before a name, in addressing or referring to a person"
+    },
+    "P5096": {
+      "id": 244,
+      "predicate": "P5096",
+      "label": "member of the crew of",
+      "description": "person who has been a member of a crew associated with the vessel or spacecraft. For spacecraft, inverse of crew member (P1029), backup or reserve team or crew (P3015)"
+    },
+    "P3803": {
+      "id": 245,
+      "predicate": "P3803",
+      "label": "original film format",
+      "description": "film format used to create a work (aliases: film gauge, film size)"
+    },
+    "P176": {
+      "id": 246,
+      "predicate": "P176",
+      "label": "manufacturer",
+      "description": "manufacturer or producer of this product"
+    },
+    "P522": {
+      "id": 247,
+      "predicate": "P522",
+      "label": "type of orbit",
+      "description": "orbit a satellite has around its central body"
+    },
+    "P6658": {
+      "id": 248,
+      "predicate": "P6658",
+      "label": "RCQ classification",
+      "description": "movie classification for the RÃ©gie du CinÃ©ma QuÃ©bÃ©cois"
+    },
+    "P1891": {
+      "id": 249,
+      "predicate": "P1891",
+      "label": "signatory",
+      "description": "person, country, or organization that has signed an official document (use P50 for author)"
+    },
+    "P4330": {
+      "id": 250,
+      "predicate": "P4330",
+      "label": "contains",
+      "description": "item or substance located within this item but not part of it"
+    },
+    "P2684": {
+      "id": 251,
+      "predicate": "P2684",
+      "label": "Kijkwijzer rating",
+      "description": "Dutch media content rating system"
+    },
+    "P466": {
+      "id": 252,
+      "predicate": "P466",
+      "label": "occupant",
+      "description": "person or organization occupying property"
+    },
+    "P967": {
+      "id": 253,
+      "predicate": "P967",
+      "label": "guest of honor",
+      "description": "guest(s) of honor invited to an event, e.g. a convention"
+    },
+    "P404": {
+      "id": 254,
+      "predicate": "P404",
+      "label": "game mode",
+      "description": "a video game's available playing mode(s)"
+    },
+    "P3216": {
+      "id": 255,
+      "predicate": "P3216",
+      "label": "ClassInd rating",
+      "description": "rating of an audiovisual work, video game or RPG in the Brazilian Advisory Rating System (ClassInd)"
+    },
+    "P1754": {
+      "id": 256,
+      "predicate": "P1754",
+      "label": "category related to list",
+      "description": "Wikimedia category that matches the Wikimedia list"
+    },
+    "P5353": {
+      "id": 257,
+      "predicate": "P5353",
+      "label": "school district",
+      "description": "school district to which a settlement or other item belongs"
+    },
+    "P97": {
+      "id": 258,
+      "predicate": "P97",
+      "label": "noble title",
+      "description": "titles held by the person"
+    },
+    "P4805": {
+      "id": 259,
+      "predicate": "P4805",
+      "label": "make-up artist",
+      "description": "person responsible for the make-up of cast members in a theatrical production, TV or film"
+    },
+    "P2360": {
+      "id": 260,
+      "predicate": "P2360",
+      "label": "intended public",
+      "description": "this work, product, object or event is intended for, or has been designed to that person or group of people, animals, plants, etc"
+    },
+    "P3975": {
+      "id": 261,
+      "predicate": "P3975",
+      "label": "secretary general",
+      "description": "leader of a political or international organization, sometimes below the chairperson (P488)"
+    },
+    "P1299": {
+      "id": 262,
+      "predicate": "P1299",
+      "label": "depicted by",
+      "description": "object depicting this subject (creative works, books of the bible)"
+    },
+    "P912": {
+      "id": 263,
+      "predicate": "P912",
+      "label": "has facility",
+      "description": "the subject item has this type of facility, e.g. toilet, car park"
+    },
+    "P1027": {
+      "id": 264,
+      "predicate": "P1027",
+      "label": "conferred by",
+      "description": "person or organization who grants an award, certification, grant, or role"
+    },
+    "P5940": {
+      "id": 265,
+      "predicate": "P5940",
+      "label": "plot expanded in",
+      "description": "a narrative of this creative work is expanded in another work while not necessarily being part of the same series. For series use P179 instead"
+    },
+    "P7137": {
+      "id": 266,
+      "predicate": "P7137",
+      "label": "acknowledged",
+      "description": "persons or institutions acknowledged on a creative work"
+    },
+    "P2359": {
+      "id": 267,
+      "predicate": "P2359",
+      "label": "Roman nomen gentilicium",
+      "description": "standard part of the name of a Roman, link to items about the Roman gens only"
+    },
+    "P1445": {
+      "id": 268,
+      "predicate": "P1445",
+      "label": "fictional universe described in",
+      "description": "\"to link a fictional universe with a work that describes it: <universe> \"\"described in the work:\"\" <work>\""
+    },
+    "P9788": {
+      "id": 269,
+      "predicate": "P9788",
+      "label": "performed at",
+      "description": "a venue or location that a person or group performed at"
+    },
+    "P4101": {
+      "id": 270,
+      "predicate": "P4101",
+      "label": "dissertation submitted to",
+      "description": "institution to whom a thesis or dissertation is submitted"
+    },
+    "P2756": {
+      "id": 271,
+      "predicate": "P2756",
+      "label": "EIRIN film rating",
+      "description": "category in the Japanese film rating system (add EIRIN number with qualifier P2676)"
+    },
+    "P8411": {
+      "id": 272,
+      "predicate": "P8411",
+      "label": "set in environment",
+      "description": "environment (geographic feature, building type, etc.) the narrative work is set in"
+    },
+    "P2175": {
+      "id": 273,
+      "predicate": "P2175",
+      "label": "medical condition treated",
+      "description": "disease that this pharmaceutical drug, procedure, or therapy is used to treat"
+    },
+    "P2541": {
+      "id": 274,
+      "predicate": "P2541",
+      "label": "operating area",
+      "description": "geographic area or jurisdiction an organisation or industry operates in, serves, or has responsibility for"
+    },
+    "P1657": {
+      "id": 275,
+      "predicate": "P1657",
+      "label": "MPA film rating",
+      "description": "US film classification administered by the Motion Picture Association of America"
+    },
+    "P5056": {
+      "id": 276,
+      "predicate": "P5056",
+      "label": "patronym or matronym for this person",
+      "description": "part of a person's name that comes from the given name of a parent, in naming traditions that require it"
+    },
+    "P2848": {
+      "id": 277,
+      "predicate": "P2848",
+      "label": "Wi-Fi access",
+      "description": "internet access availability through Wi-Fi"
+    },
+    "P5869": {
+      "id": 278,
+      "predicate": "P5869",
+      "label": "model item",
+      "description": "defines which item is a best practice example of modelling a subject, which is described by the value of this property, usage instructions at Wikidata:Model items"
+    },
+    "P449": {
+      "id": 279,
+      "predicate": "P449",
+      "label": "original broadcaster",
+      "description": "network(s) or service(s) that originally broadcast a radio or television program"
+    },
+    "P263": {
+      "id": 280,
+      "predicate": "P263",
+      "label": "official residence",
+      "description": "the residence at which heads of government and other senior figures officially reside"
+    },
+    "P1775": {
+      "id": 281,
+      "predicate": "P1775",
+      "label": "follower of",
+      "description": "for unknown artists who work in the manner of the named artist"
+    },
+    "P488": {
+      "id": 282,
+      "predicate": "P488",
+      "label": "chairperson",
+      "description": "presiding member of an organization, group or body"
+    },
+    "P5800": {
+      "id": 283,
+      "predicate": "P5800",
+      "label": "narrative role",
+      "description": "narrative role of this character (should be used as a qualifier with P674 or restricted to a certain work using P10663)"
+    },
+    "P5030": {
+      "id": 284,
+      "predicate": "P5030",
+      "label": "talk show guest",
+      "description": "person invited in a talk show"
+    },
+    "P5707": {
+      "id": 285,
+      "predicate": "P5707",
+      "label": "samples from work",
+      "description": "audio or video which this work uses an excerpt of"
+    },
+    "P6758": {
+      "id": 286,
+      "predicate": "P6758",
+      "label": "supported sports team",
+      "description": "sports team for which a person or a group is a supporter"
+    },
+    "P287": {
+      "id": 287,
+      "predicate": "P287",
+      "label": "designed by",
+      "description": "person(s) or organization which designed the object"
+    },
+    "P9831": {
+      "id": 288,
+      "predicate": "P9831",
+      "label": "release of",
+      "description": "release group this release belongs to"
+    },
+    "P452": {
+      "id": 289,
+      "predicate": "P452",
+      "label": "industry",
+      "description": "specific industry of company or organization"
+    },
+    "P3938": {
+      "id": 290,
+      "predicate": "P3938",
+      "label": "named by",
+      "description": "person or organisation that coined the name; use as qualifier for P2561 and its subproperties"
+    },
+    "P3716": {
+      "id": 291,
+      "predicate": "P3716",
+      "label": "social classification",
+      "description": "social class as recognized in traditional or state law"
+    },
+    "P736": {
+      "id": 292,
+      "predicate": "P736",
+      "label": "cover art by",
+      "description": "name of person or team creating cover artwork for book, record album, single record etc."
+    },
+    "P3301": {
+      "id": 293,
+      "predicate": "P3301",
+      "label": "broadcast by",
+      "description": "channel, network, website or service that broadcast this item over radio, TV or the Internet"
+    },
+    "P5817": {
+      "id": 294,
+      "predicate": "P5817",
+      "label": "state of use",
+      "description": "to indicate state of use of a building, monument, etc. It is not related with its heritage protection (P1435), but to its present state of use. Ex.: abandoned, in use, temporarily closed, etc."
+    },
+    "P1056": {
+      "id": 295,
+      "predicate": "P1056",
+      "label": "product or material produced",
+      "description": "material or product produced by a government agency, business, industry, facility, or process"
+    },
+    "P2936": {
+      "id": 296,
+      "predicate": "P2936",
+      "label": "language used",
+      "description": "language widely used (spoken or written) in this place or at this event"
+    },
+    "P520": {
+      "id": 297,
+      "predicate": "P520",
+      "label": "armament",
+      "description": "equippable weapon item for the subject"
+    },
+    "P149": {
+      "id": 298,
+      "predicate": "P149",
+      "label": "architectural style",
+      "description": "architectural style of a structure"
+    },
+    "P1881": {
+      "id": 299,
+      "predicate": "P1881",
+      "label": "list of characters",
+      "description": "Wikimedia page with the list of characters for this work"
+    },
+    "P54": {
+      "id": 300,
+      "predicate": "P54",
+      "label": "member of sports team",
+      "description": "sports teams or clubs that the subject represents or represented"
+    },
+    "P3205": {
+      "id": 301,
+      "predicate": "P3205",
+      "label": "patient of",
+      "description": "was treated or studied as a patient by this person"
+    },
+    "P8625": {
+      "id": 302,
+      "predicate": "P8625",
+      "label": "bibliography",
+      "description": "Wikimedia page that gives a selection of relevant texts on the given topic"
+    },
+    "P4437": {
+      "id": 303,
+      "predicate": "P4437",
+      "label": "FPB rating",
+      "description": "rating of a film or video game in the South African media content rating system"
+    },
+    "P1533": {
+      "id": 304,
+      "predicate": "P1533",
+      "label": "family name identical to this given name",
+      "description": "last name that is the same as a given first name. Use on items for given names"
+    },
+    "P1165": {
+      "id": 305,
+      "predicate": "P1165",
+      "label": "home world",
+      "description": "home planet or natural satellite for a fictional character or species"
+    },
+    "P9969": {
+      "id": 306,
+      "predicate": "P9969",
+      "label": "catalogue raisonnÃ©",
+      "description": "a catalogue raisonnÃ© for an artist"
+    },
+    "P1434": {
+      "id": 307,
+      "predicate": "P1434",
+      "label": "takes place in fictional universe",
+      "description": "the subject is a work describing a fictional universe, i.e. whose plot occurs in this universe."
+    },
+    "P2860": {
+      "id": 308,
+      "predicate": "P2860",
+      "label": "cites work",
+      "description": "citation from one creative or scholarly work to another"
+    },
+    "P4608": {
+      "id": 309,
+      "predicate": "P4608",
+      "label": "scenographer",
+      "description": "person who designed the stage or film set of this item"
+    },
+    "P7888": {
+      "id": 310,
+      "predicate": "P7888",
+      "label": "merged into",
+      "description": "the subject was dissolved and merged into the object, that existed previously"
+    },
+    "P1290": {
+      "id": 311,
+      "predicate": "P1290",
+      "label": "godparent",
+      "description": "person who is the godparent of a given person"
+    },
+    "P7047": {
+      "id": 312,
+      "predicate": "P7047",
+      "label": "enemy of",
+      "description": "opponent character or group of this fictive character or group"
+    },
+    "P35": {
+      "id": 313,
+      "predicate": "P35",
+      "label": "head of state",
+      "description": "official with the highest formal authority in a country/state"
+    },
+    "P196": {
+      "id": 314,
+      "predicate": "P196",
+      "label": "minor planet group",
+      "description": "is in grouping of minor planets according to similar orbital characteristics"
+    },
+    "P708": {
+      "id": 315,
+      "predicate": "P708",
+      "label": "diocese",
+      "description": "administrative division of the church to which the element belongs; use P5607 for other types of ecclesiastical territorial entities"
+    },
+    "P3402": {
+      "id": 316,
+      "predicate": "P3402",
+      "label": "CNC film rating (Romania)",
+      "description": "rating of a movie in the Romanian content rating system"
+    },
+    "P552": {
+      "id": 317,
+      "predicate": "P552",
+      "label": "handedness",
+      "description": "handedness of the person"
+    },
+    "P7959": {
+      "id": 318,
+      "predicate": "P7959",
+      "label": "historic county",
+      "description": "traditional, geographical division of Great Britain and Ireland"
+    },
+    "P706": {
+      "id": 319,
+      "predicate": "P706",
+      "label": "located in/on physical feature",
+      "description": "located on the specified (geo)physical feature. Should not be used when the value is only political/administrative (P131) or a mountain range (P4552)."
+    },
+    "P3712": {
+      "id": 320,
+      "predicate": "P3712",
+      "label": "objective of project or action",
+      "description": "desired result or outcome"
+    },
+    "P942": {
+      "id": 321,
+      "predicate": "P942",
+      "label": "theme music",
+      "description": "the theme music/song used by the item"
+    },
+    "P8001": {
+      "id": 322,
+      "predicate": "P8001",
+      "label": "endorsed by",
+      "description": "public support given by a person or organization to a political campaign"
+    },
+    "P355": {
+      "id": 323,
+      "predicate": "P355",
+      "label": "has subsidiary",
+      "description": "\"subsidiary of a company or organization; generally a fully owned separate corporation. Compare with \"\"business division\"\" (P199). Opposite of parent organization (P749).\""
+    },
+    "P6086": {
+      "id": 324,
+      "predicate": "P6086",
+      "label": "dramaturge",
+      "description": "person responsible for dramaturgical aspects in a performing arts production"
+    },
+    "P611": {
+      "id": 325,
+      "predicate": "P611",
+      "label": "religious order",
+      "description": "order of monks or nuns to which an individual or religious house belongs"
+    },
+    "P1574": {
+      "id": 326,
+      "predicate": "P1574",
+      "label": "exemplar of",
+      "description": "property for manuscripts, autographs, incunabula, distinct printed copies"
+    },
+    "P1204": {
+      "id": 327,
+      "predicate": "P1204",
+      "label": "Wikimedia portal's main topic",
+      "description": "primary topic of this Wikimedia portal"
+    },
+    "P1817": {
+      "id": 328,
+      "predicate": "P1817",
+      "label": "addressee",
+      "description": "person or organization to whom a letter or note is addressed"
+    },
+    "P1071": {
+      "id": 329,
+      "predicate": "P1071",
+      "label": "location of creation",
+      "description": "place where the item was made; where applicable, location of final assembly"
+    },
+    "P118": {
+      "id": 330,
+      "predicate": "P118",
+      "label": "league",
+      "description": "league in which team or player plays or has played in"
+    },
+    "P400": {
+      "id": 331,
+      "predicate": "P400",
+      "label": "platform",
+      "description": "platform for which a work was developed or released, or the specific platform version of a software product"
+    },
+    "P1074": {
+      "id": 332,
+      "predicate": "P1074",
+      "label": "fictional analog of",
+      "description": "used to link an entity or class of entities appearing in a creative work with the analogous entity or class of entities in the real world"
+    },
+    "P828": {
+      "id": 333,
+      "predicate": "P828",
+      "label": "has cause",
+      "description": "underlying cause, thing that ultimately resulted in this effect"
+    },
+    "P9813": {
+      "id": 334,
+      "predicate": "P9813",
+      "label": "container",
+      "description": "the type or representing item of the container that is located outside of and is not part of the item"
+    },
+    "P30": {
+      "id": 335,
+      "predicate": "P30",
+      "label": "continent",
+      "description": "continent of which the subject is a part"
+    },
+    "P8875": {
+      "id": 336,
+      "predicate": "P8875",
+      "label": "indexed in bibliographic review",
+      "description": "bibliographic review(s) and/or database(s) which index this academic journal"
+    },
+    "P3448": {
+      "id": 337,
+      "predicate": "P3448",
+      "label": "stepparent",
+      "description": "subject has the object as their stepparent"
+    },
+    "P1950": {
+      "id": 338,
+      "predicate": "P1950",
+      "label": "second family name in Spanish name",
+      "description": "second (generally maternal) family name in Spanish names (do not use for other double barrelled names)"
+    },
+    "P1885": {
+      "id": 339,
+      "predicate": "P1885",
+      "label": "cathedral",
+      "description": "principal church of a religious district"
+    },
+    "P483": {
+      "id": 340,
+      "predicate": "P483",
+      "label": "recorded at studio or venue",
+      "description": "studio or location where a musical composition/release was recorded"
+    },
+    "P945": {
+      "id": 341,
+      "predicate": "P945",
+      "label": "allegiance",
+      "description": "country (or other power) that the person or group serves"
+    },
+    "P631": {
+      "id": 342,
+      "predicate": "P631",
+      "label": "structural engineer",
+      "description": "person, group or organisation responsible for the structural engineering of a building or structure"
+    },
+    "P1706": {
+      "id": 343,
+      "predicate": "P1706",
+      "label": "together with",
+      "description": "qualifier to specify the item that this property is shared with"
+    },
+    "P2389": {
+      "id": 344,
+      "predicate": "P2389",
+      "label": "organization directed by the office or position",
+      "description": "organization which is directed by this office"
+    },
+    "P2365": {
+      "id": 345,
+      "predicate": "P2365",
+      "label": "Roman cognomen",
+      "description": "standard part of the name of a Roman, link to items about specific Roman cognomen only."
+    },
+    "P4646": {
+      "id": 346,
+      "predicate": "P4646",
+      "label": "representation of",
+      "description": "performing arts production the item is a representation of"
+    },
+    "P126": {
+      "id": 347,
+      "predicate": "P126",
+      "label": "maintained by",
+      "description": "person or organization in charge of keeping the subject (for instance an infrastructure) in functioning order"
+    },
+    "P1313": {
+      "id": 348,
+      "predicate": "P1313",
+      "label": "office held by head of government",
+      "description": "political office that is fulfilled by the head of the government of this item"
+    },
+    "P8115": {
+      "id": 349,
+      "predicate": "P8115",
+      "label": "eligible recipient",
+      "description": "party that is eligible to receive something, like an award, grant or prize"
+    }
+  }
+}
