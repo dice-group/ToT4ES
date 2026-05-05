@@ -67,6 +67,8 @@ class TaskDecomposedToT:
         self.n_evals = 3
         self.heuristic_calculator = heuristic_calculator
         self.breadth_limit = 3
+        self.thought_temperature = 0.8
+        self.eval_temperature = 0.3
         
         # Task-specific prompt generators
         self.get_relatedness_prompt = get_relatedness_prompt
@@ -157,7 +159,7 @@ class TaskDecomposedToT:
         prompt = task_prompt_fn(self.input_seq, state)
         raw_thoughts = self.chat_completions(
             prompt=prompt,
-            temperature=0.8,
+            temperature=self.thought_temperature,
             max_tokens=32,
             n=self.n_candidates_per_task,
             stop=["\n", ".", ","],
@@ -220,7 +222,7 @@ class TaskDecomposedToT:
             for prompt in prompts:
                 raw_thoughts = self.chat_completions(
                     prompt=prompt,
-                    temperature=0.8,
+                    temperature=self.thought_temperature,
                     max_tokens=32,
                     n=self.n_candidates_per_task,
                     stop=["\n", ".", ","],
@@ -290,7 +292,13 @@ class TaskDecomposedToT:
         prompt = self.get_state_eval_prompt(self.input_seq, states)
         # Evaluation output is short: ~30 chars per state ("SUMMARY_X: R=0.X I=0.X C=0.X")
         eval_max_tokens = max(64, len(states) * 40)
-        state_evals = self.chat_completions(prompt, temperature=0.3, max_tokens=eval_max_tokens, n=self.n_evals, llm=self.llm_evaluation)
+        state_evals = self.chat_completions(
+            prompt,
+            temperature=self.eval_temperature,
+            max_tokens=eval_max_tokens,
+            n=self.n_evals,
+            llm=self.llm_evaluation,
+        )
 
         print("\n[DEBUG] Raw LLM evaluation outputs:")
         for i, s in enumerate(state_evals):
@@ -595,7 +603,11 @@ class TaskDecomposedToT:
         return best_node.state
 
     def __repr__(self) -> str:
-        return (f"TaskDecomposedToT(n_steps={self.n_steps}, "
-                f"n_candidates_per_task={self.n_candidates_per_task}, "
-                f"breadth_limit={self.breadth_limit})")
+        return (
+            f"TaskDecomposedToT(n_steps={self.n_steps}, "
+            f"n_candidates_per_task={self.n_candidates_per_task}, "
+            f"breadth_limit={self.breadth_limit}, "
+            f"thought_temperature={self.thought_temperature}, "
+            f"eval_temperature={self.eval_temperature})"
+        )
 

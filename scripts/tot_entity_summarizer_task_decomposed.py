@@ -16,7 +16,10 @@ Usage:
 
 import argparse
 import os
+import random
 import sys
+
+import numpy as np
 import torch
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -93,6 +96,29 @@ def parse_arguments():
         type=int,
         default=3,
         help="Number of evaluation votes per state",
+    )
+    parser.add_argument(
+        "--thought-temperature",
+        type=float,
+        default=0.8,
+        help="Temperature for thought generation",
+    )
+    parser.add_argument(
+        "--eval-temperature",
+        type=float,
+        default=0.3,
+        help="Temperature for state evaluation",
+    )
+    parser.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="Enable deterministic mode (sets temperatures to 0 and fixed seeds)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed used when --deterministic is enabled",
     )
     parser.add_argument(
         "--breadth-limit",
@@ -176,10 +202,28 @@ def _compute_predicate_frequencies(all_triples):
     return predicates
 
 
+def _set_deterministic_mode(seed: int) -> None:
+    """Configure deterministic behavior across Python, NumPy, and PyTorch."""
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
 def main():
     """Main execution."""
     args = parse_arguments()
-    
+
+    if args.deterministic:
+        _set_deterministic_mode(args.seed)
+        args.thought_temperature = 0.0
+        args.eval_temperature = 0.0
+
     print("="*70)
     print("Task-Decomposed Tree-of-Thought Entity Summarization")
     print("="*70)
@@ -187,6 +231,15 @@ def main():
     print("  - Separate prompts for: Relatedness, Informativeness, Diversity")
     print("  - Combined evaluation of all criteria")
     print("  - Multi-task thought generation per step")
+    if args.deterministic:
+        print("  - Deterministic mode: enabled")
+        print(f"    seed={args.seed}, thought_temperature=0.0, eval_temperature=0.0")
+    else:
+        print("  - Deterministic mode: disabled")
+        print(
+            f"    thought_temperature={args.thought_temperature}, "
+            f"eval_temperature={args.eval_temperature}"
+        )
     print("="*70)
     
     # Load entity
@@ -301,6 +354,8 @@ def main():
     tot.n_candidates_per_task = args.n_candidates_per_task
     tot.n_evals = args.n_evals
     tot.breadth_limit = args.breadth_limit
+    tot.thought_temperature = args.thought_temperature
+    tot.eval_temperature = args.eval_temperature
     
     print(f"  Configuration: {tot}")
     print(f"  Total candidates per step: ~{args.n_candidates_per_task * 3} (from 3 tasks)")

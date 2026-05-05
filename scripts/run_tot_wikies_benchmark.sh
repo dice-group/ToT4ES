@@ -15,8 +15,14 @@ N_CANDIDATES_PER_TASK=3
 GPU_DEVICE=0
 LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 5, 10, etc. for testing
 
+# Determinism settings
+DETERMINISTIC=0   # 1 = deterministic/reproducible mode, 0 = default stochastic mode
+SEED=42
+THOUGHT_TEMPERATURE=0.8
+EVAL_TEMPERATURE=0.3
+
 # Model configuration (customize as needed)
-MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
+MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
@@ -53,6 +59,11 @@ echo "  Max summary length: $MAX_SUMMARY_LEN"
 echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
 echo "  GPU device: $GPU_DEVICE"
 echo "  Model: $MODEL_ID"
+if (( DETERMINISTIC == 1 )); then
+  echo "  Deterministic: enabled (seed=$SEED, thought_temp=0.0, eval_temp=0.0)"
+else
+  echo "  Deterministic: disabled (thought_temp=$THOUGHT_TEMPERATURE, eval_temp=$EVAL_TEMPERATURE)"
+fi
 echo ""
 echo "Paths:"
 echo "  Input data: $ROOT"
@@ -100,6 +111,8 @@ for f in "${nt_files[@]}"; do
     --output-dir \"$OUT\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
+    --thought-temperature $THOUGHT_TEMPERATURE \
+    --eval-temperature $EVAL_TEMPERATURE \
     --model-id \"$MODEL_ID\""
 
   # Add task-specific models if defined
@@ -114,6 +127,10 @@ for f in "${nt_files[@]}"; do
   fi
   if [ -n "${MODEL_EVALUATION:-}" ]; then
     cmd="$cmd --model-evaluation \"$MODEL_EVALUATION\""
+  fi
+
+  if (( DETERMINISTIC == 1 )); then
+    cmd="$cmd --deterministic --seed $SEED"
   fi
 
   # Redirect output
