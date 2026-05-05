@@ -131,6 +131,7 @@ for f in "${nt_files[@]}"; do
 
   if (( DETERMINISTIC == 1 )); then
     cmd="$cmd --deterministic --seed $SEED"
+    cmd="CUBLAS_WORKSPACE_CONFIG=:4096:8 $cmd"
   fi
 
   # Redirect output

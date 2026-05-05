@@ -204,6 +204,7 @@ def _compute_predicate_frequencies(all_triples):
 
 def _set_deterministic_mode(seed: int) -> None:
     """Configure deterministic behavior across Python, NumPy, and PyTorch."""
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
     np.random.seed(seed)
