@@ -311,20 +311,26 @@ def main():
     print("\nCreating task-specific prompts...")
     input_seq = "\n".join(all_triples)
     
+    # Try to use dataset name for loading predicate mappings
+    dataset_for_mapping = args.dataset if args.dataset.endswith("-s") else None
+    
     get_relatedness_prompt = make_relatedness_prompt(
         entity_label,
         all_triples,
         predicate_frequencies=predicate_frequencies,
+        dataset_name=dataset_for_mapping,
     )
     get_informativeness_prompt = make_informativeness_prompt(
         entity_label,
         all_triples,
         predicate_frequencies=predicate_frequencies,
+        dataset_name=dataset_for_mapping,
     )
     get_diversity_prompt = make_diversity_prompt(
         entity_label,
         all_triples,
         semantic_roles=semantic_roles,
+        dataset_name=dataset_for_mapping,
     )
     get_eval_prompt = make_combined_evaluation_prompt(entity_label, all_triples)
     

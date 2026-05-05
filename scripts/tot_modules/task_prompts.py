@@ -4,15 +4,87 @@
 """
 Task-Specific Prompt Factories
 Implements decomposed prompts for Relatedness, Informativeness, and Diversity
+with human-readable triple presentation
 """
 
-from typing import Callable, List
+import json
+from pathlib import Path
+from typing import Callable, List, Dict, Optional
+
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Task-Specific Prompt Factories
+Implements decomposed prompts for Relatedness, Informativeness, and Diversity
+with human-readable triple presentation
+"""
+
+import json
+from pathlib import Path
+from typing import Callable, List, Dict, Optional
+
+
+def _load_predicate_mapping(dataset_name: str) -> Dict[str, str]:
+    """Load predicate ID -> label mapping for a dataset."""
+    
+    # Try to find the mapping file
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent.parent
+    mapping_path = repo_root / "wikies_property_mappings" / f"{dataset_name}.json"
+    
+    if not mapping_path.exists():
+        return {}
+    
+    try:
+        data = json.loads(mapping_path.read_text(encoding="utf-8"))
+        predicates = data.get("predicates", {})
+        return {p_id: p_info.get("label", p_id) for p_id, p_info in predicates.items()}
+    except Exception:
+        return {}
+
+
+def _format_triple_readable(
+    triple_str: str, 
+    predicate_map: Dict[str, str] = None
+) -> str:
+    """
+    Format an RDF triple string into a more human-readable format.
+    
+    Input:  <http://www.wikidata.org/entity/Q2709> <http://www.wikidata.org/prop/direct/P91> <http://www.wikidata.org/entity/Q43200>
+    Output: Avatar (Q2709) --[production_company]--> 20th Century Fox (Q43200)
+    """
+    if not triple_str.strip():
+        return ""
+    
+    predicate_map = predicate_map or {}
+    parts = triple_str.split()
+    
+    if len(parts) < 3:
+        return triple_str
+    
+    subject = parts[0]
+    predicate = parts[1]
+    obj = parts[2]
+    
+    # Extract entity IDs (Q-numbers) and predicate codes (P-numbers)
+    subject_id = subject.split("/")[-1].rstrip(">")
+    predicate_id = predicate.split("/")[-1].rstrip(">")
+    obj_id = obj.split("/")[-1].rstrip(">")
+    
+    # Get human-readable predicate label
+    pred_label = predicate_map.get(predicate_id, predicate_id)
+    
+    # Format as: Subject (ID) --[predicate]--> Object (ID)
+    return f"{subject_id} --[{pred_label}]--> {obj_id}"
 
 
 def make_relatedness_prompt(
     entity_label: str,
     all_triples: List[str],
     predicate_frequencies: dict = None,
+    dataset_name: str = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for RELATEDNESS-focused triple selection with explicit criteria.
@@ -22,20 +94,27 @@ def make_relatedness_prompt(
         all_triples: Complete list of triples for this entity
         predicate_frequencies: Dict mapping predicates to their occurrence count
                               (used to identify core/central predicates)
+        dataset_name: WikiES dataset name (e.g. "wikiprofem-s") for loading predicate mappings
         
     Returns:
         Function that generates relatedness-focused prompts
     """
     
+    # Load predicate mapping if dataset name provided
+    predicate_map = {}
+    if dataset_name:
+        predicate_map = _load_predicate_mapping(dataset_name)
+    
     def _extract_predicate(triple: str) -> str:
-        """Extract predicate from RDF triple string."""
+        """Extract predicate ID from RDF triple string."""
         parts = triple.split()
         if len(parts) >= 2:
-            return parts[1]
+            pred = parts[1]
+            return pred.split("/")[-1].rstrip(">")
         return ""
     
     def _get_core_predicates(top_n: int = 8) -> str:
-        """Get most common/core predicates from corpus statistics."""
+        """Get most common/core predicates from corpus statistics with labels."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -44,8 +123,8 @@ def make_relatedness_prompt(
             key=lambda x: x[1],
             reverse=True
         )
-        core = [p for p, _ in sorted_preds[:top_n]]
-        return ", ".join(core) if core else "Analysis shows no clear core predicates"
+        core = [(p, predicate_map.get(p, p)) for p, _ in sorted_preds[:top_n]]
+        return ", ".join([f"{p} ({label})" for p, label in core]) if core else "Analysis shows no clear core predicates"
     
     def _inner(input_seq: str, state: str) -> str:
         selected_ids: List[int] = []
@@ -58,11 +137,13 @@ def make_relatedness_prompt(
         candidate_lines = []
         for idx, triple in enumerate(all_triples, start=1):
             if idx not in selected_set:
-                candidate_lines.append(f"{idx}. {triple}")
+                readable = _format_triple_readable(triple, predicate_map)
+                candidate_lines.append(f"{idx}. {readable}")
 
         if selected_ids:
             selected_text = "\n".join(
-                f"{i}. {all_triples[i - 1]}" for i in selected_ids if 1 <= i <= len(all_triples)
+                f"{i}. {_format_triple_readable(all_triples[i - 1], predicate_map)}" 
+                for i in selected_ids if 1 <= i <= len(all_triples)
             )
             exclusion_note = f"\nDO NOT select indices: {', '.join(map(str, selected_ids))}"
         else:
@@ -109,6 +190,7 @@ def make_informativeness_prompt(
     all_triples: List[str],
     predicate_frequencies: dict = None,
     selected_triples: List[int] = None,
+    dataset_name: str = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for INFORMATIVENESS-focused triple selection with explicit criteria.
@@ -119,29 +201,37 @@ def make_informativeness_prompt(
         predicate_frequencies: Dict mapping predicates to their occurrence count in corpus
                               (used to identify rare predicates)
         selected_triples: List of indices already selected (for topic coverage tracking)
+        dataset_name: WikiES dataset name (e.g. "wikiprofem-s") for loading predicate mappings
         
     Returns:
         Function that generates informativeness-focused prompts
     """
     
+    # Load predicate mapping if dataset name provided
+    predicate_map = {}
+    if dataset_name:
+        predicate_map = _load_predicate_mapping(dataset_name)
+    
     def _extract_predicate(triple: str) -> str:
-        """Extract predicate from RDF triple string."""
+        """Extract predicate ID from RDF triple string."""
         parts = triple.split()
         if len(parts) >= 2:
-            return parts[1]
+            pred = parts[1]
+            return pred.split("/")[-1].rstrip(">")
         return ""
     
     def _get_selected_predicates(selected_ids: List[int]) -> set:
-        """Get set of predicates already selected."""
+        """Get set of predicates already selected with labels."""
         predicates = set()
         for idx in selected_ids:
             if 1 <= idx <= len(all_triples):
-                pred = _extract_predicate(all_triples[idx - 1])
-                predicates.add(pred)
+                pred_id = _extract_predicate(all_triples[idx - 1])
+                pred_label = predicate_map.get(pred_id, pred_id)
+                predicates.add(f"{pred_id} ({pred_label})")
         return predicates
     
     def _get_rare_predicates(top_n: int = 8) -> str:
-        """Get rare predicates from corpus statistics."""
+        """Get rare predicates from corpus statistics with labels."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -149,8 +239,8 @@ def make_informativeness_prompt(
             predicate_frequencies.items(),
             key=lambda x: x[1]
         )
-        rare = [p for p, _ in sorted_preds[:top_n]]
-        return ", ".join(rare) if rare else "Analysis shows no clear rare predicates"
+        rare = [(p, predicate_map.get(p, p)) for p, _ in sorted_preds[:top_n]]
+        return ", ".join([f"{p} ({label})" for p, label in rare]) if rare else "Analysis shows no clear rare predicates"
     
     def _inner(input_seq: str, state: str) -> str:
         selected_ids: List[int] = []
@@ -163,11 +253,13 @@ def make_informativeness_prompt(
         candidate_lines = []
         for idx, triple in enumerate(all_triples, start=1):
             if idx not in selected_set:
-                candidate_lines.append(f"{idx}. {triple}")
+                readable = _format_triple_readable(triple, predicate_map)
+                candidate_lines.append(f"{idx}. {readable}")
 
         if selected_ids:
             selected_text = "\n".join(
-                f"{i}. {all_triples[i - 1]}" for i in selected_ids if 1 <= i <= len(all_triples)
+                f"{i}. {_format_triple_readable(all_triples[i - 1], predicate_map)}" 
+                for i in selected_ids if 1 <= i <= len(all_triples)
             )
             exclusion_note = f"\nDO NOT select indices: {', '.join(map(str, selected_ids))}"
         else:
@@ -205,9 +297,6 @@ Already selected:
 {selected_text}
 
 Remaining candidates:
-{candidates_text}
-
-For each candidate, briefly evaluate: predicate rarity + topic coverage + value specificity.
 Select ONE triple index that is MOST INFORMATIVE (best combines rarity + novelty + specificity).{exclusion_note}
 
 Output ONLY the integer index:
@@ -220,6 +309,7 @@ def make_diversity_prompt(
     entity_label: str,
     all_triples: List[str],
     semantic_roles: dict = None,
+    dataset_name: str = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for DIVERSITY/COVERAGE-focused triple selection with explicit coverage analysis.
@@ -229,16 +319,23 @@ def make_diversity_prompt(
         all_triples: Complete list of triples for this entity
         semantic_roles: Dict mapping predicates to semantic role categories
                         (e.g., {"dbpedia:birthPlace": "location", "dbo:birthDate": "time"})
+        dataset_name: WikiES dataset name (e.g. "wikiprofem-s") for loading predicate mappings
         
     Returns:
         Function that generates diversity-focused prompts
     """
     
+    # Load predicate mapping if dataset name provided
+    predicate_map = {}
+    if dataset_name:
+        predicate_map = _load_predicate_mapping(dataset_name)
+    
     def _extract_predicate(triple: str) -> str:
-        """Extract predicate from RDF triple string."""
+        """Extract predicate ID from RDF triple string."""
         parts = triple.split()
         if len(parts) >= 2:
-            return parts[1]
+            pred = parts[1]
+            return pred.split("/")[-1].rstrip(">")
         return ""
     
     def _get_semantic_roles_coverage(selected_ids: List[int]) -> str:
@@ -286,11 +383,13 @@ def make_diversity_prompt(
         candidate_lines = []
         for idx, triple in enumerate(all_triples, start=1):
             if idx not in selected_set:
-                candidate_lines.append(f"{idx}. {triple}")
+                readable = _format_triple_readable(triple, predicate_map)
+                candidate_lines.append(f"{idx}. {readable}")
 
         if selected_ids:
             selected_text = "\n".join(
-                f"{i}. {all_triples[i - 1]}" for i in selected_ids if 1 <= i <= len(all_triples)
+                f"{i}. {_format_triple_readable(all_triples[i - 1], predicate_map)}" 
+                for i in selected_ids if 1 <= i <= len(all_triples)
             )
             exclusion_note = f"\nDO NOT select indices: {', '.join(map(str, selected_ids))}"
         else:

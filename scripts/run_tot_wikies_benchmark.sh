@@ -12,6 +12,8 @@ LOGS="logs/tot_wikies"
 DATASET="wikicinema-s"
 MAX_SUMMARY_LEN=5
 N_CANDIDATES_PER_TASK=3
+N_EVALS=1
+BREADTH_LIMIT=2
 GPU_DEVICE=0
 LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 5, 10, etc. for testing
 
@@ -22,7 +24,7 @@ THOUGHT_TEMPERATURE=0.8
 EVAL_TEMPERATURE=0.3
 
 # Model configuration (customize as needed)
-MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
+MODEL_ID="meta-llama/Llama-3.2-3B-Instruct"
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
@@ -111,6 +113,8 @@ for f in "${nt_files[@]}"; do
     --output-dir \"$OUT\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
+    --n-evals $N_EVALS \
+    --breadth-limit $BREADTH_LIMIT \
     --thought-temperature $THOUGHT_TEMPERATURE \
     --eval-temperature $EVAL_TEMPERATURE \
     --model-id \"$MODEL_ID\""
