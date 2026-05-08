@@ -311,8 +311,8 @@ def main():
     print("\nCreating task-specific prompts...")
     input_seq = "\n".join(all_triples)
     
-    # Try to use dataset name for loading predicate mappings
-    dataset_for_mapping = args.dataset if args.dataset.endswith("-s") else None
+    # Use dataset name for loading predicate mappings (passed from CLI / bash)
+    dataset_for_mapping = args.dataset
     
     get_relatedness_prompt = make_relatedness_prompt(
         entity_label,

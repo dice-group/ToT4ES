@@ -6,13 +6,14 @@ Task-Specific Prompt Factories
 Implements decomposed prompts for Relatedness, Informativeness, and Diversity
 """
 
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 
 def make_relatedness_prompt(
     entity_label: str,
     all_triples: List[str],
     predicate_frequencies: dict = None,
+    dataset_name: Optional[str] = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for RELATEDNESS-focused triple selection with explicit criteria.
@@ -109,6 +110,7 @@ def make_informativeness_prompt(
     all_triples: List[str],
     predicate_frequencies: dict = None,
     selected_triples: List[int] = None,
+    dataset_name: Optional[str] = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for INFORMATIVENESS-focused triple selection with explicit criteria.
@@ -220,6 +222,7 @@ def make_diversity_prompt(
     entity_label: str,
     all_triples: List[str],
     semantic_roles: dict = None,
+    dataset_name: Optional[str] = None,
 ) -> Callable[[str, str], str]:
     """
     Create prompt for DIVERSITY/COVERAGE-focused triple selection with explicit coverage analysis.
