@@ -232,45 +232,22 @@ class TaskDecomposedToT:
         all_thoughts = {}
         
         if all_same_model:
-            # FAST PATH: Batch all three prompts together
+            # SHARED-MODEL PATH: generate thoughts with the same LLM for each task
             if verbose:
-                print(f"  Generating thoughts for ALL TASKS (batched)...")
-            
-            # Create combined prompts
-            prompts = []
-            task_names = []
-            for task_name, (prompt_fn, _) in tasks.items():
-                prompts.append(prompt_fn(self.input_seq, state))
-                task_names.append(task_name)
-            
-            # Single batched LLM call for all tasks
-            # Generate n_candidates_per_task for each prompt
-            all_raw_thoughts = []
-            for prompt in prompts:
-                raw_thoughts = self.chat_completions(
-                    prompt=prompt,
-                    temperature=self.thought_temperature,
-                    max_tokens=32,
-                    n=self.n_candidates_per_task,
-                    stop=["\n", ".", ","],
-                    llm=self.llm,
-                    enable_thinking=False,
+                print(f"  Generating thoughts for ALL TASKS (shared model)...")
+
+            for task_name, (prompt_fn, task_llm) in tasks.items():
+                thoughts = self.task_thought_generator(
+                    state,
+                    prompt_fn,
+                    task_name,
+                    llm=task_llm,
+                    verbose=verbose,
                 )
-                all_raw_thoughts.append(raw_thoughts)
-            
-            # Parse results for each task
-            for task_name, raw_thoughts in zip(task_names, all_raw_thoughts):
-                thought_ids = []
-                for txt in raw_thoughts:
-                    tid = extract_first_int(txt)
-                    if tid is not None and 1 <= tid <= self.num_triples:
-                        thought_ids.append(str(tid))
-                
-                unique_thoughts = list(dict.fromkeys(thought_ids))
-                all_thoughts[task_name] = unique_thoughts
-                
+                all_thoughts[task_name] = thoughts
+
                 if verbose:
-                    print(f"    {task_name}: {unique_thoughts}")
+                    print(f"    {task_name}: {thoughts}")
         else:
             # SLOW PATH: Sequential generation (different models per task)
             for task_name, (prompt_fn, task_llm) in tasks.items():
