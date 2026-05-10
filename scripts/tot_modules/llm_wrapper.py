@@ -82,6 +82,7 @@ class Llama32Chat:
             batch_out = self.pipe(
                 batch_prompts,
                 max_new_tokens=max_new_tokens,
+                min_new_tokens=1,
                 do_sample=True,
                 temperature=temperature,
                 pad_token_id=self.tokenizer.eos_token_id,
@@ -95,6 +96,7 @@ class Llama32Chat:
                 out = self.pipe(
                     prompt,
                     max_new_tokens=max_new_tokens,
+                    min_new_tokens=1,
                     do_sample=do_sample,
                     temperature=temperature,
                     pad_token_id=self.tokenizer.eos_token_id,
@@ -156,6 +158,7 @@ class Qwen3CoderChat:
             batch_out = self.pipe(
                 batch_prompts,
                 max_new_tokens=max_new_tokens,
+                min_new_tokens=1,
                 do_sample=True,
                 temperature=temperature,
                 pad_token_id=self.tokenizer.eos_token_id,
@@ -169,6 +172,7 @@ class Qwen3CoderChat:
                 out = self.pipe(
                     prompt,
                     max_new_tokens=max_new_tokens,
+                    min_new_tokens=1,
                     do_sample=do_sample,
                     temperature=temperature,
                     pad_token_id=self.tokenizer.eos_token_id,

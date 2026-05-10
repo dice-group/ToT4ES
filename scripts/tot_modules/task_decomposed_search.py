@@ -144,6 +144,7 @@ class TaskDecomposedToT:
         task_prompt_fn: Callable[[str, str], str],
         task_name: str,
         llm: Optional[Llama32Chat] = None,
+        verbose: bool = False,
     ) -> List[str]:
         """
         Generate thoughts using a specific task prompt.
@@ -175,6 +176,31 @@ class TaskDecomposedToT:
                 thought_ids.append(str(tid))
 
         unique_thoughts = list(dict.fromkeys(thought_ids))
+
+        # Fallback for models that occasionally return empty/non-numeric text
+        # on the first sampled attempt (observed with some Llama variants).
+        if not unique_thoughts:
+            fallback_outputs = self.chat_completions(
+                prompt=prompt,
+                temperature=0.0,
+                max_tokens=64,
+                n=max(2, self.n_candidates_per_task),
+                stop=None,
+                llm=llm,
+                enable_thinking=False,
+            )
+
+            fallback_ids: List[str] = []
+            for txt in fallback_outputs:
+                tid = extract_first_int(txt)
+                if tid is not None and 1 <= tid <= self.num_triples:
+                    fallback_ids.append(str(tid))
+
+            unique_thoughts = list(dict.fromkeys(fallback_ids))
+
+            if verbose and unique_thoughts:
+                print(f"    [fallback:{task_name}] recovered thoughts: {unique_thoughts}")
+
         return unique_thoughts
 
     def generate_thoughts_all_tasks(self, state: str, verbose: bool = False) -> Dict[str, List[str]]:
@@ -253,7 +279,13 @@ class TaskDecomposedToT:
                     if task_llm != self.llm:
                         print(f"    Using task-specific model: {task_llm.model_id}")
                 
-                thoughts = self.task_thought_generator(state, prompt_fn, task_name, llm=task_llm)
+                thoughts = self.task_thought_generator(
+                    state,
+                    prompt_fn,
+                    task_name,
+                    llm=task_llm,
+                    verbose=verbose,
+                )
                 all_thoughts[task_name] = thoughts
                 
                 if verbose:
