@@ -114,11 +114,12 @@ class TreeOfThoughts:
         )
         outputs: List[str] = []
         for text in raw_outputs:
+            text = text.lstrip()
             if stop:
                 for s in stop:
                     if s:
                         idx = text.find(s)
-                        if idx != -1:
+                        if idx > 0:
                             text = text[:idx]
             outputs.append(text.strip())
         return outputs
