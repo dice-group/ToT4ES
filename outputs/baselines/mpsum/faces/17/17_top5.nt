@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Manchester_City_F.C.> <http://dbpedia.org/ontology/league> <http://dbpedia.org/resource/Premier_League> .
-<http://dbpedia.org/resource/Manchester_City_F.C.> <http://dbpedia.org/ontology/season> <http://dbpedia.org/resource/2011%E2%80%9312_Premier_League> .
-<http://dbpedia.org/resource/Manchester_City_F.C.> <http://dbpedia.org/property/name> <http://dbpedia.org/resource/Abdisalam_Ibrahim> .
-<http://dbpedia.org/resource/Manchester_City_F.C.> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Manchester_City_F.C.?oldid=547226848> .
-<http://dbpedia.org/resource/Manchester_City_F.C.> <http://dbpedia.org/property/ceo> <http://dbpedia.org/resource/Ferran_Soriano> .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/Manchester> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Turing_machine> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/award> <http://dbpedia.org/resource/Fellow_of_the_Royal_Society> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Cryptanalysis_of_the_Enigma> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/property/almaMater> <http://dbpedia.org/resource/Princeton_University> .

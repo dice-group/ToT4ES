@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/ontology/service> <http://dbpedia.org/resource/Financial_services> .
-<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/products> <http://dbpedia.org/resource/Automobile> .
-<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/ontology/division> <http://dbpedia.org/resource/Lexus_F> .
-<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Lexus_division_emblem.svg/200px-Lexus_division_emblem.svg.png> .
-<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/homepage> <http://www.lexus-global.com/> .

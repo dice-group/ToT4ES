@@ -2,6 +2,26 @@
 set -euo pipefail
 
 # Process all DBpedia entities with Task-Decomposed ToT
+# 
+# ABLATION STUDY SUPPORT:
+# This script can be used to run ablation variants for RQ2 analysis.
+# Use environment variables to specify variant configurations.
+#
+# Examples:
+#   # Normal run (full model)
+#   ./run_tot_task_decomposed.sh
+#
+#   # Ablation variant: No thought policy (random candidates)
+#   USE_RANDOM_CANDIDATES=true ./run_tot_task_decomposed.sh
+#
+#   # Ablation variant: No branching (beam_width=1)
+#   N_CANDIDATES_PER_TASK=1 ./run_tot_task_decomposed.sh
+#
+#   # Ablation variant: Custom weights
+#   W_RELATEDNESS=1.0 W_INFORMATIVENESS=0.0 W_COVERAGE=0.0 ./run_tot_task_decomposed.sh
+#
+#   # Quick test with limited entities
+#   LIMIT_ENTITIES=5 ./run_tot_task_decomposed.sh
 
 #ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
 #ROOT="../datasets/FACES/faces_data"
@@ -12,9 +32,9 @@ LOGS="logs/tot_task_decomposed"
 # Configuration
 DATASET="wikicinema-s"
 MAX_SUMMARY_LEN=5
-N_CANDIDATES_PER_TASK=3
+N_CANDIDATES_PER_TASK=${N_CANDIDATES_PER_TASK:-3}  # Ablation: override to 1 for greedy
 GPU_DEVICE=1
-LIMIT_ENTITIES=0  # Set to 0 to process all, or change to 2, 5, etc. for testing
+LIMIT_ENTITIES=${LIMIT_ENTITIES:-0}  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
 MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
@@ -23,6 +43,26 @@ MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
 # MODEL_DIVERSITY="meta-llama/Llama-3.2-3B-Instruct"
 # MODEL_EVALUATION="meta-llama/Llama-3.2-3B-Instruct"
+
+# ═══════════════════════════════════════════════════════════
+# ABLATION STUDY PARAMETERS (RQ2)
+# Set via environment variables to test different configurations
+# ═══════════════════════════════════════════════════════════
+
+# Semantic dimension weights (for value function aggregation)
+W_RELATEDNESS=${W_RELATEDNESS:-0.4}
+W_INFORMATIVENESS=${W_INFORMATIVENESS:-0.4}
+W_COVERAGE=${W_COVERAGE:-0.2}
+
+# Evaluation parameters
+N_EVALUATION_SAMPLES=${N_EVALUATION_SAMPLES:-3}
+BEAM_WIDTH=${BEAM_WIDTH:-3}
+
+# Candidate selection strategy
+USE_RANDOM_CANDIDATES=${USE_RANDOM_CANDIDATES:-false}
+
+# Display variant information
+VARIANT_NAME="${VARIANT_NAME:-full}"  # For logging/tracking
 
 mkdir -p "$OUT" "$LOGS"
 
@@ -45,6 +85,9 @@ fi
 
 echo "═══════════════════════════════════════════════════════════"
 echo "Task-Decomposed ToT - Entity Processing"
+if [ "$VARIANT_NAME" != "full" ]; then
+  echo "  [ABLATION STUDY VARIANT: $VARIANT_NAME]"
+fi
 echo "═══════════════════════════════════════════════════════════"
 echo "Total entities found: ${#nt_files[@]} to process"
 echo ""
@@ -54,6 +97,20 @@ echo "  Max summary length: $MAX_SUMMARY_LEN"
 echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
 echo "  GPU device: $GPU_DEVICE"
 echo "  Model: $MODEL_ID"
+echo ""
+echo "Semantic Dimensions (Value Function):"
+echo "  Relatedness weight (w_r): $W_RELATEDNESS"
+echo "  Informativeness weight (w_i): $W_INFORMATIVENESS"
+echo "  Coverage weight (w_c): $W_COVERAGE"
+echo "  V_M(s) = ${W_RELATEDNESS}*R + ${W_INFORMATIVENESS}*I + ${W_COVERAGE}*C"
+echo ""
+echo "Search & Evaluation:"
+echo "  Beam width: $BEAM_WIDTH"
+echo "  Evaluation samples: $N_EVALUATION_SAMPLES"
+echo "  Random candidates: $USE_RANDOM_CANDIDATES"
+if (( LIMIT_ENTITIES > 0 )); then
+  echo "  Limited to: $LIMIT_ENTITIES entities (for testing)"
+fi
 echo ""
 echo "Paths:"
 echo "  Input data: $ROOT"
@@ -101,7 +158,17 @@ for f in "${nt_files[@]}"; do
     --output-dir \"$OUT\" \
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
-    --model-id \"$MODEL_ID\""
+    --model-id \"$MODEL_ID\" \
+    --w-relatedness $W_RELATEDNESS \
+    --w-informativeness $W_INFORMATIVENESS \
+    --w-coverage $W_COVERAGE \
+    --beam-width $BEAM_WIDTH \
+    --n-evaluation-samples $N_EVALUATION_SAMPLES"
+
+  # Add random candidates flag if specified (ablation variant)
+  if [ "$USE_RANDOM_CANDIDATES" = "true" ]; then
+    cmd="$cmd --use-random-candidates"
+  fi
 
   # Add task-specific models if defined
   if [ -n "${MODEL_RELATEDNESS:-}" ]; then
@@ -139,6 +206,21 @@ end_time=$(date +%s)
 end_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 total_time=$((end_time - start_time))
 
+# Record ablation variant info for tracking
+VARIANT_INFO=""
+if [ "$W_RELATEDNESS" != "0.4" ] || [ "$W_INFORMATIVENESS" != "0.4" ] || [ "$W_COVERAGE" != "0.2" ]; then
+  VARIANT_INFO="Weights: R=$W_RELATEDNESS I=$W_INFORMATIVENESS C=$W_COVERAGE"
+fi
+if [ "$N_CANDIDATES_PER_TASK" != "3" ]; then
+  VARIANT_INFO="${VARIANT_INFO} Candidates: $N_CANDIDATES_PER_TASK"
+fi
+if [ "$USE_RANDOM_CANDIDATES" = "true" ]; then
+  VARIANT_INFO="${VARIANT_INFO} RandomCandidates: ON"
+fi
+if [ "$BEAM_WIDTH" != "3" ]; then
+  VARIANT_INFO="${VARIANT_INFO} BeamWidth: $BEAM_WIDTH"
+fi
+
 if (( processed_count > 0 )); then
   avg_time=$(awk "BEGIN {printf \"%.2f\", $total_time/$processed_count}")
 else
@@ -169,10 +251,24 @@ REPORT_FILE="$OUT/overall_report.txt"
 {
   echo "═══════════════════════════════════════════════════════════"
   echo "Task-Decomposed ToT Processing Report"
+  if [ "$VARIANT_NAME" != "full" ]; then
+    echo "  [ABLATION STUDY VARIANT: $VARIANT_NAME]"
+  fi
   echo "═══════════════════════════════════════════════════════════"
   echo "Start time:           $start_timestamp"
   echo "End time:             $end_timestamp"
   echo "Total runtime:        ${total_time}s"
+  echo ""
+  echo "Configuration:"
+  echo "  Dataset: $DATASET"
+  echo "  Model: $MODEL_ID"
+  echo "  Weights: R=$W_RELATEDNESS I=$W_INFORMATIVENESS C=$W_COVERAGE"
+  echo "  Beam Width: $BEAM_WIDTH"
+  echo "  Evaluation Samples: $N_EVALUATION_SAMPLES"
+  echo "  Candidates Per Task: $N_CANDIDATES_PER_TASK"
+  if [ "$USE_RANDOM_CANDIDATES" = "true" ]; then
+    echo "  Selection Method: RANDOM (Ablation - For RQ2)"
+  fi
   echo ""
   echo "Results:"
   echo "  Processed:          $processed_count"
@@ -188,3 +284,41 @@ REPORT_FILE="$OUT/overall_report.txt"
 
 echo ""
 echo "✓ All processing complete!"
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "Ablation Study (RQ2) - Running Variants from This Script"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+echo "To run ablation study variants, use environment variables:"
+echo ""
+echo "  # Baseline (full model)"
+echo "  ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 1: No thought policy (random candidates)"
+echo "  USE_RANDOM_CANDIDATES=true VARIANT_NAME=no_thought ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 2: No branching (greedy, beam_width=1)"
+echo "  BEAM_WIDTH=1 VARIANT_NAME=no_branch ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 3: Only relatedness (ignore I and C)"
+echo "  W_RELATEDNESS=1.0 W_INFORMATIVENESS=0.0 W_COVERAGE=0.0 VARIANT_NAME=only_relatedness ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 4: Only informativeness"
+echo "  W_RELATEDNESS=0.0 W_INFORMATIVENESS=1.0 W_COVERAGE=0.0 VARIANT_NAME=only_informativeness ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 5: Only coverage"
+echo "  W_RELATEDNESS=0.0 W_INFORMATIVENESS=0.0 W_COVERAGE=1.0 VARIANT_NAME=only_coverage ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 6: Uniform weights"
+echo "  W_RELATEDNESS=0.333 W_INFORMATIVENESS=0.333 W_COVERAGE=0.334 VARIANT_NAME=uniform_weights ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Test with limited entities (5 entities)"
+echo "  LIMIT_ENTITIES=5 ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Combine: Ablation variant + limited entities"
+echo "  USE_RANDOM_CANDIDATES=true LIMIT_ENTITIES=10 VARIANT_NAME=no_thought ./run_tot_task_decomposed.sh"
+echo ""
+echo "For complete ablation study automation, use ablation_runner.py:"
+echo "  cd .. && python scripts/ablation_runner.py --dataset wikicinema-s"
+echo ""
+echo "═══════════════════════════════════════════════════════════"

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/influenced> <http://dbpedia.org/resource/Thomas_Henry_Huxley> .
-<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/award> <http://dbpedia.org/resource/Royal_Medal> .
-<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/property/awards> <http://dbpedia.org/resource/Royal_Medal> .
-<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Shropshire> .
-<http://dbpedia.org/resource/Charles_Darwin> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Natural_selection> .

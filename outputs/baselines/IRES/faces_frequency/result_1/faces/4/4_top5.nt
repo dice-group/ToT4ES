@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Melinda_Gates> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/BillGates2012.jpg/200px-BillGates2012.jpg> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/title> <http://dbpedia.org/resource/List_of_billionaires> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/ontology/religion> <http://dbpedia.org/resource/Agnosticism> .
-<http://dbpedia.org/resource/Bill_Gates> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Warren_Buffett> .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/termPeriod> <http://dbpedia.org/resource/Joe_Biden__2> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/termPeriod> <http://dbpedia.org/resource/Joe_Biden__1> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/Strom_Thurmond> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/Hunter_Biden> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/Beau_Biden> .

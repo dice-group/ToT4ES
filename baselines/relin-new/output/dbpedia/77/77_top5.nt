@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/department> <http://dbpedia.org/resource/Var_(department)> .
-<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/maximumElevation> "560.0"^^<http://www.w3.org/2001/XMLSchema#double> .
-<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/minimumElevation> "0.0"^^<http://www.w3.org/2001/XMLSchema#double> .
-<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/region> <http://dbpedia.org/resource/Provence-Alpes-Côte_d'Azur> .
-<http://dbpedia.org/resource/Saint-Raphaël,_Var> <http://dbpedia.org/ontology/inseeCode> "83118" .

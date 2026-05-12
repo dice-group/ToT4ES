@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/ontology/relation> <http://dbpedia.org/resource/Ron_W._Miller> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/Burbank,_California> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/property/relations> <http://dbpedia.org/resource/Roy_E._Disney> .
-<http://dbpedia.org/resource/Walt_Disney> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Walt_Disney> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/ontology/award> <http://dbpedia.org/resource/Academy_Award> .

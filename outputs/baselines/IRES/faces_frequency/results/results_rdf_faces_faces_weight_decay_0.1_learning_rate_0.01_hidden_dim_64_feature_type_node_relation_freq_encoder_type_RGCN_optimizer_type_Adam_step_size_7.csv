@@ -1,3 +1,0 @@
-,dataset_version,dataset_name,dataset_type,round,num_epochs,feature_type,fmeasure_rel,fmeasure_norel,ap,ap_norel,Top,learning_rate,weight_decay,hidden_embedding,optimizer_type,encoder_type
-0,faces,faces,rdf,0,50,node_relation_freq,0.0,0.0,0.0,0.0,5,0.01,0.1,64,Adam,RGCN
-1,faces,faces,rdf,0,50,node_relation_freq,0.0,0.0,0.0,0.0,10,0.01,0.1,64,Adam,RGCN

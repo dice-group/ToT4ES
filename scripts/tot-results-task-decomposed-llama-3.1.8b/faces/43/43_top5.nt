@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/property/artist> <http://dbpedia.org/resource/Justin_Bieber> .
-<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <http://en.wikipedia.org/wiki/Love_Me_(Justin_Bieber_song)> .
-<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/property/writer> <http://dbpedia.org/resource/Peter_Svensson> .
-<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/recordedIn> <http://dbpedia.org/resource/Denver,_Colorado> .
-<http://dbpedia.org/resource/Love_Me_(Justin_Bieber_song)> <http://dbpedia.org/ontology/previousWork> <http://dbpedia.org/resource/One_Less_Lonely_Girl> .

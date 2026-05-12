@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/predecessor> <http://dbpedia.org/resource/Martin_Van_Buren> .
-<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/ontology/president> <http://dbpedia.org/resource/Martin_Van_Buren> .
-<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/before> <http://dbpedia.org/resource/Martin_Van_Buren> .
-<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/ontology/deathPlace> <http://dbpedia.org/resource/Frankfort,_Kentucky> .
-<http://dbpedia.org/resource/Richard_Mentor_Johnson> <http://dbpedia.org/property/placeOfDeath> <http://dbpedia.org/resource/Frankfort,_Kentucky> .

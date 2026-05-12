@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/property/children> <http://dbpedia.org/resource/Disney_family> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/property/relations> <http://dbpedia.org/resource/Disney_family> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/property/family> <http://dbpedia.org/resource/Disney_family> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/Disney_family> .
-<http://dbpedia.org/resource/Walt_Disney> <http://dbpedia.org/ontology/relation> <http://dbpedia.org/resource/Disney_family> .

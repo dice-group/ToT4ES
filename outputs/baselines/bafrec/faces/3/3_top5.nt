@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Physics> .
-<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/knownFor> <http://dbpedia.org/resource/Radioactive_decay> .
-<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/University_of_Paris> .
-<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/ESPCI_ParisTech> .
-<http://dbpedia.org/resource/Marie_Curie> <http://dbpedia.org/property/doctoralAdvisor> <http://dbpedia.org/resource/Henri_Becquerel> .

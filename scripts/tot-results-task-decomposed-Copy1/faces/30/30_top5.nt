@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Texas> <http://dbpedia.org/ontology/capital> <http://dbpedia.org/resource/Austin,_Texas> .
-<http://dbpedia.org/resource/Texas> <http://dbpedia.org/property/legislature> <http://dbpedia.org/resource/Texas_Legislature> .
-<http://dbpedia.org/resource/Texas> <http://dbpedia.org/ontology/largestCity> <http://dbpedia.org/resource/Houston> .
-<http://dbpedia.org/resource/Texas> <http://dbpedia.org/property/highestpoint> <http://dbpedia.org/resource/Guadalupe_Peak> .
-<http://dbpedia.org/resource/Texas> <http://dbpedia.org/property/largestmetro> <http://dbpedia.org/resource/Dallas%E2%80%93Fort_Worth_metroplex> .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Baywatch> <http://xmlns.com/foaf/0.1/homepage> <http://www.baywatch.com> .
-<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/executiveProducer> <http://dbpedia.org/resource/David_Hasselhoff> .
-<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/location> <http://dbpedia.org/resource/Santa_Monica,_California> .
-<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/ontology/format> <http://dbpedia.org/resource/Monaural> .
-<http://dbpedia.org/resource/Baywatch> <http://dbpedia.org/property/distributor> <http://dbpedia.org/resource/All_American_Television> .

@@ -1,5 +1,0 @@
-<http://data.linkedmdb.org/resource/film/1338> <http://data.linkedmdb.org/resource/movie/music_contributor> <http://data.linkedmdb.org/resource/music_contributor/5683> .
-<http://data.linkedmdb.org/resource/film/1338> <http://dbpedia.org/property/hasPhotoCollection> <http://www4.wiwiss.fu-berlin.de/flickrwrappr/photos/Soldier_(film)> .
-<http://data.linkedmdb.org/resource/interlink/70819> <http://data.linkedmdb.org/resource/oddlinker/link_source> <http://data.linkedmdb.org/resource/film/1338> .
-<http://data.linkedmdb.org/resource/interlink/19249> <http://data.linkedmdb.org/resource/oddlinker/link_source> <http://data.linkedmdb.org/resource/film/1338> .
-<http://data.linkedmdb.org/resource/interlink/716> <http://data.linkedmdb.org/resource/oddlinker/link_source> <http://data.linkedmdb.org/resource/film/1338> .

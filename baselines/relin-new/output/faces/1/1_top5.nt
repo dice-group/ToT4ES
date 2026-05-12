@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/vicePresident> <http://dbpedia.org/resource/Joe_Biden> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/data> <http://dbpedia.org/resource/Nobel_Peace_Prize> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/vicepresident> <http://dbpedia.org/resource/Joe_Biden> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/property/profession> <http://dbpedia.org/resource/Community_organizing> .
-<http://dbpedia.org/resource/Barack_Obama> <http://dbpedia.org/ontology/profession> <http://dbpedia.org/resource/Author> .

@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/keyPerson> <http://dbpedia.org/resource/Luca_Cordero_di_Montezemolo> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/property/founder> <http://dbpedia.org/resource/Enzo_Ferrari> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/property/type> <http://dbpedia.org/resource/Societ%C3%A0_per_azioni> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/parentCompany> <http://dbpedia.org/resource/Fiat> .
-<http://dbpedia.org/resource/Ferrari> <http://dbpedia.org/ontology/foundedBy> <http://dbpedia.org/resource/Enzo_Ferrari> .

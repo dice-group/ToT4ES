@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/channel> <http://dbpedia.org/resource/Fox_Broadcasting_Company> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/camera> <http://dbpedia.org/resource/Single-camera_setup> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/followedBy> <http://dbpedia.org/resource/Melrose_Place_(2009_TV_series)> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/ontology/executiveProducer> <http://dbpedia.org/resource/Aaron_Spelling> .
-<http://dbpedia.org/resource/Beverly_Hills,_90210> <http://dbpedia.org/property/channel> <http://dbpedia.org/resource/Fox_Broadcasting_Company> .
