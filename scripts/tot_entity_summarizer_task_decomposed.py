@@ -127,6 +127,47 @@ def parse_arguments():
         help="Beam width",
     )
     parser.add_argument(
+        "--beam-width",
+        type=int,
+        default=None,
+        help="Beam width (alias for --breadth-limit, used by ablation study)",
+    )
+    parser.add_argument(
+        "--n-evaluation-samples",
+        type=int,
+        default=None,
+        help="Number of evaluation samples (alias for --n-evals, used by ablation study)",
+    )
+    parser.add_argument(
+        "--w-relatedness",
+        type=float,
+        default=0.4,
+        help="Weight for relatedness dimension in value function [0,1]",
+    )
+    parser.add_argument(
+        "--w-informativeness",
+        type=float,
+        default=0.4,
+        help="Weight for informativeness dimension in value function [0,1]",
+    )
+    parser.add_argument(
+        "--w-coverage",
+        type=float,
+        default=0.2,
+        help="Weight for coverage dimension in value function [0,1]",
+    )
+    parser.add_argument(
+        "--use-random-candidates",
+        action="store_true",
+        help="Use random candidates instead of LLM-guided thought policy (ablation variant)",
+    )
+    parser.add_argument(
+        "--limit-entities",
+        type=int,
+        default=0,
+        help="Limit to first N entities (0=all, for testing)",
+    )
+    parser.add_argument(
         "--no-verbose",
         action="store_true",
         help="Disable verbose output",
@@ -137,7 +178,17 @@ def parse_arguments():
         help="Output directory",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    
+    # Handle aliases: --beam-width overrides --breadth-limit if provided
+    if args.beam_width is not None:
+        args.breadth_limit = args.beam_width
+    
+    # Handle aliases: --n-evaluation-samples overrides --n-evals if provided
+    if args.n_evaluation_samples is not None:
+        args.n_evals = args.n_evaluation_samples
+    
+    return args
 
 
 def _categorize_semantic_roles(all_triples):
@@ -241,6 +292,18 @@ def main():
             f"    thought_temperature={args.thought_temperature}, "
             f"eval_temperature={args.eval_temperature}"
         )
+    print("="*70)
+    
+    # Display ablation study parameters
+    print("\nAblation Study Parameters (RQ2):")
+    print(f"  Semantic Weights (Value Function):")
+    print(f"    w_relatedness:      {args.w_relatedness}")
+    print(f"    w_informativeness:  {args.w_informativeness}")
+    print(f"    w_coverage:         {args.w_coverage}")
+    print(f"  Search Configuration:")
+    print(f"    beam_width:         {args.breadth_limit}")
+    print(f"    eval_samples:       {args.n_evals}")
+    print(f"    use_random_candidates: {args.use_random_candidates}")
     print("="*70)
     
     # Load entity
