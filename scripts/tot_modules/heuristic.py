@@ -45,53 +45,58 @@ def entity_heuristic_calculator(
         if not raw:
             continue
 
-        # Try JSON format first - more robust extraction
+        # Try JSON format first - with robust extraction
         start = raw.find("[")
         end = raw.rfind("]")
         if start != -1 and end != -1 and end > start:
             json_str = raw[start:end+1]
             try:
                 parsed = json.loads(json_str)
-                if isinstance(parsed, list) and len(parsed) == n_states:
+                if isinstance(parsed, list) and len(parsed) > 0:
+                    # Be lenient: accept partial evaluations
+                    # If we get at least one valid entry, use what we have
+                    scored_indices = set()
                     valid_sample = True
-                    temp_agg = {"r": [], "i": [], "c": []}
                     
-                    for i, entry in enumerate(parsed):
+                    for entry in parsed:
                         try:
-                            r_val = float(entry.get("relatedness", entry.get("r", 0)))
-                            i_val = float(entry.get("informativeness", entry.get("i", 0)))
-                            c_val = float(entry.get("coverage", entry.get("c", 0)))
-                            
-                            # Validate scores are in [0, 1]
-                            if not (0.0 <= r_val <= 1.0 and 0.0 <= i_val <= 1.0 and 0.0 <= c_val <= 1.0):
+                            idx = entry.get("idx", None)
+                            if idx is None:
                                 valid_sample = False
-                                break
+                                continue
                             
-                            temp_agg["r"].append(r_val)
-                            temp_agg["i"].append(i_val)
-                            temp_agg["c"].append(c_val)
-                        except (KeyError, ValueError, TypeError):
-                            valid_sample = False
-                            break
+                            idx = int(idx)
+                            if not (0 <= idx < n_states):
+                                continue
+                            
+                            r_val = float(entry.get("relatedness", entry.get("r", 0.5)))
+                            i_val = float(entry.get("informativeness", entry.get("i", 0.5)))
+                            c_val = float(entry.get("coverage", entry.get("c", 0.5)))
+                            
+                            # Clamp to [0, 1] if slightly out of bounds (floating point tolerance)
+                            r_val = max(0.0, min(1.0, r_val))
+                            i_val = max(0.0, min(1.0, i_val))
+                            c_val = max(0.0, min(1.0, c_val))
+                            
+                            agg[idx]["relatedness"] += r_val
+                            agg[idx]["informativeness"] += i_val
+                            agg[idx]["coverage"] += c_val
+                            scored_indices.add(idx)
+                        except (ValueError, TypeError):
+                            continue
                     
-                    # Only accept if all entries were valid
-                    if valid_sample and all(len(v) == n_states for v in temp_agg.values()):
-                        for i in range(n_states):
-                            agg[i]["relatedness"] += temp_agg["r"][i]
-                            agg[i]["informativeness"] += temp_agg["i"][i]
-                            agg[i]["coverage"] += temp_agg["c"][i]
+                    # Accept if we got at least 1 valid score
+                    if scored_indices:
                         n_samples += 1
                         continue
             except (json.JSONDecodeError, ValueError):
                 pass
 
         # Try simple format: SUMMARY_X: R=0.X I=0.X C=0.X
-        # More lenient pattern to handle variations
         pattern = r'SUMMARY[_\s]*(\d+)\s*:?\s*R\s*=\s*([0-9.]+)\s*I\s*=\s*([0-9.]+)\s*C\s*=\s*([0-9.]+)'
         matches = re.findall(pattern, raw, re.IGNORECASE)
         
         if matches:
-            # Create mapping from index to scores
             score_map = {}
             for idx_str, r_str, i_str, c_str in matches:
                 try:
@@ -105,9 +110,9 @@ def entity_heuristic_calculator(
                 except (ValueError, IndexError):
                     pass
             
-            # Check if we got scores for all states
-            if len(score_map) == n_states:
-                for idx in range(n_states):
+            # Accept if we got at least 1 score
+            if score_map:
+                for idx in score_map:
                     agg[idx]["relatedness"]     += score_map[idx]['r']
                     agg[idx]["informativeness"] += score_map[idx]['i']
                     agg[idx]["coverage"]        += score_map[idx]['c']
@@ -121,13 +126,20 @@ def entity_heuristic_calculator(
         print("Falling back to uniform scores (0.5) for all states.")
         return [0.5] * n_states
 
-    # Average and compute weighted sum
-    factor = 1.0 / n_samples
+    # Average only the states that were actually scored
+    # For states that weren't scored in any sample, reset to 0.5
     final_values = []
     for i in range(n_states):
-        r   = agg[i]["relatedness"]     * factor
-        inf = agg[i]["informativeness"] * factor
-        cov = agg[i]["coverage"]        * factor
+        if agg[i]["relatedness"] > 0 or agg[i]["informativeness"] > 0 or agg[i]["coverage"] > 0:
+            # This state was scored at least once
+            factor = 1.0 / n_samples
+            r   = agg[i]["relatedness"]     * factor
+            inf = agg[i]["informativeness"] * factor
+            cov = agg[i]["coverage"]        * factor
+        else:
+            # This state was never scored, use neutral
+            r = inf = cov = 0.5
+        
         score = w_relatedness * r + w_informativeness * inf + w_coverage * cov
         final_values.append(score)
 

@@ -346,7 +346,7 @@ def make_combined_evaluation_prompt(
 ) -> Callable[[str, List[str]], str]:
     """
     Create evaluation prompt that assesses all three criteria.
-    Enhanced with clearer JSON instructions and examples.
+    Enhanced with flexible format that works for any number of states.
     """
     
     def _inner(input_seq: str, states: List[str]) -> str:
@@ -374,36 +374,36 @@ def make_combined_evaluation_prompt(
         states_block = "\n\n".join(formatted_states)
         n_states = len(states)
 
-        return f"""
-TASK: Evaluate RDF triple summaries for entity: {entity_label}
+        return f"""EVALUATE: {entity_label}
 
-EVALUATION CRITERIA (score each 0.0 to 1.0):
-1. RELATEDNESS: How central/defining are the triples to understanding this entity?
-2. INFORMATIVENESS: How much unique, non-generic, valuable information is conveyed?
-3. COVERAGE/DIVERSITY: How diverse are the semantic aspects (types, properties, relations)?
+RATE each on 3 criteria (0.0-1.0):
+1. RELATEDNESS: How central/defining to entity?
+2. INFORMATIVENESS: How much unique valuable info?
+3. COVERAGE: How diverse are the aspects?
 
-EVALUATION SUMMARIES (evaluate all {n_states}):
+SUMMARIES TO EVALUATE ({n_states} total):
 
 {states_block}
 
-OUTPUT FORMAT - Return ONLY a valid JSON array, exactly like this example:
+RESPONSE FORMAT:
+Output ONLY valid JSON array with {n_states} objects.
+Each object: {{"idx": N, "relatedness": X, "informativeness": Y, "coverage": Z}}
+WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.0-1.0
 
+EXAMPLE FORMAT (for reference):
 [
-  {{"idx": 0, "relatedness": 0.85, "informativeness": 0.70, "coverage": 0.60}},
-  {{"idx": 1, "relatedness": 0.65, "informativeness": 0.80, "coverage": 0.75}},
-  {{"idx": 2, "relatedness": 0.90, "informativeness": 0.60, "coverage": 0.50}}
+{{"idx": 0, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7}},
+{{"idx": 1, "relatedness": 0.7, "informativeness": 0.9, "coverage": 0.65}}
 ]
 
-CRITICAL REQUIREMENTS:
-- Return EXACTLY {n_states} objects (one per summary)
-- Each object MUST have: "idx", "relatedness", "informativeness", "coverage"
-- All score values MUST be decimal numbers between 0.0 and 1.0
-- Do NOT include any text before or after the JSON array
-- Do NOT include explanations or reasoning
-- Do NOT use scientific notation (e.g., use 0.85, not 8.5e-1)
-- Ensure proper JSON syntax: double quotes, colons, commas between array elements
+CRITICAL:
+- ONLY JSON output. NOTHING else before/after.
+- EXACTLY {n_states} objects (indices 0 to {n_states-1}).
+- All values between 0.0 and 1.0 (decimals, not integers).
+- NO text, NO explanations, NO markdown.
+- Start with '[', end with ']'.
+- Valid JSON syntax required.
 
-START YOUR RESPONSE WITH '[' and END WITH ']'
-        """.strip()
+BEGIN RESPONSE WITH '[':""".strip()
 
     return _inner
