@@ -45,7 +45,7 @@ def entity_heuristic_calculator(
         if not raw:
             continue
 
-        # Try JSON format first
+        # Try JSON format first - more robust extraction
         start = raw.find("[")
         end = raw.rfind("]")
         if start != -1 and end != -1 and end > start:
@@ -53,16 +53,36 @@ def entity_heuristic_calculator(
             try:
                 parsed = json.loads(json_str)
                 if isinstance(parsed, list) and len(parsed) == n_states:
+                    valid_sample = True
+                    temp_agg = {"r": [], "i": [], "c": []}
+                    
                     for i, entry in enumerate(parsed):
                         try:
-                            agg[i]["relatedness"]     += float(entry["relatedness"])
-                            agg[i]["informativeness"] += float(entry["informativeness"])
-                            agg[i]["coverage"]        += float(entry["coverage"])
+                            r_val = float(entry.get("relatedness", entry.get("r", 0)))
+                            i_val = float(entry.get("informativeness", entry.get("i", 0)))
+                            c_val = float(entry.get("coverage", entry.get("c", 0)))
+                            
+                            # Validate scores are in [0, 1]
+                            if not (0.0 <= r_val <= 1.0 and 0.0 <= i_val <= 1.0 and 0.0 <= c_val <= 1.0):
+                                valid_sample = False
+                                break
+                            
+                            temp_agg["r"].append(r_val)
+                            temp_agg["i"].append(i_val)
+                            temp_agg["c"].append(c_val)
                         except (KeyError, ValueError, TypeError):
-                            pass
-                    n_samples += 1
-                    continue
-            except json.JSONDecodeError:
+                            valid_sample = False
+                            break
+                    
+                    # Only accept if all entries were valid
+                    if valid_sample and all(len(v) == n_states for v in temp_agg.values()):
+                        for i in range(n_states):
+                            agg[i]["relatedness"] += temp_agg["r"][i]
+                            agg[i]["informativeness"] += temp_agg["i"][i]
+                            agg[i]["coverage"] += temp_agg["c"][i]
+                        n_samples += 1
+                        continue
+            except (json.JSONDecodeError, ValueError):
                 pass
 
         # Try simple format: SUMMARY_X: R=0.X I=0.X C=0.X

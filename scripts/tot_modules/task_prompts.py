@@ -346,7 +346,7 @@ def make_combined_evaluation_prompt(
 ) -> Callable[[str, List[str]], str]:
     """
     Create evaluation prompt that assesses all three criteria.
-    This remains the same as before.
+    Enhanced with clearer JSON instructions and examples.
     """
     
     def _inner(input_seq: str, states: List[str]) -> str:
@@ -372,33 +372,38 @@ def make_combined_evaluation_prompt(
             formatted_states.append(f"SUMMARY {idx}:\n{triples_txt}")
 
         states_block = "\n\n".join(formatted_states)
+        n_states = len(states)
 
         return f"""
-You are evaluating RDF triple summaries for: {entity_label}
+TASK: Evaluate RDF triple summaries for entity: {entity_label}
 
-Rate each summary on three criteria (0.0–1.0):
+EVALUATION CRITERIA (score each 0.0 to 1.0):
+1. RELATEDNESS: How central/defining are the triples to understanding this entity?
+2. INFORMATIVENESS: How much unique, non-generic, valuable information is conveyed?
+3. COVERAGE/DIVERSITY: How diverse are the semantic aspects (types, properties, relations)?
 
-1. RELATEDNESS: How central/core are the triples to the entity?
-2. INFORMATIVENESS: How much unique, valuable information is provided?
-3. COVERAGE/DIVERSITY: How diverse are the aspects covered?
-
-There are {len(states)} summaries. Return JSON array:
-
-[
-  {{
-    "idx": 0,
-    "relatedness": 0.0,
-    "informativeness": 0.0,
-    "coverage": 0.0
-  }},
-  ...
-]
-
-Return ONLY the JSON array, no explanations.
-
-Summaries:
+EVALUATION SUMMARIES (evaluate all {n_states}):
 
 {states_block}
+
+OUTPUT FORMAT - Return ONLY a valid JSON array, exactly like this example:
+
+[
+  {{"idx": 0, "relatedness": 0.85, "informativeness": 0.70, "coverage": 0.60}},
+  {{"idx": 1, "relatedness": 0.65, "informativeness": 0.80, "coverage": 0.75}},
+  {{"idx": 2, "relatedness": 0.90, "informativeness": 0.60, "coverage": 0.50}}
+]
+
+CRITICAL REQUIREMENTS:
+- Return EXACTLY {n_states} objects (one per summary)
+- Each object MUST have: "idx", "relatedness", "informativeness", "coverage"
+- All score values MUST be decimal numbers between 0.0 and 1.0
+- Do NOT include any text before or after the JSON array
+- Do NOT include explanations or reasoning
+- Do NOT use scientific notation (e.g., use 0.85, not 8.5e-1)
+- Ensure proper JSON syntax: double quotes, colons, commas between array elements
+
+START YOUR RESPONSE WITH '[' and END WITH ']'
         """.strip()
 
     return _inner
