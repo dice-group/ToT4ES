@@ -91,6 +91,48 @@ class AllEntitiesProcessor:
         
         return entity_ids
     
+    def extract_entity_uri(self, entity_id: int) -> Tuple[str, str]:
+        """
+        Extract actual entity URI from the input triple file.
+        
+        Args:
+            entity_id: Entity ID number
+            
+        Returns:
+            Tuple of (uri, label) extracted from the data
+        """
+        if self.dataset_name == "dbpedia":
+            entity_dir = self.dataset_root / "dbpedia_data" / str(entity_id)
+            triple_file = entity_dir / f"{entity_id}_desc.nt"
+        elif self.dataset_name == "lmdb":
+            entity_dir = self.dataset_root / "lmdb_data" / str(entity_id)
+            triple_file = entity_dir / f"{entity_id}_desc.nt"
+        elif self.dataset_name == "faces":
+            entity_dir = self.dataset_root / "FACES" / "faces_data" / str(entity_id)
+            triple_file = entity_dir / f"{entity_id}_desc.nt"
+        else:
+            return f"http://example.com/entity/{entity_id}", f"Entity_{entity_id}"
+        
+        # Try to extract URI from first triple in file
+        if triple_file.exists():
+            try:
+                with open(triple_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            # Parse the first triple to get subject (entity URI)
+                            parts = line.split(' ', 1)
+                            if parts:
+                                uri = parts[0].strip('<>').strip()
+                                # Extract label from URI (last part after /)
+                                label = uri.split('/')[-1].replace('_', ' ')
+                                return uri, label
+            except Exception as e:
+                logger.warning(f"Could not extract URI from {triple_file}: {e}")
+        
+        # Fallback to default
+        return f"http://dbpedia.org/resource/Entity_{entity_id}", f"Entity_{entity_id}"
+    
     def build_entity_list(
         self,
         entity_ids: List[int],
@@ -111,23 +153,12 @@ class AllEntitiesProcessor:
         entities = []
         
         for entity_id in entity_ids:
-            # Get label
+            # Extract actual entity URI from input data
+            uri, label = self.extract_entity_uri(entity_id)
+            
+            # Override with label mapping if provided
             if label_mapping and entity_id in label_mapping:
                 label = label_mapping[entity_id]
-            else:
-                # Use default label format
-                label = f"Entity_{entity_id}"
-            
-            # Build URI
-            if self.dataset_name == "dbpedia":
-                # Try to infer from context (usually need external source)
-                uri = f"http://dbpedia.org/resource/{label.replace(' ', '_')}"
-            elif self.dataset_name == "lmdb":
-                uri = f"http://data.linkedmdb.org/resource/{entity_id}"
-            elif self.dataset_name == "faces":
-                uri = f"http://www.freebase.com/m/{entity_id}"
-            else:
-                uri = f"http://example.com/entity/{entity_id}"
             
             entities.append((entity_id, uri, label))
         
@@ -353,7 +384,29 @@ def main():
         help="Log file for results (default: processing_results.txt)"
     )
     
+    # GPU options
+    parser.add_argument(
+        "--gpu",
+        type=int,
+        default=0,
+        help="GPU ID to use (default: 0). Set to -1 to use CPU only"
+    )
+    parser.add_argument(
+        "--cuda-devices",
+        type=str,
+        default=None,
+        help="CUDA_VISIBLE_DEVICES string (e.g., '0,1' for GPUs 0 and 1)"
+    )
+    
     args = parser.parse_args()
+    
+    # Set CUDA devices if specified
+    if args.cuda_devices is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_devices
+    elif args.gpu >= 0:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+    else:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
     
     # Initialize processor
     processor = AllEntitiesProcessor(

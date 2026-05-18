@@ -622,8 +622,28 @@ def main():
         default=None,
         help="Custom output file path (overrides --output-dir structure)"
     )
+    parser.add_argument(
+        "--gpu",
+        type=int,
+        default=0,
+        help="GPU ID to use (default: 0). Set to -1 to use CPU only"
+    )
+    parser.add_argument(
+        "--cuda-devices",
+        type=str,
+        default=None,
+        help="CUDA_VISIBLE_DEVICES string (e.g., '0,1' for GPUs 0 and 1)"
+    )
     
     args = parser.parse_args()
+    
+    # Set CUDA devices if specified
+    if args.cuda_devices is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_devices
+    elif args.gpu >= 0:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+    else:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
     
     # Initialize summarizer
     summarizer = BaselineLLMSummarizer(model_id=args.model)
