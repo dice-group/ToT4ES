@@ -16,10 +16,16 @@ The prompt follows the provided specification with strict selection rules:
 import os
 import sys
 import logging
+import warnings
 from typing import List, Tuple, Dict
 from pathlib import Path
 import torch
 from transformers import pipeline
+
+# Suppress expected warnings from HuggingFace
+warnings.filterwarnings("ignore", message=".*pad_token_id.*")
+warnings.filterwarnings("ignore", message=".*max_new_tokens.*max_length.*")
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # Setup logging
 logging.basicConfig(
