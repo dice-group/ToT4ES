@@ -1,0 +1,62 @@
+# Baseline Configuration
+
+baseline:
+  # LLM Configuration
+  model:
+    name: "meta-llama/Llama-3.2-3B-Instruct"
+    device_map: "auto"
+    torch_dtype: "bfloat16"
+  
+  # Generation Parameters
+  generation:
+    temperature: 0.1
+    max_new_tokens: 1024
+    do_sample: false
+  
+  # Summarization Parameters
+  summarization:
+    default_summary_size: 5
+    preserve_entity_uri: true
+  
+  # Preprocessing
+  preprocessing:
+    # Metadata predicates to filter out
+    metadata_predicates:
+      - thumbnail
+      - depiction
+      - wasDerivedFrom
+      - homepage
+      - hasPhotoCollection
+      - wikiPageWikiLink
+      - wikiPageExternalLink
+      - wikiPageID
+      - wikiPageRevisionID
+      - wikiPageLength
+      - abstract
+    
+    # Predicate aliases for deduplication
+    predicate_aliases:
+      "http://purl.org/dc/terms/subject": "http://dbpedia.org/ontology/subject"
+      "http://purl.org/dc/terms/knownFor": "http://dbpedia.org/ontology/knownFor"
+      "http://xmlns.com/foaf/0.1/name": "http://www.w3.org/2000/01/rdf-schema#label"
+  
+  # Prompt configuration
+  prompt:
+    include_numbered_list: true
+    include_selection_criteria: true
+    enforce_output_format: true
+    focus_on_core_facts: true
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - precision
+    - recall
+    - similarity
+  
+  comparison_with_tot4es: true
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
