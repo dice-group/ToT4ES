@@ -33,6 +33,24 @@ class NTriplesParser:
     """Simple N-Triples parser for triple extraction and formatting."""
     
     @staticmethod
+    def normalize_uri(uri: str) -> str:
+        """
+        Normalize URI by ensuring it's wrapped in angle brackets.
+        
+        Args:
+            uri: URI string (with or without brackets)
+            
+        Returns:
+            URI wrapped in angle brackets
+        """
+        uri = uri.strip()
+        if not uri.startswith('<'):
+            uri = f"<{uri}"
+        if not uri.endswith('>'):
+            uri = f"{uri}>"
+        return uri
+    
+    @staticmethod
     def parse_triple(line: str) -> Tuple[str, str, str]:
         """
         Parse a single N-Triples line into (subject, predicate, object).
@@ -92,7 +110,17 @@ class NTriplesParser:
     
     @staticmethod
     def format_triple(subject: str, predicate: str, obj: str) -> str:
-        """Format a triple in N-Triples format."""
+        """Format a triple in N-Triples format with proper angle brackets."""
+        # Normalize subject and predicate (wrap URIs in angle brackets)
+        subject = NTriplesParser.normalize_uri(subject)
+        predicate = NTriplesParser.normalize_uri(predicate)
+        
+        # Normalize object only if it's a URI (not a literal)
+        if obj.startswith('<') or (not obj.startswith('"') and not obj.startswith("'")):
+            # Check if it looks like a URI (doesn't start with quote)
+            if not obj.startswith('"') and not obj.startswith("'"):
+                obj = NTriplesParser.normalize_uri(obj)
+        
         return f"{subject} {predicate} {obj} ."
 
 
@@ -272,21 +300,29 @@ class BaselineLLMSummarizer:
         
         prompt = f"""You are an expert knowledge graph engineer. Your task is to summarize the provided RDF triples for the entity {entity_label} ({entity_uri}) into exactly {summary_size} unique, high-value triples.
 
-Strictly adhere to the following selection rules:
+Strictly adhere to the following selection and formatting rules:
 1. Deduplicate: Remove redundant properties that express the same relationship (e.g., choose between the ontology/ and property/ versions of 'knownFor').
 2. Prioritize Core Facts: Focus on core identity attributes: Academic Field, Key Discoveries/Achievements, Spouse, Birthplace, and Alma Mater.
 3. Eliminate Metadata: Do not include web-specific or system metadata triples such as 'thumbnail', 'depiction', 'wasDerivedFrom', 'homepage', or 'hasPhotoCollection'.
-4. Format: Output only the valid N-Triples format, one per line. Do not include any introductory or concluding text.
+4. Format: Output ONLY valid N-Triples format (RFC 2396 compliant), one per line:
+   - ALL URIs must be wrapped in angle brackets: <http://...>
+   - The subject MUST be: {entity_uri}
+   - Literals must use proper format: "value"@en or "value"^^<datatype>
+   - Each line must end with a space and a period: .
+5. No explanations: Output only the triples, no introductory or concluding text.
 
 Input Triples (numbered for reference):
 {formatted_triples}
 
 Instructions:
 - Select exactly {summary_size} triples from the input
+- The subject of ALL output triples must be: {entity_uri}
+- Ensure each triple follows this exact format: <uri_subject> <uri_predicate> <uri_or_literal_object> .
 - Focus on the most informative and central facts about the entity
 - Ensure diversity across different predicates/facets
-- Output each selected triple in complete N-Triples format (not shortened references)
 - Each line must be a valid N-Triple with subject, predicate, and object
+- IMPORTANT: All URIs must be wrapped in angle brackets <..>
+- IMPORTANT: The subject must be {entity_uri} for all triples
 - No explanations, just the triples."""
         
         return prompt
@@ -364,7 +400,8 @@ Instructions:
             logger.info(f"LLM Response length: {len(response)} characters")
             
             # Parse response - expect N-Triples format
-            summary_triples = self._parse_llm_response(response)
+            # Pass entity_uri to ensure correct subject for all triples
+            summary_triples = self._parse_llm_response(response, entity_uri)
             
             logger.info(f"Extracted {len(summary_triples)} triples from LLM response")
             
@@ -476,18 +513,23 @@ Instructions:
         logger.info(f"Summary saved to {filepath}")
         return str(filepath)
     
-    def _parse_llm_response(self, response: str) -> List[str]:
+    def _parse_llm_response(self, response: str, entity_uri: str = None) -> List[str]:
         """
         Parse LLM response to extract N-Triples.
         
         Args:
             response: Raw LLM response
+            entity_uri: Expected entity URI to use as subject (overrides LLM's subject)
             
         Returns:
             List of valid N-Triples strings
         """
         triples = []
         lines = response.strip().split('\n')
+        
+        # Normalize the entity URI
+        if entity_uri:
+            entity_uri = self.parser.normalize_uri(entity_uri)
         
         for line in lines:
             line = line.strip()
@@ -497,6 +539,9 @@ Instructions:
             # Try to parse as N-Triple
             s, p, o = self.parser.parse_triple(line)
             if s is not None and p is not None and o is not None:
+                # If entity_uri is provided, use it as the subject
+                if entity_uri:
+                    s = entity_uri
                 formatted = self.parser.format_triple(s, p, o)
                 triples.append(formatted)
         
