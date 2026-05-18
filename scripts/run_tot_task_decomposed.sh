@@ -61,6 +61,11 @@ BEAM_WIDTH=${BEAM_WIDTH:-3}
 # Candidate selection strategy
 USE_RANDOM_CANDIDATES=${USE_RANDOM_CANDIDATES:-false}
 
+# Heuristic scoring (alternative to LLM evaluation)
+# When enabled, uses heuristic-based scoring instead of LLM evaluation
+USE_HEURISTIC_SCORING=${USE_HEURISTIC_SCORING:-false}
+HEURISTIC_METHOD=${HEURISTIC_METHOD:-fca}  # Options: fca, tfidf, random, llm (default)
+
 # Display variant information
 VARIANT_NAME="${VARIANT_NAME:-full}"  # For logging/tracking
 
@@ -108,6 +113,11 @@ echo "Search & Evaluation:"
 echo "  Beam width: $BEAM_WIDTH"
 echo "  Evaluation samples: $N_EVALUATION_SAMPLES"
 echo "  Random candidates: $USE_RANDOM_CANDIDATES"
+if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
+  echo "  Scoring method: HEURISTIC ($HEURISTIC_METHOD)"
+else
+  echo "  Scoring method: LLM-based (default)"
+fi
 if (( LIMIT_ENTITIES > 0 )); then
   echo "  Limited to: $LIMIT_ENTITIES entities (for testing)"
 fi
@@ -168,6 +178,11 @@ for f in "${nt_files[@]}"; do
   # Add random candidates flag if specified (ablation variant)
   if [ "$USE_RANDOM_CANDIDATES" = "true" ]; then
     cmd="$cmd --use-random-candidates"
+  fi
+
+  # Add heuristic scoring if specified (ablation variant: no LLM evaluation)
+  if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
+    cmd="$cmd --use-heuristic-scoring --heuristic-method $HEURISTIC_METHOD"
   fi
 
   # Add task-specific models if defined
@@ -269,6 +284,9 @@ REPORT_FILE="$OUT/overall_report.txt"
   if [ "$USE_RANDOM_CANDIDATES" = "true" ]; then
     echo "  Selection Method: RANDOM (Ablation - For RQ2)"
   fi
+  if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
+    echo "  Scoring Method: HEURISTIC - $HEURISTIC_METHOD (Ablation - For RQ2)"
+  fi
   echo ""
   echo "Results:"
   echo "  Processed:          $processed_count"
@@ -312,7 +330,15 @@ echo ""
 echo "  # Ablation 6: Uniform weights"
 echo "  W_RELATEDNESS=0.333 W_INFORMATIVENESS=0.333 W_COVERAGE=0.334 VARIANT_NAME=uniform_weights ./run_tot_task_decomposed.sh"
 echo ""
-echo "  # Test with limited entities (5 entities)"
+echo "  # Ablation 7: FCA-based heuristic scoring (no LLM evaluation)"
+echo "  USE_HEURISTIC_SCORING=true HEURISTIC_METHOD=fca VARIANT_NAME=fca_heuristic ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 8: TF-IDF heuristic scoring (traditional baseline)"
+echo "  USE_HEURISTIC_SCORING=true HEURISTIC_METHOD=tfidf VARIANT_NAME=tfidf_heuristic ./run_tot_task_decomposed.sh"
+echo ""
+echo "  # Ablation 9: Random scoring baseline"
+echo "  USE_HEURISTIC_SCORING=true HEURISTIC_METHOD=random VARIANT_NAME=random_scoring ./run_tot_task_decomposed.sh"
+echo ""
 echo "  LIMIT_ENTITIES=5 ./run_tot_task_decomposed.sh"
 echo ""
 echo "  # Combine: Ablation variant + limited entities"

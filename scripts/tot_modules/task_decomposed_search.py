@@ -41,6 +41,10 @@ class TaskDecomposedToT:
         llm_informativeness: Optional[Llama32Chat] = None,
         llm_diversity: Optional[Llama32Chat] = None,
         llm_evaluation: Optional[Llama32Chat] = None,
+        heuristic_scorer=None,
+        w_relatedness: float = 0.4,
+        w_informativeness: float = 0.4,
+        w_coverage: float = 0.2,
     ):
         """
         Initialize Task-Decomposed ToT search.
@@ -81,6 +85,15 @@ class TaskDecomposedToT:
         self.llm_informativeness = llm_informativeness or llm
         self.llm_diversity = llm_diversity or llm
         self.llm_evaluation = llm_evaluation or llm
+        
+        # Heuristic scorer (for ablation studies without LLM evaluation)
+        self.heuristic_scorer = heuristic_scorer
+        self.use_heuristic_scoring = heuristic_scorer is not None
+        
+        # Semantic weights for value function
+        self.w_relatedness = w_relatedness
+        self.w_informativeness = w_informativeness
+        self.w_coverage = w_coverage
         
         self.num_triples = num_triples
 
@@ -298,7 +311,16 @@ class TaskDecomposedToT:
             return self._evaluate_chunk(states)
     
     def _evaluate_chunk(self, states: List[str]) -> List[float]:
-        """Evaluate a single chunk of states."""
+        """
+        Evaluate a single chunk of states.
+        
+        Uses either LLM-based evaluation or heuristic scoring depending on configuration.
+        """
+        # Use heuristic scoring if enabled (ablation study variant)
+        if self.use_heuristic_scoring:
+            return self._evaluate_chunk_heuristic(states)
+        
+        # Default: LLM-based evaluation
         prompt = self.get_state_eval_prompt(self.input_seq, states)
         # Evaluation output is short: ~30 chars per state ("SUMMARY_X: R=0.X I=0.X C=0.X")
         eval_max_tokens = max(64, len(states) * 40)
@@ -318,6 +340,79 @@ class TaskDecomposedToT:
 
         vote_results = self.heuristic_calculator(states, state_evals)
         return vote_results
+    
+    def _evaluate_chunk_heuristic(self, states: List[str]) -> List[float]:
+        """
+        Evaluate states using heuristic scorer instead of LLM.
+        
+        Computes R, I, C scores directly from selected triples and combines them
+        using the configured semantic weights.
+        
+        Args:
+            states: List of state strings (each is newline-separated triple indices)
+            
+        Returns:
+            List of composite scores (R*w_r + I*w_i + C*w_c)
+        """
+        scores = []
+        
+        for state in states:
+            # Parse state (newline-separated triple indices)
+            if not state.strip():
+                # Empty state = no triples selected
+                scores.append(0.0)
+                continue
+            
+            try:
+                # Extract selected triple indices from state
+                selected_indices = []
+                for line in state.strip().split('\n'):
+                    if line.strip().isdigit():
+                        idx = int(line.strip())
+                        if 1 <= idx <= len(self.input_seq.split('\n')):
+                            selected_indices.append(idx - 1)  # Convert to 0-indexed
+                
+                if not selected_indices:
+                    scores.append(0.0)
+                    continue
+                
+                # Get the actual selected triples
+                all_triples_list = [t.strip() for t in self.input_seq.split('\n') if t.strip()]
+                selected_triples = [all_triples_list[i] for i in selected_indices 
+                                  if i < len(all_triples_list)]
+                
+                # Compute individual scores
+                r_scores = []
+                i_scores = []
+                c_scores = []
+                
+                for triple in selected_triples:
+                    r_scores.append(self.heuristic_scorer.score_relatedness(triple))
+                    i_scores.append(self.heuristic_scorer.score_informativeness(triple))
+                    c_scores.append(self.heuristic_scorer.score_coverage(triple, selected_triples))
+                
+                # Average the scores
+                avg_r = sum(r_scores) / len(r_scores) if r_scores else 0.0
+                avg_i = sum(i_scores) / len(i_scores) if i_scores else 0.0
+                avg_c = sum(c_scores) / len(c_scores) if c_scores else 0.0
+                
+                # Combine using semantic weights
+                composite_score = (self.w_relatedness * avg_r + 
+                                 self.w_informativeness * avg_i + 
+                                 self.w_coverage * avg_c)
+                scores.append(min(1.0, max(0.0, composite_score)))
+                
+                if len(states) <= 5:  # Only print debug for small batches
+                    print(f"[HEURISTIC] State: {', '.join(map(str, selected_indices))} | "
+                          f"R={avg_r:.3f}, I={avg_i:.3f}, C={avg_c:.3f} | "
+                          f"Score={composite_score:.3f}")
+            
+            except Exception as e:
+                print(f"[WARNING] Error evaluating state: {e}")
+                scores.append(0.0)
+        
+        print(f"\n[HEURISTIC SCORING] Evaluated {len(states)} states")
+        return scores
 
     def bfs(self, verbose: bool = True) -> str:
         """

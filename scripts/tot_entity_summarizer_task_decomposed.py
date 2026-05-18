@@ -162,6 +162,18 @@ def parse_arguments():
         help="Use random candidates instead of LLM-guided thought policy (ablation variant)",
     )
     parser.add_argument(
+        "--use-heuristic-scoring",
+        action="store_true",
+        help="Use heuristic-based scoring instead of LLM evaluation (ablation variant)",
+    )
+    parser.add_argument(
+        "--heuristic-method",
+        type=str,
+        default="fca",
+        choices=["fca", "tfidf", "random"],
+        help="Heuristic method for scoring when --use-heuristic-scoring is enabled",
+    )
+    parser.add_argument(
         "--limit-entities",
         type=int,
         default=0,
@@ -304,6 +316,9 @@ def main():
     print(f"    beam_width:         {args.breadth_limit}")
     print(f"    eval_samples:       {args.n_evals}")
     print(f"    use_random_candidates: {args.use_random_candidates}")
+    if args.use_heuristic_scoring:
+        print(f"  Heuristic Scoring (No LLM):")
+        print(f"    method:             {args.heuristic_method}")
     print("="*70)
     
     # Load entity
@@ -402,6 +417,14 @@ def main():
     print("  ✓ Diversity/Coverage prompt created")
     print("  ✓ Evaluation prompt created")
     
+    # Create heuristic scorer if enabled (for ablation study without LLM evaluation)
+    heuristic_scorer = None
+    if args.use_heuristic_scoring:
+        print("\n  Initializing heuristic scorer (ablation variant)...")
+        from tot_modules.heuristic_scorers import create_heuristic_scorer
+        heuristic_scorer = create_heuristic_scorer(args.heuristic_method, all_triples)
+        print(f"  ✓ {args.heuristic_method.upper()} heuristic scorer created")
+    
     # Create search engine
     print("\nCreating Task-Decomposed ToT search engine...")
     tot = TaskDecomposedToT(
@@ -417,6 +440,10 @@ def main():
         llm_informativeness=llm_informativeness,
         llm_diversity=llm_diversity,
         llm_evaluation=llm_evaluation,
+        heuristic_scorer=heuristic_scorer,
+        w_relatedness=args.w_relatedness,
+        w_informativeness=args.w_informativeness,
+        w_coverage=args.w_coverage,
     )
     
     # Configure
