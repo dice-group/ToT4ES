@@ -10,9 +10,9 @@ Output structure:
 baseline_outputs/
 └── dbpedia_data/
     ├── 1/
-    │   └── 1_summary_5.nt
+    │   └── 1_top5.nt
     ├── 2/
-    │   └── 2_summary_5.nt
+    │   └── 2_top5.nt
     └── ...
 """
 

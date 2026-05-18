@@ -19,10 +19,15 @@ from typing import List, Tuple, Dict
 import argparse
 from tqdm import tqdm
 
-try:
-    from batch_processor import BatchProcessor
-except ImportError:
-    from baseline.batch_processor import BatchProcessor
+import sys
+from pathlib import Path
+
+# Add baseline directory to path
+baseline_dir = Path(__file__).parent
+if str(baseline_dir) not in sys.path:
+    sys.path.insert(0, str(baseline_dir))
+
+from batch_processor import BatchProcessor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -180,7 +185,7 @@ class AllEntitiesProcessor:
                     Path(output_dir)
                     / f"{self.dataset_name}_data"
                     / str(entity_id)
-                    / f"{entity_id}_summary_{summary_size}.nt"
+                    / f"{entity_id}_top{summary_size}.nt"
                 )
                 
                 if output_path.exists():

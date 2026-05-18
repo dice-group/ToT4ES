@@ -389,7 +389,7 @@ Instructions:
         baseline_outputs/
         └── dbpedia_data/
             └── {entity_id}/
-                └── {entity_id}_summary_{size}.nt
+                └── {entity_id}_top{size}.nt
         
         Args:
             summary: List of N-Triple strings
@@ -415,13 +415,11 @@ Instructions:
         output_path.mkdir(parents=True, exist_ok=True)
         
         # Create filename
-        filename = f"{entity_id}_summary_{summary_size}.nt"
+        filename = f"{entity_id}_top{summary_size}.nt"
         filepath = output_path / filename
         
-        # Write file with header
+        # Write file with only N-Triples (no comments)
         with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(f"# Baseline Summary (size: {summary_size})\n")
-            f.write("#\n")
             for triple in summary:
                 f.write(triple + "\n")
         
@@ -467,17 +465,11 @@ Instructions:
         output_path.mkdir(parents=True, exist_ok=True)
         
         # Create filename
-        filename = f"{entity_id}_summary_{summary_size}.nt"
+        filename = f"{entity_id}_top{summary_size}.nt"
         filepath = output_path / filename
         
-        # Write file with detailed header
+        # Write file with only N-Triples (no comments)
         with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(f"# Baseline Summary for {entity_label}\n")
-            f.write(f"# Entity URI: {entity_uri}\n")
-            f.write(f"# Entity ID: {entity_id}\n")
-            f.write(f"# Summary Size: {len(summary)} / {summary_size}\n")
-            f.write(f"# Method: Direct LLM Prompt (Baseline)\n")
-            f.write("#\n")
             for triple in summary:
                 f.write(triple + "\n")
         
