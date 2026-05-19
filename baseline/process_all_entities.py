@@ -53,7 +53,7 @@ class AllEntitiesProcessor:
         """
         self.dataset_root = Path(dataset_root)
         self.dataset_name = dataset_name
-        self.batch_processor = BatchProcessor(dataset_root=dataset_root)
+        self.batch_processor = None  # Will be initialized in process_all with model_id
     
     def discover_entities(self) -> List[int]:
         """
@@ -195,6 +195,13 @@ class AllEntitiesProcessor:
         Returns:
             Results dict
         """
+        # Initialize batch processor with specified model
+        self.batch_processor = BatchProcessor(
+            model_id=model_id,
+            dataset_root=str(self.dataset_root),
+        )
+        logger.info(f"Using model: {model_id}")
+        
         # Discover entities
         entity_ids = self.discover_entities()
         
@@ -220,9 +227,11 @@ class AllEntitiesProcessor:
         for i, (entity_id, uri, label) in enumerate(tqdm(entities, desc="Processing"), 1):
             # Check if output already exists
             if skip_existing:
+                # Note: output subdirs are just dataset names (dbpedia, lmdb, faces)
+                # not *_data like the input datasets
                 output_path = (
                     Path(output_dir)
-                    / f"{self.dataset_name}_data"
+                    / self.dataset_name
                     / str(entity_id)
                     / f"{entity_id}_top{summary_size}.nt"
                 )
