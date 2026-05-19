@@ -72,7 +72,15 @@ class AllEntitiesProcessor:
             raise ValueError(f"Unknown dataset: {self.dataset_name}")
         
         if not entity_dir.exists():
-            raise FileNotFoundError(f"Dataset directory not found: {entity_dir}")
+            error_msg = (
+                f"Dataset directory not found: {entity_dir}\n\n"
+                f"Please specify the correct dataset root path using --dataset-root\n"
+                f"Example: python process_all_entities.py --dataset faces "
+                f"--dataset-root /path/to/datasets/ESBM_benchmark_v1.2\n\n"
+                f"To find your dataset location, run:\n"
+                f"  find ~ -name 'ESBM_benchmark_v1.2' -type d"
+            )
+            raise FileNotFoundError(error_msg)
         
         entity_ids = []
         
@@ -429,7 +437,8 @@ def main():
         if not found:
             logger.error(
                 "Could not auto-discover dataset root. Please specify --dataset-root\n"
-                "Example: python process_all_entities.py --dataset faces --dataset-root /path/to/datasets/ESBM_benchmark_v1.2"
+                "Example: python process_all_entities.py --dataset faces --dataset-root /path/to/ESBM_benchmark_v1.2\n\n"
+                "To find your dataset location, run: find ~ -name 'ESBM_benchmark_v1.2' -type d"
             )
             sys.exit(1)
     
