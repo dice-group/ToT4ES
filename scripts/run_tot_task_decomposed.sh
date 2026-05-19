@@ -23,17 +23,17 @@ set -euo pipefail
 #   # Quick test with limited entities
 #   LIMIT_ENTITIES=5 ./run_tot_task_decomposed.sh
 
-#ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
+ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
 #ROOT="../datasets/FACES/faces_data"
-ROOT="../datasets/WikiES_benchmark/WikiCinema-s-test_data"
-OUT="outputs/tot_task_decomposed"
-LOGS="logs/tot_task_decomposed"
+#ROOT="../datasets/WikiES_benchmark/WikiCinema-s-test_data"
+OUT="outputs/ablation-study#8"
+LOGS="logs/ablation-study#8"
 
 # Configuration
-DATASET="wikicinema-s"
-MAX_SUMMARY_LEN=5
+DATASET="dbpedia"
+MAX_SUMMARY_LEN=10
 N_CANDIDATES_PER_TASK=${N_CANDIDATES_PER_TASK:-3}  # Ablation: override to 1 for greedy
-GPU_DEVICE=1
+GPU_DEVICE=3
 LIMIT_ENTITIES=${LIMIT_ENTITIES:-0}  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
