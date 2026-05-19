@@ -446,13 +446,13 @@ Instructions:
         """
         # Create directory structure
         if dataset_name == "dbpedia":
-            subdir = "dbpedia_data"
+            subdir = "dbpedia"
         elif dataset_name == "lmdb":
-            subdir = "lmdb_data"
+            subdir = "lmdb"
         elif dataset_name == "faces":
-            subdir = "faces_data"
+            subdir = "faces"
         else:
-            subdir = f"{dataset_name}_data"
+            subdir = dataset_name
         
         output_path = Path(output_dir) / subdir / str(entity_id)
         output_path.mkdir(parents=True, exist_ok=True)
