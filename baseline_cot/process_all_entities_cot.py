@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List, Tuple
 from tqdm import tqdm
 import glob
+import time
 
 # Setup logging
 logging.basicConfig(
@@ -200,7 +201,13 @@ def main():
     print(f"Output directory: {args.output_dir}")
     print("=" * 80 + "\n")
     
+    # Track timing
+    start_time = time.time()
+    timings = []
+    
     for entity_id in tqdm(entity_ids, desc=f"Processing {args.dataset}"):
+        entity_start_time = time.time()
+        
         # Get entity data
         if args.dataset == "dbpedia":
             input_dir = Path(args.dataset_root) / "dbpedia_data" / str(entity_id)
@@ -243,6 +250,9 @@ def main():
                 summary_size=args.summary_size,
             )
             
+            entity_time = time.time() - entity_start_time
+            timings.append(entity_time)
+            
             if summary:
                 # Save output
                 os.makedirs(output_file.parent, exist_ok=True)
@@ -255,10 +265,14 @@ def main():
                 failed += 1
         
         except Exception as e:
+            entity_time = time.time() - entity_start_time
+            timings.append(entity_time)
             logger.error(f"Entity {entity_id}: {e}")
             failed += 1
     
-    # Print summary
+    # Calculate timing stats
+    total_time = time.time() - start_time
+    avg_time = sum(timings) / len(timings) if timings else 0    # Print summary
     print("\n" + "=" * 80)
     print("BATCH PROCESSING COMPLETE")
     print("=" * 80)
@@ -267,6 +281,20 @@ def main():
     print(f"Skipped: {skipped}")
     print(f"Total: {len(entity_ids)}")
     print(f"Success rate: {100*successful/len(entity_ids):.1f}%")
+    
+    # Timing statistics
+    if timings:
+        print(f"\nTIMING STATISTICS")
+        print("-" * 40)
+        print(f"Total time: {total_time:.2f}s ({int(total_time//60)}m {int(total_time%60)}s)")
+        print(f"Average time per entity: {avg_time:.2f}s")
+        print(f"Min time: {min(timings):.2f}s")
+        print(f"Max time: {max(timings):.2f}s")
+        if successful + failed < len(entity_ids):
+            remaining = len(entity_ids) - successful - failed
+            estimated = avg_time * remaining
+            print(f"Estimated remaining time: {estimated:.2f}s ({int(estimated//60)}m)")
+    
     print("=" * 80 + "\n")
 
 

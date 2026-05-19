@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List, Tuple, Dict
 import argparse
 from tqdm import tqdm
+import time
 
 import sys
 from pathlib import Path
@@ -221,10 +222,14 @@ class AllEntitiesProcessor:
             "skipped": 0,
             "outputs": [],
             "errors": [],
+            "timings": [],  # Track per-entity timing
+            "start_time": time.time(),
         }
         
         # Process with progress bar
         for i, (entity_id, uri, label) in enumerate(tqdm(entities, desc="Processing"), 1):
+            entity_start_time = time.time()
+            
             # Check if output already exists
             if skip_existing:
                 # Note: output subdirs are just dataset names (dbpedia, lmdb, faces)
@@ -243,6 +248,7 @@ class AllEntitiesProcessor:
                         "entity_label": label,
                         "output_path": str(output_path),
                         "status": "skipped",
+                        "time": 0,
                     })
                     continue
             
@@ -258,6 +264,9 @@ class AllEntitiesProcessor:
                     temperature=temperature,
                 )
                 
+                entity_time = time.time() - entity_start_time
+                results["timings"].append(entity_time)
+                
                 if success:
                     results["success"] += 1
                     results["outputs"].append({
@@ -265,6 +274,7 @@ class AllEntitiesProcessor:
                         "entity_label": label,
                         "output_path": result,
                         "status": "success",
+                        "time": entity_time,
                     })
                 else:
                     results["failed"] += 1
@@ -272,16 +282,21 @@ class AllEntitiesProcessor:
                         "entity_id": entity_id,
                         "entity_label": label,
                         "error": result,
+                        "time": entity_time,
                     })
             
             except Exception as e:
+                entity_time = time.time() - entity_start_time
                 results["failed"] += 1
                 results["errors"].append({
                     "entity_id": entity_id,
                     "entity_label": label,
                     "error": str(e),
+                    "time": entity_time,
                 })
+                results["timings"].append(entity_time)
         
+        results["total_time"] = time.time() - results["start_time"]
         return results
     
     def save_results_log(self, results: Dict, log_file: str = "processing_results.txt"):
@@ -297,6 +312,22 @@ class AllEntitiesProcessor:
             f.write(f"Successful: {results['success']}\n")
             f.write(f"Failed: {results['failed']}\n")
             f.write(f"Skipped: {results['skipped']}\n\n")
+            
+            # Timing statistics
+            if results['timings']:
+                avg_time = sum(results['timings']) / len(results['timings'])
+                total_time = results.get('total_time', 0)
+                f.write("TIMING STATISTICS\n")
+                f.write("-" * 40 + "\n")
+                f.write(f"Total time: {total_time:.2f}s ({int(total_time//60)}m {int(total_time%60)}s)\n")
+                f.write(f"Average time per entity: {avg_time:.2f}s\n")
+                if results['timings']:
+                    f.write(f"Min time: {min(results['timings']):.2f}s\n")
+                    f.write(f"Max time: {max(results['timings']):.2f}s\n")
+                if results['success'] > 0:
+                    estimated_remaining = avg_time * (results['total'] - (results['success'] + results['failed']))
+                    f.write(f"Estimated remaining (if continuing): {estimated_remaining:.2f}s\n")
+                f.write("\n")
             
             if results['success'] > 0:
                 f.write("SUCCESSFUL PROCESSES\n")
@@ -492,11 +523,28 @@ def main():
     print(f"Failed: {results['failed']} ✗")
     print(f"Skipped: {results['skipped']} ⊘")
     
+    # Timing statistics
+    if results['timings']:
+        avg_time = sum(results['timings']) / len(results['timings'])
+        total_time = results.get('total_time', 0)
+        print(f"\nTIMING STATISTICS")
+        print(f"-" * 40)
+        print(f"Total time: {total_time:.2f}s ({int(total_time//60)}m {int(total_time%60)}s)")
+        print(f"Average time per entity: {avg_time:.2f}s")
+        print(f"Min time: {min(results['timings']):.2f}s")
+        print(f"Max time: {max(results['timings']):.2f}s")
+        if results['success'] > 0:
+            processed_count = results['success'] + results['failed']
+            if processed_count < results['total']:
+                estimated_remaining = avg_time * (results['total'] - processed_count)
+                print(f"Estimated remaining time: {estimated_remaining:.2f}s ({int(estimated_remaining//60)}m)")
+    
     if results['success'] > 0 and results['success'] <= 10:
         print(f"\nProcessed entities:")
         for item in results['outputs'][:10]:
             if item['status'] == 'success':
-                print(f"  {item['entity_label']} → {Path(item['output_path']).name}")
+                time_str = f" ({item.get('time', 0):.2f}s)" if item.get('time', 0) > 0 else ""
+                print(f"  {item['entity_label']} → {Path(item['output_path']).name}{time_str}")
         if len(results['outputs']) > 10:
             print(f"  ... and {len(results['outputs']) - 10} more")
     
