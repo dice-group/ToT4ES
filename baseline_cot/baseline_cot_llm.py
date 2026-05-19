@@ -270,29 +270,24 @@ SELECTION CRITERIA:
 - Each triple should be significant for understanding this entity
 
 OUTPUT FORMAT:
-Provide your reasoning clearly, then output EXACTLY {summary_size} triples in N-Triples format.
-Each triple must be a valid N-Triples line formatted as:
+Provide your reasoning, then at the end output EXACTLY {summary_size} triples in N-Triples format.
+
+Format each triple as a single line:
 <subject> <predicate> <object> .
 
-All URIs must be wrapped in angle brackets: <http://...>
-Literals must be in quotes: "value"@lang or "value"^^<datatype>
+Examples:
+<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/type> <http://dbpedia.org/ontology/Person> .
+<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/name> "John Doe"@en .
+
+Rules:
+- All URIs must be wrapped in angle brackets
+- Literals must be in double quotes with language tag or type
+- Each line must end with a period and space: " ."
+- No line numbers or bullet points - just the raw triples
+
+IMPORTANT: Output the {summary_size} selected triples directly at the end, one per line, with NO other text or numbering.
 
 START YOUR CHAIN-OF-THOUGHT REASONING:
-Let me analyze this entity and select the most important triples:
-
-1. Understanding the entity:
-   [Your analysis here]
-
-2. Identifying core facts:
-   [Your analysis here]
-
-3. Assessing importance of key triples:
-   [Your analysis here]
-
-4. Reasoning about selections:
-   [Your analysis here]
-
-FINAL SELECTION - Top {summary_size} Triples:
 """
         return prompt
     
@@ -309,22 +304,49 @@ FINAL SELECTION - Top {summary_size} Triples:
         # Look for the final selection section and extract N-Triples lines
         in_selection = False
         for line in lines:
+            original_line = line
             line = line.strip()
             
-            # Skip empty lines and section headers
-            if not line or 'FINAL' in line or 'Top' in line or 'Triples' in line:
+            # Track if we're in the final selection section
+            if 'FINAL' in line.upper() or 'Top' in line:
                 in_selection = True
+                logger.debug(f"Found selection header: {line}")
                 continue
             
-            # Extract N-Triples lines (must contain valid triple pattern)
-            if in_selection and line and not line.startswith('['):
-                # Check if it's a valid triple line
-                if line.count('<') >= 2 and ' . ' in line:
-                    # Remove numbering if present (e.g., "1. triple")
-                    if line and line[0].isdigit() and '. ' in line[:3]:
-                        line = line.split('. ', 1)[1].strip()
-                    
-                    selected_triples.append(line)
+            # Skip empty lines and obvious headers
+            if not line:
+                continue
+            
+            # Extract potentially valid N-Triples lines
+            if in_selection:
+                # Remove numbering/bullet points if present (e.g., "1. ", "- ", "* ")
+                clean_line = line
+                if clean_line and clean_line[0].isdigit() and '. ' in clean_line[:4]:
+                    clean_line = clean_line.split('. ', 1)[1].strip()
+                elif clean_line.startswith('-'):
+                    clean_line = clean_line[1:].strip()
+                elif clean_line.startswith('*'):
+                    clean_line = clean_line[1:].strip()
+                
+                # Check if it's a valid N-Triples line
+                # Must have at least 2 URIs (subject and predicate) and end with a period
+                # Be flexible with spacing around the period
+                if clean_line and '<' in clean_line:
+                    # Count opening angle brackets
+                    if clean_line.count('<') >= 2:
+                        # Should end with a period (with or without spaces)
+                        if clean_line.rstrip().endswith('.'):
+                            logger.debug(f"Extracted triple: {clean_line}")
+                            selected_triples.append(clean_line)
+                        # Also try lines that look like N-Triples but might be missing period
+                        elif '> ' in clean_line and clean_line.count('<') >= 2:
+                            # Likely an N-Triple missing the final period, add it
+                            if not clean_line.endswith(' .'):
+                                clean_line = clean_line.rstrip() + ' .'
+                            logger.debug(f"Extracted (added period): {clean_line}")
+                            selected_triples.append(clean_line)
+        
+        logger.info(f"Extracted {len(selected_triples)} triples from response")
         
         # Ensure entity_uri is applied to all triples
         final_triples = []
@@ -401,11 +423,30 @@ FINAL SELECTION - Top {summary_size} Triples:
         
         if not selected_triples:
             logger.warning(f"No triples extracted from response for entity {entity_id}")
-            return []
+            logger.info(f"Falling back to first {summary_size} preprocessed triples")
+            
+            # Fallback: use the first summary_size triples from preprocessed
+            fallback_triples = processed_triples[:summary_size]
+            selected_triples = [
+                self.parser.format_triple(entity_uri, p, o) 
+                for _, p, o in fallback_triples
+            ]
+            
+            if selected_triples:
+                logger.info(f"Using fallback with {len(selected_triples)} triples")
+            else:
+                logger.error(f"Fallback also failed for entity {entity_id}")
+                return []
         
         # Ensure we have the correct number of triples
         if len(selected_triples) < summary_size:
             logger.warning(f"Got {len(selected_triples)} triples, expected {summary_size}")
+            # Pad with additional fallback triples if needed
+            if len(selected_triples) < len(processed_triples):
+                remaining = processed_triples[len(selected_triples):summary_size]
+                for _, p, o in remaining:
+                    selected_triples.append(self.parser.format_triple(entity_uri, p, o))
+                logger.info(f"Padded with fallback to reach {len(selected_triples)} triples")
         elif len(selected_triples) > summary_size:
             logger.info(f"Truncating to {summary_size} triples (got {len(selected_triples)})")
             selected_triples = selected_triples[:summary_size]
