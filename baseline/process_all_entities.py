@@ -324,8 +324,8 @@ def main():
     parser.add_argument(
         "--dataset-root",
         type=str,
-        default="../datasets/ESBM_benchmark_v1.2",
-        help="Dataset root path"
+        default=None,
+        help="Dataset root path (auto-discovered if not provided)"
     )
     
     # Output options
@@ -400,7 +400,41 @@ def main():
     
     args = parser.parse_args()
     
-    # Set CUDA devices if specified
+    # Auto-discover dataset root if not provided
+    if args.dataset_root is None:
+        # Try to find datasets directory
+        current = Path.cwd()
+        found = False
+        
+        # Search up to 5 levels up the directory tree
+        for _ in range(5):
+            candidate = current / "datasets" / "ESBM_benchmark_v1.2"
+            if candidate.exists():
+                args.dataset_root = str(candidate)
+                logger.info(f"Auto-discovered dataset root: {args.dataset_root}")
+                found = True
+                break
+            current = current.parent
+        
+        if not found:
+            # Try common relative paths
+            for rel_path in ["../datasets/ESBM_benchmark_v1.2", "datasets/ESBM_benchmark_v1.2", "../../datasets/ESBM_benchmark_v1.2"]:
+                candidate = Path(rel_path).resolve()
+                if candidate.exists():
+                    args.dataset_root = str(candidate)
+                    logger.info(f"Auto-discovered dataset root: {args.dataset_root}")
+                    found = True
+                    break
+        
+        if not found:
+            logger.error(
+                "Could not auto-discover dataset root. Please specify --dataset-root\n"
+                "Example: python process_all_entities.py --dataset faces --dataset-root /path/to/datasets/ESBM_benchmark_v1.2"
+            )
+            sys.exit(1)
+    
+    # Resolve to absolute path
+    args.dataset_root = str(Path(args.dataset_root).resolve())
     if args.cuda_devices is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_devices
     elif args.gpu >= 0:
