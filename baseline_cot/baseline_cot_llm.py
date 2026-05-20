@@ -154,8 +154,16 @@ class CoTLLMSummarizer:
         
         # Setup device
         if torch.cuda.is_available():
-            torch.cuda.set_device(device)
-            logger.info(f"Using GPU device: {device}")
+            # Check if CUDA_VISIBLE_DEVICES is set - if so, device becomes 0
+            import os
+            if os.environ.get("CUDA_VISIBLE_DEVICES"):
+                actual_device = 0
+                logger.info(f"CUDA_VISIBLE_DEVICES is set, using device 0 (mapped to GPU {device})")
+            else:
+                actual_device = device
+                logger.info(f"Using GPU device: {device}")
+            
+            torch.cuda.set_device(actual_device)
         else:
             logger.info("GPU not available, using CPU")
         
