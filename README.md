@@ -108,10 +108,10 @@ Run with custom dataset path, output, and use GPU 0:
 ./run_tot4es.sh -d ../datasets/ESBM_benchmark_v1.2/dbpedia_data -o ../outputs/myrun -l ../logs/myrun -g 0
 ```
 
-Run with a smaller summary length and different model:
+Run with a smaller summary length and override the model (example uses the Qwen3 default):
 
 ```bash
-./run_tot4es.sh -k 5 -m "meta-llama/Llama-3.2-3B-Instruct" --gpu=0
+./run_tot4es.sh -k 5 -m "Qwen/Qwen3-coder-30B-A3B-Instruct" --gpu=0
 ```
 
 Quick test limited to 5 entities:
