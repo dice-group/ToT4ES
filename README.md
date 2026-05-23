@@ -125,4 +125,5 @@ Notes:
 - Do not set ablation environment variables (e.g. `USE_RANDOM_CANDIDATES`) if you want the baseline run.
 - The script passes `--thought-temperature` and `--eval-temperature` to the Python runner; adjust these with `-t` and `-e` as needed.
 - Default outputs are written to `outputs/results_1` and logs to `logs/experiment_1` unless overridden.
+ - Default LLM model: `Qwen/Qwen3-coder-30B-A3B-Instruct` (can be changed with `-m`)
 
