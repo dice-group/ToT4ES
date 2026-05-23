@@ -1,43 +1,91 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Process all DBpedia entities with Task-Decomposed ToT
-# 
-# ABLATION STUDY SUPPORT:
-# This script can be used to run ablation variants for RQ2 analysis.
-# Use environment variables to specify variant configurations.
-#
-# Examples:
-#   # Normal run (full model)
-#   ./run_tot_task_decomposed.sh
-#
-#   # Ablation variant: No thought policy (random candidates)
-#   USE_RANDOM_CANDIDATES=true ./run_tot_task_decomposed.sh
-#
-#   # Ablation variant: No branching (beam_width=1)
-#   N_CANDIDATES_PER_TASK=1 ./run_tot_task_decomposed.sh
-#
-#   # Ablation variant: Custom weights
-#   W_RELATEDNESS=1.0 W_INFORMATIVENESS=0.0 W_COVERAGE=0.0 ./run_tot_task_decomposed.sh
-#
-#   # Quick test with limited entities
-#   LIMIT_ENTITIES=5 ./run_tot_task_decomposed.sh
-
+# Default paths and configuration (can be overridden via CLI flags)
 ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
-#ROOT="../datasets/FACES/faces_data"
-#ROOT="../datasets/WikiES_benchmark/WikiCinema-s-test_data"
-OUT="outputs/ablation-study#8"
-LOGS="logs/ablation-study#8"
+OUT="outputs"
+LOGS="logs"
 
-# Configuration
+# Configuration defaults
 DATASET="dbpedia"
-MAX_SUMMARY_LEN=10
+MAX_SUMMARY_LEN=5
 N_CANDIDATES_PER_TASK=${N_CANDIDATES_PER_TASK:-3}  # Ablation: override to 1 for greedy
-GPU_DEVICE=3
+GPU_DEVICE=0
 LIMIT_ENTITIES=${LIMIT_ENTITIES:-0}  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
 MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
+
+# LLM temperatures (defaults used by the Python script)
+THOUGHT_TEMPERATURE=0.8
+EVAL_TEMPERATURE=0.3
+
+usage() {
+  cat <<EOF
+Usage: $0 [options]
+
+Options:
+  -d DIR    Dataset root directory (overrides ROOT)
+  -o DIR    Output directory
+  -l DIR    Logs directory
+  -n NAME   Dataset name (dbpedia, faces, lmdb, ...)
+  -k INT    Max summary length (top-k triples)
+  -m ID     Model id (HuggingFace model identifier)
+  -t FLOAT  Thought temperature
+  -e FLOAT  Eval temperature
+  -g INT    GPU device index (sets CUDA_VISIBLE_DEVICES in subcommands)
+  -L INT    Limit entities (for quick tests)
+  -h        Show this help
+EOF
+  exit 1
+}
+
+# Support a single long option `--gpu` (accepts `--gpu=IDX` or `--gpu IDX`)
+NEWARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --gpu)
+      if [[ -n "${2-}" ]]; then
+        GPU_DEVICE="$2"
+        shift 2
+        continue
+      else
+        echo "Option --gpu requires an argument." >&2
+        usage
+      fi
+      ;;
+    --gpu=*)
+      GPU_DEVICE="${1#*=}"
+      shift
+      continue
+      ;;
+    *)
+      NEWARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+set -- "${NEWARGS[@]}"
+
+# Parse short CLI options
+while getopts ":d:o:l:n:k:m:t:e:g:L:h" opt; do
+  case $opt in
+    d) ROOT="$OPTARG" ;;
+    o) OUT="$OPTARG" ;;
+    l) LOGS="$OPTARG" ;;
+    n) DATASET="$OPTARG" ;;
+    k) MAX_SUMMARY_LEN="$OPTARG" ;;
+    m) MODEL_ID="$OPTARG" ;;
+    t) THOUGHT_TEMPERATURE="$OPTARG" ;;
+    e) EVAL_TEMPERATURE="$OPTARG" ;;
+    g) GPU_DEVICE="$OPTARG" ;;
+    L) LIMIT_ENTITIES="$OPTARG" ;;
+    h) usage ;;
+    \?) echo "Invalid option: -$OPTARG" >&2; usage ;;
+    :) echo "Option -$OPTARG requires an argument." >&2; usage ;;
+  esac
+done
+shift $((OPTIND -1))
 # Uncomment to use task-specific models:
 # MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
@@ -169,6 +217,8 @@ for f in "${nt_files[@]}"; do
     --max-summary-len $MAX_SUMMARY_LEN \
     --n-candidates-per-task $N_CANDIDATES_PER_TASK \
     --model-id \"$MODEL_ID\" \
+    --thought-temperature $THOUGHT_TEMPERATURE \
+    --eval-temperature $EVAL_TEMPERATURE \
     --w-relatedness $W_RELATEDNESS \
     --w-informativeness $W_INFORMATIVENESS \
     --w-coverage $W_COVERAGE \
