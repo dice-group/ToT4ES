@@ -84,6 +84,11 @@ A triple is RELATED/CENTRAL if it:
 2. SPECIFICITY: Provides distinctive values NOT generic descriptions
 3. ESSENTIALITY: Best answers "What fundamentally IS this entity?"
 
+    IMPORTANT:
+    In this stage, judge candidates only on RELATEDNESS.
+    Do NOT optimize across informativeness or diversity here.
+    Pick the single triple that is most central and defining for the entity.
+
 DOMAIN CONTEXT - Core/frequent predicates (entity-defining):
 {core_preds_text}
 
@@ -192,6 +197,11 @@ A triple is informative if it combines:
 1. RARITY: Uses uncommon predicates (not generic like rdf:type, rdfs:label, or rdf:comment)
 2. NOVELTY: Introduces predicates NOT already in your selection
 3. SPECIFICITY: Provides concrete, detailed values (not generic categories/descriptions)
+
+    IMPORTANT:
+    In this stage, judge candidates only on INFORMATIVENESS.
+    Do NOT trade off against relatedness or diversity here.
+    Pick the single triple that adds the most new, non-trivial information.
 
 DOMAIN CONTEXT - Rare predicates in this dataset:
 {rare_preds_text}
@@ -314,6 +324,11 @@ A triple MAXIMIZES DIVERSITY if it:
 1. ROLE VARIETY: Covers semantic roles NOT yet represented (location, time, relationship, attribute, etc.)
 2. PREDICATE NOVELTY: Uses predicates different from already selected (no redundant predicates)
 3. PERSPECTIVE BREADTH: Views entity from different aspects (not just repeating the same type of info)
+
+    IMPORTANT:
+    In this stage, judge candidates only on DIVERSITY/COVERAGE.
+    Do NOT optimize across relatedness or informativeness here.
+    Pick the single triple that most expands coverage and reduces redundancy.
 
 CURRENT STATE - Semantic roles covered:
 {coverage_text}
