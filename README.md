@@ -142,11 +142,4 @@ Table 2 — Highest F-measure (higher is better) comparing ToT4ES against baseli
 | Chain of Thought LLM | 0.291 | 0.459 | 0.250 | 0.380 | 0.165 | 0.296 |
 | **TOT4ES (our)** | **0.359** | **0.548** | **0.421** | **0.478** | **0.212** | **0.329** |
 
-Brief explanation:
-
-- TOT4ES achieves the highest F-measure across the three benchmarks for both K=5 and K=10, outperforming traditional extractive baselines (RELIN, MPSUM, BAPREC, KAFCA, IRES) and simple LLM baselines.
-- The table shows that Chain-of-Thought LLM improves over the Zero-shot LLM baseline, but ToT4ES (task-decomposed Tree-of-Thought) provides the best overall scores, indicating that decomposition into relatedness, informativeness and coverage plus the ToT search yields stronger extractive summaries.
-- Statistical significance (Wilcoxon signed-rank test, p < 0.05) was used in the original analysis to mark improvements vs baselines — see the paper for per-comparison significance markers.
-
-If you want, I can also embed the original table image under `images/` and reference it in this README for visual fidelity.
 
