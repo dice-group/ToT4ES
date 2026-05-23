@@ -34,3 +34,52 @@ pip install -r requirements.txt
 ```
 
 > ⚠️ **Important Note:** Ensure that all dependencies are correctly installed.
+
+## 🚀 Quickstart
+A minimal quickstart to run a small demo using the repository's test script.
+
+1. Create and activate a virtual environment (venv):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install dependencies:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+3. (Optional) If you plan to use Hugging Face models that require authentication, login:
+
+```bash
+huggingface-cli login
+```
+
+4. Run a quick dataset check/demo:
+
+```bash
+python test.py
+```
+
+## ▶ Running ToT4ES
+
+Follow these steps to run the baseline ToT4ES pipeline 
+- Run a single-entity example (quick test):
+
+```bash
+python3 scripts/tot_entity_summarizer_task_decomposed.py \
+	--nt datasets/ESBM_benchmark_v1.2/dbpedia_data/1/1_desc.nt \
+	--dataset dbpedia \
+	--max-summary-len 5
+```
+
+- Run the full baseline processing (iterates over dataset entities):
+
+```bash
+cd scripts
+./run_tot4es.sh
+```
+
