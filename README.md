@@ -127,3 +127,26 @@ Notes:
 - Default outputs are written to `outputs/results_1` and logs to `logs/experiment_1` unless overridden.
  - Default LLM model: `Qwen/Qwen3-coder-30B-A3B-Instruct` (can be changed with `-m`)
 
+## **Results**
+
+Table 2 — Highest F-measure (higher is better) comparing ToT4ES against baselines on three dataset benchmarks (DBpedia, LinkedMDB, FACES). Values are F-measure for K=5 and K=10 (top-K triples).
+
+| Model / Dataset | DBpedia K=5 | DBpedia K=10 | LinkedMDB K=5 | LinkedMDB K=10 | FACES K=5 | FACES K=10 |
+|---|---:|---:|---:|---:|---:|---:|
+| RELIN | 0.265 | 0.495 | 0.285 | 0.345 | 0.114 | 0.254 |
+| MPSUM | 0.306 | 0.504 | 0.265 | 0.424 | 0.152 | 0.286 |
+| BAPREC | 0.321 | 0.459 | 0.335 | 0.307 | 0.131 | 0.258 |
+| KAFCA | 0.316 | 0.512 | 0.227 | 0.399 | 0.122 | 0.298 |
+| IRES | 0.325 | 0.540 | 0.350 | 0.445 | 0.128 | 0.265 |
+| Zero-shot LLM | 0.220 | 0.391 | 0.018 | 0.004 | 0.142 | 0.163 |
+| Chain of Thought LLM | 0.291 | 0.459 | 0.250 | 0.380 | 0.165 | 0.296 |
+| **TOT4ES (our)** | **0.359** | **0.548** | **0.421** | **0.478** | **0.212** | **0.329** |
+
+Brief explanation:
+
+- TOT4ES achieves the highest F-measure across the three benchmarks for both K=5 and K=10, outperforming traditional extractive baselines (RELIN, MPSUM, BAPREC, KAFCA, IRES) and simple LLM baselines.
+- The table shows that Chain-of-Thought LLM improves over the Zero-shot LLM baseline, but ToT4ES (task-decomposed Tree-of-Thought) provides the best overall scores, indicating that decomposition into relatedness, informativeness and coverage plus the ToT search yields stronger extractive summaries.
+- Statistical significance (Wilcoxon signed-rank test, p < 0.05) was used in the original analysis to mark improvements vs baselines — see the paper for per-comparison significance markers.
+
+If you want, I can also embed the original table image under `images/` and reference it in this README for visual fidelity.
+
