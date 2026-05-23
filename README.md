@@ -83,3 +83,46 @@ cd scripts
 ./run_tot4es.sh
 ```
 
+Usage (script options):
+
+- Short options (POSIX):
+	- `-d DIR` dataset root directory (overrides default `ROOT`)
+	- `-o DIR` output directory
+	- `-l DIR` logs directory
+	- `-n NAME` dataset name (dbpedia, faces, lmdb, ...)
+	- `-k INT` max summary length (top-k triples)
+	- `-m ID` model id (HuggingFace model identifier)
+	- `-t FLOAT` thought temperature
+	- `-e FLOAT` eval temperature
+	- `-g INT` GPU device index (also supported as `--gpu`)
+	- `-L INT` limit entities (for quick tests)
+
+- Long option:
+	- `--gpu` accepts `--gpu=IDX` or `--gpu IDX` (sets GPU device index)
+
+Examples:
+
+Run with custom dataset path, output, and use GPU 0:
+
+```bash
+./run_tot4es.sh -d ../datasets/ESBM_benchmark_v1.2/dbpedia_data -o ../outputs/myrun -l ../logs/myrun -g 0
+```
+
+Run with a smaller summary length and different model:
+
+```bash
+./run_tot4es.sh -k 5 -m "meta-llama/Llama-3.2-3B-Instruct" --gpu=0
+```
+
+Quick test limited to 5 entities:
+
+```bash
+LIMIT_ENTITIES=5 ./run_tot4es.sh
+```
+
+Notes:
+
+- Do not set ablation environment variables (e.g. `USE_RANDOM_CANDIDATES`) if you want the baseline run.
+- The script passes `--thought-temperature` and `--eval-temperature` to the Python runner; adjust these with `-t` and `-e` as needed.
+- Default outputs are written to `outputs/ablation-study#8` and logs to `logs/ablation-study#8` unless overridden.
+
