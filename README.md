@@ -23,7 +23,7 @@ conda activate tot4es-env
 ```bash
 git clone https://github.com/dice-group/ToT4ES.git
 
-# Navigate to ANTS directory
+# Navigate to ToT4ES directory
 cd ToT4ES
 ```
 
