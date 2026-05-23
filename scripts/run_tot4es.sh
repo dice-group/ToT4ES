@@ -3,10 +3,10 @@ set -euo pipefail
 
 # Default paths and configuration (can be overridden via CLI flags)
 ROOT="../datasets/ESBM_benchmark_v1.2/dbpedia_data"
-OUT="outputs"
-LOGS="logs"
+OUT="outputs/results_1"
+LOGS="logs/experiment_1"
 
-# Configuration defaults
+# Default paths and configuration (can be overridden via CLI flags)
 DATASET="dbpedia"
 MAX_SUMMARY_LEN=5
 N_CANDIDATES_PER_TASK=${N_CANDIDATES_PER_TASK:-3}  # Ablation: override to 1 for greedy
@@ -14,7 +14,7 @@ GPU_DEVICE=0
 LIMIT_ENTITIES=${LIMIT_ENTITIES:-0}  # Set to 0 to process all, or change to 2, 5, etc. for testing
 
 # Model configuration (customize as needed)
-MODEL_ID="Qwen/Qwen3-Coder-30B-A3B-Instruct"
+MODEL_ID="Qwen/Qwen3-coder-30B-A3B-Instruct"
 
 # LLM temperatures (defaults used by the Python script)
 THOUGHT_TEMPERATURE=0.8
@@ -86,16 +86,6 @@ while getopts ":d:o:l:n:k:m:t:e:g:L:h" opt; do
   esac
 done
 shift $((OPTIND -1))
-# Uncomment to use task-specific models:
-# MODEL_RELATEDNESS="meta-llama/Llama-3.2-1B-Instruct"
-# MODEL_INFORMATIVENESS="mistralai/Mistral-7B-Instruct-v0.2"
-# MODEL_DIVERSITY="meta-llama/Llama-3.2-3B-Instruct"
-# MODEL_EVALUATION="meta-llama/Llama-3.2-3B-Instruct"
-
-# ═══════════════════════════════════════════════════════════
-# ABLATION STUDY PARAMETERS (RQ2)
-# Set via environment variables to test different configurations
-# ═══════════════════════════════════════════════════════════
 
 # Semantic dimension weights (for value function aggregation)
 W_RELATEDNESS=${W_RELATEDNESS:-0.4}
