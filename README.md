@@ -58,12 +58,6 @@ pip install -r requirements.txt
 huggingface-cli login
 ```
 
-4. Run a quick dataset check/demo:
-
-```bash
-python test.py
-```
-
 ## ▶ Running ToT4ES
 
 Follow these steps to run the baseline ToT4ES pipeline 
@@ -80,7 +74,7 @@ python3 scripts/tot_entity_summarizer_task_decomposed.py \
 
 ```bash
 cd scripts
-./run_tot4es.sh
+bash run_tot4es.sh
 ```
 
 Usage (script options):
@@ -105,19 +99,19 @@ Examples:
 Run with custom dataset path, output, and use GPU 0:
 
 ```bash
-./run_tot4es.sh -d ../datasets/ESBM_benchmark_v1.2/dbpedia_data -o ../outputs/myrun -l ../logs/myrun -g 0
+bash run_tot4es.sh -d ../datasets/ESBM_benchmark_v1.2/dbpedia_data -o ../outputs/myrun -l ../logs/myrun -g 0
 ```
 
 Run with a smaller summary length and override the model (example uses the Qwen3 default):
 
 ```bash
-./run_tot4es.sh -k 5 -m "Qwen/Qwen3-coder-30B-A3B-Instruct" --gpu=0
+bash run_tot4es.sh -k 5 -m "Qwen/Qwen3-coder-30B-A3B-Instruct" --gpu=0
 ```
 
 Quick test limited to 5 entities:
 
 ```bash
-LIMIT_ENTITIES=5 ./run_tot4es.sh
+LIMIT_ENTITIES=5 bash run_tot4es.sh
 ```
 
 Notes:
