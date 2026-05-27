@@ -9,6 +9,58 @@ import json
 from typing import List
 
 
+def _extract_json_objects(raw: str) -> List[dict]:
+    """Best-effort extraction of JSON objects from model output.
+
+    Handles valid JSON arrays, truncated arrays, and outputs that contain
+    one object per line without a closing bracket.
+    """
+    objects: List[dict] = []
+
+    # Strip common markdown/code-fence wrappers first.
+    cleaned = raw.strip()
+    cleaned = cleaned.replace("```json", "```").replace("```JSON", "```")
+    if cleaned.startswith("```"):
+        cleaned = cleaned[3:]
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+    cleaned = cleaned.strip()
+
+    # Prefer a full JSON array when possible.
+    start = cleaned.find("[")
+    end = cleaned.rfind("]")
+    if start != -1 and end != -1 and end > start:
+        try:
+            parsed = json.loads(cleaned[start : end + 1])
+            if isinstance(parsed, list):
+                return [entry for entry in parsed if isinstance(entry, dict)]
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Fallback: extract every {...} block and try to decode it individually.
+    depth = 0
+    block_start = None
+    for i, ch in enumerate(cleaned):
+        if ch == "{":
+            if depth == 0:
+                block_start = i
+            depth += 1
+        elif ch == "}":
+            if depth > 0:
+                depth -= 1
+                if depth == 0 and block_start is not None:
+                    block = cleaned[block_start : i + 1]
+                    try:
+                        obj = json.loads(block)
+                        if isinstance(obj, dict):
+                            objects.append(obj)
+                    except (json.JSONDecodeError, ValueError):
+                        pass
+                    block_start = None
+
+    return objects
+
+
 def entity_heuristic_calculator(
     states: List[str],
     state_evals: List[str],
@@ -46,51 +98,40 @@ def entity_heuristic_calculator(
             continue
 
         # Try JSON format first - with robust extraction
-        start = raw.find("[")
-        end = raw.rfind("]")
-        if start != -1 and end != -1 and end > start:
-            json_str = raw[start:end+1]
-            try:
-                parsed = json.loads(json_str)
-                if isinstance(parsed, list) and len(parsed) > 0:
-                    # Be lenient: accept partial evaluations
-                    # If we get at least one valid entry, use what we have
-                    scored_indices = set()
-                    valid_sample = True
-                    
-                    for entry in parsed:
-                        try:
-                            idx = entry.get("idx", None)
-                            if idx is None:
-                                valid_sample = False
-                                continue
-                            
-                            idx = int(idx)
-                            if not (0 <= idx < n_states):
-                                continue
-                            
-                            r_val = float(entry.get("relatedness", entry.get("r", 0.5)))
-                            i_val = float(entry.get("informativeness", entry.get("i", 0.5)))
-                            c_val = float(entry.get("coverage", entry.get("c", 0.5)))
-                            
-                            # Clamp to [0, 1] if slightly out of bounds (floating point tolerance)
-                            r_val = max(0.0, min(1.0, r_val))
-                            i_val = max(0.0, min(1.0, i_val))
-                            c_val = max(0.0, min(1.0, c_val))
-                            
-                            agg[idx]["relatedness"] += r_val
-                            agg[idx]["informativeness"] += i_val
-                            agg[idx]["coverage"] += c_val
-                            scored_indices.add(idx)
-                        except (ValueError, TypeError):
-                            continue
-                    
-                    # Accept if we got at least 1 valid score
-                    if scored_indices:
-                        n_samples += 1
+        parsed_entries = _extract_json_objects(raw)
+        if parsed_entries:
+            scored_indices = set()
+
+            for entry in parsed_entries:
+                try:
+                    idx = entry.get("idx", None)
+                    if idx is None:
                         continue
-            except (json.JSONDecodeError, ValueError):
-                pass
+
+                    idx = int(idx)
+                    if not (0 <= idx < n_states):
+                        continue
+
+                    r_val = float(entry.get("relatedness", entry.get("r", 0.5)))
+                    i_val = float(entry.get("informativeness", entry.get("i", 0.5)))
+                    c_val = float(entry.get("coverage", entry.get("c", 0.5)))
+
+                    # Clamp to [0, 1] if slightly out of bounds (floating point tolerance)
+                    r_val = max(0.0, min(1.0, r_val))
+                    i_val = max(0.0, min(1.0, i_val))
+                    c_val = max(0.0, min(1.0, c_val))
+
+                    agg[idx]["relatedness"] += r_val
+                    agg[idx]["informativeness"] += i_val
+                    agg[idx]["coverage"] += c_val
+                    scored_indices.add(idx)
+                except (ValueError, TypeError, AttributeError):
+                    continue
+
+            # Accept if we got at least 1 valid score
+            if scored_indices:
+                n_samples += 1
+                continue
 
         # Try simple format: SUMMARY_X: R=0.X I=0.X C=0.X
         pattern = r'SUMMARY[_\s]*(\d+)\s*:?\s*R\s*=\s*([0-9.]+)\s*I\s*=\s*([0-9.]+)\s*C\s*=\s*([0-9.]+)'
