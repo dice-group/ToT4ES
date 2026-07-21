@@ -150,6 +150,29 @@ def main():
         help="GPU device ID"
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.1,
+        help="Sampling temperature (default: 0.1)"
+    )
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=2048,
+        help="Maximum new tokens to generate (default: 2048)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
         "--skip-existing",
         action="store_true",
         help="Skip entities that already have output files"
@@ -188,6 +211,8 @@ def main():
     summarizer = CoTLLMSummarizer(
         model_name=args.model,
         device=args.gpu,
+        temperature=args.temperature,
+        max_tokens=args.max_new_tokens,
     )
     
     # Process entities
@@ -248,6 +273,10 @@ def main():
                 entity_label=label,
                 triple_file=str(input_file),
                 summary_size=args.summary_size,
+                temperature=args.temperature,
+                max_new_tokens=args.max_new_tokens,
+                top_p=args.top_p,
+                do_sample=None if not args.no_sample else False,
             )
             
             entity_time = time.time() - entity_start_time

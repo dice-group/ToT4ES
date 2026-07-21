@@ -179,6 +179,10 @@ class AllEntitiesProcessor:
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
         max_entities: int = None,
         skip_existing: bool = True,
     ) -> Dict:
@@ -262,6 +266,10 @@ class AllEntitiesProcessor:
                     dataset_name=self.dataset_name,
                     output_dir=output_dir,
                     temperature=temperature,
+                    max_new_tokens=max_new_tokens,
+                    top_p=top_p,
+                    no_sample=no_sample,
+                    prompt_style=prompt_style,
                 )
                 
                 entity_time = time.time() - entity_start_time
@@ -398,6 +406,30 @@ def main():
         help="LLM temperature (default: 0.1)"
     )
     parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=1024,
+        help="Maximum new tokens to generate (default: 1024)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
+        "--prompt-style",
+        type=str,
+        default="legacy",
+        choices=["legacy", "tot_matched"],
+        help="Prompt template style: legacy baseline or ToT-aligned single-pass"
+    )
+    parser.add_argument(
         "--model",
         type=str,
         default="meta-llama/Llama-3.2-3B-Instruct",
@@ -507,6 +539,10 @@ def main():
         output_dir=args.output_dir,
         temperature=args.temperature,
         model_id=args.model,
+        max_new_tokens=args.max_new_tokens,
+        top_p=args.top_p,
+        no_sample=args.no_sample,
+        prompt_style=args.prompt_style,
         max_entities=args.max_entities,
         skip_existing=args.skip_existing,
     )

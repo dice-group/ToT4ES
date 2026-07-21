@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 import warnings
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 import torch
 from transformers import pipeline
@@ -263,24 +263,19 @@ class BaselineLLMSummarizer:
                 return True
         return False
     
-    def format_triples_for_prompt(self, triples: List[Tuple[str, str, str]]) -> str:
+    def format_full_triples_for_prompt(self, triples: List[Tuple[str, str, str]]) -> str:
         """
-        Format triples for the prompt as numbered list.
-        
+        Format triples as indexed full N-Triples to match ToT candidate representation.
+
         Args:
             triples: List of (subject, predicate, object) tuples
-            
+
         Returns:
-            Formatted string for prompt
+            Numbered N-Triples string
         """
         formatted = []
         for i, (s, p, o) in enumerate(triples, 1):
-            # Extract shortened predicate name for readability
-            pred_short = p.split('/')[-1].rstrip('>')
-            # Shorten object URI if needed
-            o_short = o.split('/')[-1].rstrip('>') if o.startswith('<') else o
-            formatted.append(f"{i}. {pred_short}: {o_short}")
-        
+            formatted.append(f"{i}. {self.parser.format_triple(s, p, o)}")
         return '\n'.join(formatted)
     
     def create_prompt(
@@ -289,6 +284,7 @@ class BaselineLLMSummarizer:
         entity_label: str,
         triples: List[Tuple[str, str, str]],
         summary_size: int = 5,
+        prompt_style: str = "tot_matched",
     ) -> str:
         """
         Create the instructional prompt for LLM summarization.
@@ -302,35 +298,30 @@ class BaselineLLMSummarizer:
         Returns:
             Prompt string
         """
-        formatted_triples = self.format_triples_for_prompt(triples)
-        
-        prompt = f"""You are an expert knowledge graph engineer. Your task is to summarize the provided RDF triples for the entity {entity_label} ({entity_uri}) into exactly {summary_size} unique, high-value triples.
+        formatted_triples = self.format_full_triples_for_prompt(triples)
+        prompt = f"""You are an expert in entity summarization over RDF triples.
 
-Strictly adhere to the following selection and formatting rules:
-1. Deduplicate: Remove redundant properties that express the same relationship (e.g., choose between the ontology/ and property/ versions of 'knownFor').
-2. Prioritize Core Facts: Focus on core identity attributes: Academic Field, Key Discoveries/Achievements, Spouse, Birthplace, and Alma Mater.
-3. Eliminate Metadata: Do not include web-specific or system metadata triples such as 'thumbnail', 'depiction', 'wasDerivedFrom', 'homepage', or 'hasPhotoCollection'.
-4. Format: Output ONLY valid N-Triples format (RFC 2396 compliant), one per line:
-   - ALL URIs must be wrapped in angle brackets: <http://...>
-   - The subject MUST be: {entity_uri}
-   - Literals must use proper format: "value"@en or "value"^^<datatype>
-   - Each line must end with a space and a period: .
-5. No explanations: Output only the triples, no introductory or concluding text.
+Entity: {entity_label}
+Entity URI: {entity_uri}
 
-Input Triples (numbered for reference):
+You are given candidate triples for this entity. Select exactly {summary_size} triples that best summarize the entity.
+
+Selection criteria:
+1. Relatedness: choose triples central to the entity identity and core facts.
+2. Informativeness: choose specific, non-trivial facts with strong information value.
+3. Coverage/Diversity: cover different aspects of the entity and avoid redundant predicates.
+
+Candidate triples (index: triple):
 {formatted_triples}
 
-Instructions:
-- Select exactly {summary_size} triples from the input
-- The subject of ALL output triples must be: {entity_uri}
-- Ensure each triple follows this exact format: <uri_subject> <uri_predicate> <uri_or_literal_object> .
-- Focus on the most informative and central facts about the entity
-- Ensure diversity across different predicates/facets
-- Each line must be a valid N-Triple with subject, predicate, and object
-- IMPORTANT: All URIs must be wrapped in angle brackets <..>
-- IMPORTANT: The subject must be {entity_uri} for all triples
-- No explanations, just the triples."""
-        
+Output rules:
+- Output ONLY selected triples in valid N-Triples format, one per line.
+- Select exactly {summary_size} triples from the candidates.
+- Use {entity_uri} as subject for all output triples.
+- All URIs must be wrapped in angle brackets.
+- Each output line must end with " .".
+- Do not output explanations, numbering, or extra text.
+"""
         return prompt
     
     def summarize(
@@ -341,6 +332,9 @@ Instructions:
         summary_size: int = 5,
         temperature: float = 0.1,
         max_new_tokens: int = 1024,
+        prompt_style: str = "tot_matched",
+        top_p: Optional[float] = None,
+        do_sample: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize entity triples using direct LLM prompt.
@@ -371,7 +365,11 @@ Instructions:
         
         # Create prompt
         prompt = self.create_prompt(
-            entity_uri, entity_label, processed_triples, summary_size
+            entity_uri,
+            entity_label,
+            processed_triples,
+            summary_size,
+            prompt_style,
         )
         
         logger.info("Sending prompt to LLM...")
@@ -387,15 +385,22 @@ Instructions:
                 tokenize=False,
                 add_generation_prompt=True,
             )
+
+            resolved_do_sample = (temperature > 0.0) if do_sample is None else do_sample
+            generation_kwargs = {
+                "max_new_tokens": max_new_tokens,
+                "min_new_tokens": 1,
+                "temperature": temperature,
+                "do_sample": resolved_do_sample,
+                "num_return_sequences": 1,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+                "return_full_text": False,
+            }
+            if top_p is not None and resolved_do_sample:
+                generation_kwargs["top_p"] = top_p
             
-            outputs = self.pipe(
-                prompt_template,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                do_sample=temperature > 0,
-                num_return_sequences=1,
-                eos_token_id=self.tokenizer.eos_token_id,
-            )
+            outputs = self.pipe(prompt_template, **generation_kwargs)
             
             response = outputs[0]['generated_text']
             
@@ -606,6 +611,30 @@ def main():
         help="LLM temperature for generation"
     )
     parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=1024,
+        help="Maximum new tokens to generate (default: 1024)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
+        "--prompt-style",
+        type=str,
+        default="tot_matched",
+        choices=["tot_matched"],
+        help="Prompt template style (ToT-aligned single-pass)"
+    )
+    parser.add_argument(
         "--output-dir",
         type=str,
         default="baseline_outputs",
@@ -660,6 +689,10 @@ def main():
         raw_triples=raw_triples,
         summary_size=args.summary_size,
         temperature=args.temperature,
+        max_new_tokens=args.max_new_tokens,
+        prompt_style=args.prompt_style,
+        top_p=args.top_p,
+        do_sample=None if not args.no_sample else False,
     )
     
     # Determine output location

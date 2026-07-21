@@ -29,6 +29,10 @@ def process_entity(
     output_dir: str,
     summary_size: int,
     summarizer: CoTLLMSummarizer,
+    temperature: float,
+    max_new_tokens: int,
+    top_p: float,
+    no_sample: bool,
 ) -> bool:
     """
     Process a single entity.
@@ -91,6 +95,10 @@ def process_entity(
             entity_label=label,
             triple_file=str(input_file),
             summary_size=summary_size,
+            temperature=temperature,
+            max_new_tokens=max_new_tokens,
+            top_p=top_p,
+            do_sample=None if not no_sample else False,
         )
         
         if summary:
@@ -117,11 +125,26 @@ def process_entities_list(
     output_dir: str,
     summary_size: int,
     summarizer: CoTLLMSummarizer,
+    temperature: float,
+    max_new_tokens: int,
+    top_p: float,
+    no_sample: bool,
 ) -> int:
     """Process multiple entities and return count of successful."""
     successful = 0
     for entity_id in entity_ids:
-        if process_entity(entity_id, dataset_name, dataset_root, output_dir, summary_size, summarizer):
+        if process_entity(
+            entity_id,
+            dataset_name,
+            dataset_root,
+            output_dir,
+            summary_size,
+            summarizer,
+            temperature,
+            max_new_tokens,
+            top_p,
+            no_sample,
+        ):
             successful += 1
     
     return successful
@@ -135,10 +158,25 @@ def process_id_range(
     output_dir: str,
     summary_size: int,
     summarizer: CoTLLMSummarizer,
+    temperature: float,
+    max_new_tokens: int,
+    top_p: float,
+    no_sample: bool,
 ) -> int:
     """Process a range of entity IDs."""
     entity_ids = list(range(start_id, end_id + 1))
-    return process_entities_list(entity_ids, dataset_name, dataset_root, output_dir, summary_size, summarizer)
+    return process_entities_list(
+        entity_ids,
+        dataset_name,
+        dataset_root,
+        output_dir,
+        summary_size,
+        summarizer,
+        temperature,
+        max_new_tokens,
+        top_p,
+        no_sample,
+    )
 
 
 def main():
@@ -183,6 +221,29 @@ def main():
         help="GPU device ID"
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.1,
+        help="Sampling temperature (default: 0.1)"
+    )
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=2048,
+        help="Maximum new tokens to generate (default: 2048)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
         "--ids",
         nargs='+',
         type=int,
@@ -201,20 +262,24 @@ def main():
     summarizer = CoTLLMSummarizer(
         model_name=args.model,
         device=args.gpu,
+        temperature=args.temperature,
+        max_tokens=args.max_new_tokens,
     )
     
     # Process entities
     if args.ids:
         successful = process_entities_list(
             args.ids, args.dataset, args.dataset_root,
-            args.output_dir, args.summary_size, summarizer
+            args.output_dir, args.summary_size, summarizer,
+            args.temperature, args.max_new_tokens, args.top_p, args.no_sample
         )
         print(f"Processed {successful}/{len(args.ids)} entities successfully")
     
     elif args.range:
         successful = process_id_range(
             args.range[0], args.range[1], args.dataset,
-            args.dataset_root, args.output_dir, args.summary_size, summarizer
+            args.dataset_root, args.output_dir, args.summary_size, summarizer,
+            args.temperature, args.max_new_tokens, args.top_p, args.no_sample
         )
         print(f"Processed {successful}/{args.range[1] - args.range[0] + 1} entities successfully")
     

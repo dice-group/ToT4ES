@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 import warnings
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 import torch
 from transformers import pipeline
@@ -233,69 +233,42 @@ class CoTLLMSummarizer:
         summary_size: int = 5,
     ) -> str:
         """
-        Create a chain-of-thought prompt for summarization.
-        
-        The prompt guides the LLM to:
-        1. Understand the entity
-        2. Identify core facts
-        3. Reason about importance
-        4. Select top-k triples
+        Create a CoT prompt aligned with the ToT4ES semantic criteria.
         """
-        # Format triples for the prompt
         formatted_triples = "\n".join(
             [f"{i+1}. {self.parser.format_triple(s, p, o)}" for i, (s, p, o) in enumerate(triples)]
         )
         
-        prompt = f"""You are an expert in knowledge representation and entity summarization.
+        prompt = f"""You are an expert in entity summarization over RDF triples.
 
-Given an entity and its properties, your task is to select the most important triples
-that best describe this entity in a concise and comprehensive way.
+Entity: {entity_label}
+Entity URI: {entity_uri}
 
-ENTITY INFORMATION:
-- Entity URI: {entity_uri}
-- Entity Label: {entity_label}
+You are given candidate triples for this entity. Select exactly {summary_size} triples that best summarize the entity.
 
-AVAILABLE TRIPLES (Properties and relationships):
+Selection criteria (same semantic dimensions as ToT4ES):
+1. Relatedness: choose triples central to the entity identity and core facts.
+2. Informativeness: choose specific, non-trivial facts with strong information value.
+3. Coverage/Diversity: cover different aspects of the entity and avoid redundant predicates.
+
+Candidate triples (index: triple):
 {formatted_triples}
 
-YOUR TASK:
-Think step-by-step to identify the top {summary_size} most important triples.
+Task:
+- Think step-by-step about which triples best satisfy the three criteria jointly.
+- You may reason briefly, but the final answer must contain only the selected triples.
 
-REASONING PROCESS:
-1. First, understand what this entity is and its main characteristics
-2. Identify core facts (what, who, when, where, why)
-3. For each triple, assess its importance:
-   - Essential facts that define the entity (highest importance)
-   - Key relationships and properties (high importance)
-   - Supporting details and additional context (medium importance)
-4. Reason about which triples best capture the entity's essence
-5. Select the {summary_size} triples that are most informative and representative
+Output rules:
+- Select exactly {summary_size} triples from the candidates.
+- Use {entity_uri} as subject for all output triples.
+- All URIs must be wrapped in angle brackets.
+- Each output line must end with " .".
+- Do not use numbering or bullet points in the final answer.
 
-SELECTION CRITERIA:
-- Prioritize triples that convey essential information about the entity
-- Avoid redundancy (if multiple triples express similar information, keep the most specific)
-- Include diverse aspects of the entity (type, properties, relationships, context)
-- Each triple should be significant for understanding this entity
+After your reasoning, output this header exactly:
+FINAL SELECTED TRIPLES:
 
-OUTPUT FORMAT:
-Provide your reasoning, then at the end output EXACTLY {summary_size} triples in N-Triples format.
-
-Format each triple as a single line:
-<subject> <predicate> <object> .
-
-Examples:
-<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/type> <http://dbpedia.org/ontology/Person> .
-<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/name> "John Doe"@en .
-
-Rules:
-- All URIs must be wrapped in angle brackets
-- Literals must be in double quotes with language tag or type
-- Each line must end with a period and space: " ."
-- No line numbers or bullet points - just the raw triples
-
-IMPORTANT: Output the {summary_size} selected triples directly at the end, one per line, with NO other text or numbering.
-
-START YOUR CHAIN-OF-THOUGHT REASONING:
+Then output ONLY the selected triples in valid N-Triples format, one per line.
 """
         return prompt
     
@@ -374,6 +347,10 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         entity_label: str,
         triple_file: str,
         summary_size: int = 5,
+        temperature: Optional[float] = None,
+        max_new_tokens: Optional[int] = None,
+        top_p: Optional[float] = None,
+        do_sample: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize an entity using CoT prompting.
@@ -410,14 +387,22 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         # Generate response using LLM
         logger.info(f"Generating summary for entity {entity_id}...")
         try:
-            response = self.pipe(
-                prompt,
-                max_new_tokens=self.max_tokens,
-                temperature=self.temperature,
-                top_p=0.95,
-                do_sample=True,
-                return_full_text=False,
-            )
+            resolved_temperature = self.temperature if temperature is None else temperature
+            resolved_max_new_tokens = self.max_tokens if max_new_tokens is None else max_new_tokens
+            resolved_do_sample = (resolved_temperature > 0.0) if do_sample is None else do_sample
+
+            generation_kwargs = {
+                "max_new_tokens": resolved_max_new_tokens,
+                "min_new_tokens": 1,
+                "temperature": resolved_temperature,
+                "do_sample": resolved_do_sample,
+                "return_full_text": False,
+                "pad_token_id": self.pipe.tokenizer.eos_token_id,
+            }
+            if top_p is not None and resolved_do_sample:
+                generation_kwargs["top_p"] = top_p
+
+            response = self.pipe(prompt, **generation_kwargs)
             
             response_text = response[0]['generated_text']
             logger.debug(f"Response length: {len(response_text)} characters")
@@ -520,6 +505,23 @@ def main():
         default=0.1,
         help="Sampling temperature (default: 0.1)"
     )
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=2048,
+        help="Maximum new tokens to generate (default: 2048)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
     
     args = parser.parse_args()
     
@@ -528,6 +530,7 @@ def main():
         model_name=args.model,
         device=args.gpu,
         temperature=args.temperature,
+        max_tokens=args.max_new_tokens,
     )
     
     # Auto-discover entity URI if not provided
@@ -551,6 +554,10 @@ def main():
         entity_label=args.entity_label,
         triple_file=args.input_file,
         summary_size=args.summary_size,
+        temperature=args.temperature,
+        max_new_tokens=args.max_new_tokens,
+        top_p=args.top_p,
+        do_sample=None if not args.no_sample else False,
     )
     
     # Save output

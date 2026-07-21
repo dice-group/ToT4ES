@@ -57,6 +57,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> Tuple[bool, str]:
         """
         Process a single entity and save to .nt file.
@@ -99,6 +103,10 @@ class BatchProcessor:
                 raw_triples=raw_triples,
                 summary_size=summary_size,
                 temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                prompt_style=prompt_style,
+                top_p=top_p,
+                do_sample=False if no_sample else None,
             )
             
             # Save
@@ -125,6 +133,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> dict:
         """
         Process multiple entities.
@@ -158,6 +170,10 @@ class BatchProcessor:
                 dataset_name=dataset_name,
                 output_dir=output_dir,
                 temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                top_p=top_p,
+                no_sample=no_sample,
+                prompt_style=prompt_style,
             )
             
             if success:
@@ -189,6 +205,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> dict:
         """
         Process a range of entity IDs.
@@ -226,6 +246,10 @@ class BatchProcessor:
             dataset_name=dataset_name,
             output_dir=output_dir,
             temperature=temperature,
+            max_new_tokens=max_new_tokens,
+            top_p=top_p,
+            no_sample=no_sample,
+            prompt_style=prompt_style,
         )
 
 
@@ -284,6 +308,30 @@ def main():
         help="LLM temperature (default: 0.1)"
     )
     proc_group.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=1024,
+        help="Maximum new tokens to generate (default: 1024)"
+    )
+    proc_group.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value"
+    )
+    proc_group.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    proc_group.add_argument(
+        "--prompt-style",
+        type=str,
+        default="legacy",
+        choices=["legacy", "tot_matched"],
+        help="Prompt template style: legacy baseline or ToT-aligned single-pass"
+    )
+    proc_group.add_argument(
         "--model",
         type=str,
         default="meta-llama/Llama-3.2-3B-Instruct",
@@ -329,6 +377,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     elif args.id_range:
@@ -342,6 +394,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     else:  # entity_file
@@ -365,6 +421,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     # Print results
