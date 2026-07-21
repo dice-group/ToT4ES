@@ -17,6 +17,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple, Dict
 import argparse
+import json
 from tqdm import tqdm
 import time
 
@@ -35,6 +36,57 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+def save_runtime_report(
+    results: Dict,
+    dataset: str,
+    model: str,
+    summary_size: int,
+    runtime_file: str,
+):
+    """Persist per-entity and aggregate runtime statistics to a JSON file."""
+    entities = []
+    for item in results.get("outputs", []):
+        entities.append(
+            {
+                "entity_id": item.get("entity_id"),
+                "status": item.get("status", "unknown"),
+                "time": float(item.get("time", 0.0)),
+            }
+        )
+    for item in results.get("errors", []):
+        entities.append(
+            {
+                "entity_id": item.get("entity_id"),
+                "status": "failed",
+                "time": float(item.get("time", 0.0)),
+                "reason": item.get("error", "unknown_error"),
+            }
+        )
+
+    measured_times = [e["time"] for e in entities if e.get("status") != "skipped"]
+    avg_time = sum(measured_times) / len(measured_times) if measured_times else 0.0
+    min_time = min(measured_times) if measured_times else 0.0
+    max_time = max(measured_times) if measured_times else 0.0
+
+    report = {
+        "dataset": dataset,
+        "model": model,
+        "summary_size": summary_size,
+        "total_runtime_seconds": float(results.get("total_time", 0.0)),
+        "average_runtime_seconds": avg_time,
+        "min_runtime_seconds": min_time,
+        "max_runtime_seconds": max_time,
+        "entities": entities,
+    }
+
+    runtime_path = Path(runtime_file)
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(runtime_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Runtime report saved to {runtime_path}")
 
 
 class AllEntitiesProcessor:
@@ -478,6 +530,12 @@ def main():
         default="processing_results.txt",
         help="Log file for results (default: processing_results.txt)"
     )
+    parser.add_argument(
+        "--runtime-file",
+        type=str,
+        default=None,
+        help="Optional JSON file to save per-entity and aggregate runtime statistics"
+    )
     
     # GPU options
     parser.add_argument(
@@ -566,6 +624,18 @@ def main():
     
     # Save results log
     processor.save_results_log(results, args.log_file)
+
+    # Save runtime report
+    runtime_file = args.runtime_file
+    if runtime_file is None:
+        runtime_file = str(Path(args.output_dir) / args.dataset / "runtime_report.json")
+    save_runtime_report(
+        results=results,
+        dataset=args.dataset,
+        model=args.model,
+        summary_size=args.summary_size,
+        runtime_file=runtime_file,
+    )
     
     # Print summary
     print(f"\n{'=' * 80}")
