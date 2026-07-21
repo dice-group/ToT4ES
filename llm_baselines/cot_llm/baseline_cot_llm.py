@@ -115,19 +115,6 @@ class NTriplesParser:
 class CoTLLMSummarizer:
     """Chain-of-Thought LLM-based entity summarizer."""
     
-    # Metadata predicates to exclude
-    METADATA_PREDICATES = {
-        'thumbnail', 'depiction', 'wasDerivedFrom', 'homepage',
-        'hasPhotoCollection', 'wikiPageWikiLink', 'wikiPageExternalLink',
-        'wikiPageID', 'wikiPageRevisionID', 'wikiPageLength', 'abstract',
-    }
-    
-    PREDICATE_ALIASES = {
-        # Common aliases
-        '<http://dbpedia.org/ontology/name>': '<http://dbpedia.org/ontology/name>',
-        '<http://xmlns.com/foaf/0.1/name>': '<http://dbpedia.org/ontology/name>',
-    }
-    
     def __init__(
         self,
         model_name: str = "meta-llama/Llama-3.2-3B-Instruct",
@@ -136,6 +123,7 @@ class CoTLLMSummarizer:
         max_tokens: int = 2048,
         model_local_dir: Optional[str] = None,
         download_model: bool = False,
+        enable_fallback: bool = False,
     ):
         """
         Initialize CoT LLM summarizer.
@@ -156,6 +144,7 @@ class CoTLLMSummarizer:
         self.device = device
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.enable_fallback = enable_fallback
         
         logger.info(f"Loading model: {model_source}")
         
@@ -247,10 +236,6 @@ class CoTLLMSummarizer:
             raise
         
         return triples
-    
-    def _is_metadata_predicate(self, predicate_name: str) -> bool:
-        """Check if predicate is metadata/non-content."""
-        return predicate_name.lower() in self.METADATA_PREDICATES
     
     def preprocess_triples(self, triples: List[str]) -> List[Tuple[str, str, str]]:
         """Parse the full raw triple set without method-specific filtering or deduplication."""
@@ -393,6 +378,7 @@ Then output ONLY the selected triples in valid N-Triples format, one per line.
         max_new_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
         do_sample: Optional[bool] = None,
+        enable_fallback: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize an entity using CoT prompting.
@@ -457,18 +443,26 @@ Then output ONLY the selected triples in valid N-Triples format, one per line.
         
         # Parse response to extract triples
         selected_triples = self._parse_cot_response(response_text, entity_uri)
+        use_fallback = self.enable_fallback if enable_fallback is None else enable_fallback
         
         if not selected_triples:
+            if not use_fallback:
+                logger.warning(
+                    f"No triples extracted from response for entity {entity_id}; "
+                    "fallback is disabled"
+                )
+                return []
+
             logger.warning(f"No triples extracted from response for entity {entity_id}")
             logger.info(f"Falling back to first {summary_size} preprocessed triples")
-            
+
             # Fallback: use the first summary_size triples from preprocessed
             fallback_triples = processed_triples[:summary_size]
             selected_triples = [
-                self.parser.format_triple(entity_uri, p, o) 
+                self.parser.format_triple(entity_uri, p, o)
                 for _, p, o in fallback_triples
             ]
-            
+
             if selected_triples:
                 logger.info(f"Using fallback with {len(selected_triples)} triples")
             else:
@@ -478,12 +472,13 @@ Then output ONLY the selected triples in valid N-Triples format, one per line.
         # Ensure we have the correct number of triples
         if len(selected_triples) < summary_size:
             logger.warning(f"Got {len(selected_triples)} triples, expected {summary_size}")
-            # Pad with additional fallback triples if needed
-            if len(selected_triples) < len(processed_triples):
-                remaining = processed_triples[len(selected_triples):summary_size]
-                for _, p, o in remaining:
-                    selected_triples.append(self.parser.format_triple(entity_uri, p, o))
-                logger.info(f"Padded with fallback to reach {len(selected_triples)} triples")
+            if use_fallback:
+                # Pad with additional fallback triples if needed
+                if len(selected_triples) < len(processed_triples):
+                    remaining = processed_triples[len(selected_triples):summary_size]
+                    for _, p, o in remaining:
+                        selected_triples.append(self.parser.format_triple(entity_uri, p, o))
+                    logger.info(f"Padded with fallback to reach {len(selected_triples)} triples")
         elif len(selected_triples) > summary_size:
             logger.info(f"Truncating to {summary_size} triples (got {len(selected_triples)})")
             selected_triples = selected_triples[:summary_size]
@@ -577,6 +572,11 @@ def main():
         action="store_true",
         help="Force greedy decoding regardless of temperature"
     )
+    parser.add_argument(
+        "--enable-fallback",
+        action="store_true",
+        help="Enable deterministic fallback when extraction fails or returns fewer than k triples"
+    )
     
     args = parser.parse_args()
     
@@ -588,6 +588,7 @@ def main():
         max_tokens=args.max_new_tokens,
         model_local_dir=args.model_local_dir,
         download_model=args.download_model,
+        enable_fallback=args.enable_fallback,
     )
     
     # Auto-discover entity URI if not provided
@@ -615,6 +616,7 @@ def main():
         max_new_tokens=args.max_new_tokens,
         top_p=args.top_p,
         do_sample=None if not args.no_sample else False,
+        enable_fallback=args.enable_fallback,
     )
     
     # Save output

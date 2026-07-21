@@ -133,28 +133,6 @@ class NTriplesParser:
 class BaselineLLMSummarizer:
     """Direct LLM-based entity summarizer using instructional prompt."""
     
-    # Metadata predicates to exclude
-    METADATA_PREDICATES = {
-        'thumbnail',
-        'depiction',
-        'wasDerivedFrom',
-        'homepage',
-        'hasPhotoCollection',
-        'wikiPageWikiLink',
-        'wikiPageExternalLink',
-        'wikiPageID',
-        'wikiPageRevisionID',
-        'wikiPageLength',
-        'abstract',  # Often too generic
-    }
-    
-    # Predicate aliases for deduplication (maps to preferred form)
-    PREDICATE_ALIASES = {
-        'http://purl.org/dc/terms/subject': 'http://dbpedia.org/ontology/subject',
-        'http://purl.org/dc/terms/knownFor': 'http://dbpedia.org/ontology/knownFor',
-        'http://xmlns.com/foaf/0.1/name': 'http://www.w3.org/2000/01/rdf-schema#label',
-    }
-    
     def __init__(
         self,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
@@ -162,6 +140,7 @@ class BaselineLLMSummarizer:
         torch_dtype=torch.bfloat16,
         model_local_dir: Optional[str] = None,
         download_model: bool = False,
+        enable_fallback: bool = False,
     ):
         """
         Initialize the baseline summarizer with LLM.
@@ -179,6 +158,7 @@ class BaselineLLMSummarizer:
         logger.info(f"Initializing Llama model from: {model_source}")
         self.device_map = device_map
         self.torch_dtype = torch_dtype
+        self.enable_fallback = enable_fallback
         
         try:
             self.pipe = pipeline(
@@ -297,13 +277,6 @@ class BaselineLLMSummarizer:
         )
         return parsed_triples
     
-    def _is_metadata_predicate(self, predicate_name: str) -> bool:
-        """Check if predicate is metadata that should be excluded."""
-        for meta_pred in self.METADATA_PREDICATES:
-            if meta_pred in predicate_name.lower():
-                return True
-        return False
-    
     def format_full_triples_for_prompt(self, triples: List[Tuple[str, str, str]]) -> str:
         """
         Format triples as indexed full N-Triples to match ToT candidate representation.
@@ -376,6 +349,7 @@ Output rules:
         prompt_style: str = "tot_matched",
         top_p: Optional[float] = None,
         do_sample: Optional[bool] = None,
+        enable_fallback: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize entity triples using direct LLM prompt.
@@ -394,7 +368,7 @@ Output rules:
         logger.info(f"Summarizing entity: {entity_label}")
         logger.info(f"Input: {len(raw_triples)} triples, Target: {summary_size} triples")
         
-        # Preprocess: filter and deduplicate
+        # Preprocess: parse all valid triples
         processed_triples = self.preprocess_triples(raw_triples)
         
         if len(processed_triples) <= summary_size:
@@ -456,6 +430,32 @@ Output rules:
             # Parse response - expect N-Triples format
             # Pass entity_uri to ensure correct subject for all triples
             summary_triples = self._parse_llm_response(response, entity_uri)
+            use_fallback = self.enable_fallback if enable_fallback is None else enable_fallback
+
+            if use_fallback:
+                if not summary_triples:
+                    logger.warning(
+                        "No triples extracted from LLM response; "
+                        "using deterministic fallback from candidate order"
+                    )
+                    fallback_triples = processed_triples[:summary_size]
+                    summary_triples = [
+                        self.parser.format_triple(entity_uri, p, o)
+                        for _, p, o in fallback_triples
+                    ]
+                elif len(summary_triples) < summary_size:
+                    logger.warning(
+                        f"Extracted {len(summary_triples)} triples, expected {summary_size}; "
+                        "padding with deterministic fallback"
+                    )
+                    remaining = processed_triples[len(summary_triples):summary_size]
+                    for _, p, o in remaining:
+                        summary_triples.append(self.parser.format_triple(entity_uri, p, o))
+                elif len(summary_triples) > summary_size:
+                    logger.info(
+                        f"Extracted {len(summary_triples)} triples; truncating to {summary_size}"
+                    )
+                    summary_triples = summary_triples[:summary_size]
             
             logger.info(f"Extracted {len(summary_triples)} triples from LLM response")
             
@@ -682,6 +682,11 @@ def main():
         help="Force greedy decoding regardless of temperature"
     )
     parser.add_argument(
+        "--enable-fallback",
+        action="store_true",
+        help="Enable deterministic fallback when extraction fails or returns wrong number of triples"
+    )
+    parser.add_argument(
         "--prompt-style",
         type=str,
         default="tot_matched",
@@ -735,6 +740,7 @@ def main():
         model_id=args.model,
         model_local_dir=args.model_local_dir,
         download_model=args.download_model,
+        enable_fallback=args.enable_fallback,
     )
     
     # Load raw triples
@@ -751,6 +757,7 @@ def main():
         prompt_style=args.prompt_style,
         top_p=args.top_p,
         do_sample=None if not args.no_sample else False,
+        enable_fallback=args.enable_fallback,
     )
     
     # Determine output location
