@@ -160,6 +160,8 @@ class BaselineLLMSummarizer:
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
         device_map: str = "auto",
         torch_dtype=torch.bfloat16,
+        model_local_dir: Optional[str] = None,
+        download_model: bool = False,
     ):
         """
         Initialize the baseline summarizer with LLM.
@@ -169,15 +171,20 @@ class BaselineLLMSummarizer:
             device_map: Device placement strategy
             torch_dtype: Torch data type
         """
-        logger.info(f"Initializing Llama model: {model_id}")
+        model_source = self._resolve_model_source(
+            model_id=model_id,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
+        logger.info(f"Initializing Llama model from: {model_source}")
         self.device_map = device_map
         self.torch_dtype = torch_dtype
         
         try:
             self.pipe = pipeline(
                 "text-generation",
-                model=model_id,
-                tokenizer=model_id,
+                model=model_source,
+                tokenizer=model_source,
                 torch_dtype=torch_dtype,
                 device_map=device_map,
                 trust_remote_code=True,
@@ -196,6 +203,48 @@ class BaselineLLMSummarizer:
             raise
         
         self.parser = NTriplesParser()
+
+    @staticmethod
+    def _resolve_model_source(
+        model_id: str,
+        model_local_dir: Optional[str],
+        download_model: bool,
+    ) -> str:
+        """Resolve model source path, optionally downloading once to a local directory."""
+        if model_local_dir:
+            local_path = Path(model_local_dir).expanduser().resolve()
+            if local_path.exists() and any(local_path.iterdir()):
+                return str(local_path)
+
+            if not download_model:
+                raise FileNotFoundError(
+                    f"Model local directory not found or empty: {local_path}. "
+                    "Use --download-model to fetch model files once."
+                )
+
+            try:
+                from huggingface_hub import snapshot_download
+            except Exception as e:
+                raise RuntimeError(
+                    "huggingface_hub is required for --download-model. "
+                    "Install it with: pip install huggingface_hub"
+                ) from e
+
+            logger.info(
+                f"Downloading model {model_id} to local directory: {local_path}"
+            )
+            snapshot_download(
+                repo_id=model_id,
+                local_dir=str(local_path),
+                resume_download=True,
+            )
+            return str(local_path)
+
+        model_path = Path(model_id).expanduser()
+        if model_path.exists():
+            return str(model_path.resolve())
+
+        return model_id
     
     def load_triples(self, triple_file: str) -> List[str]:
         """
@@ -593,6 +642,17 @@ def main():
         help="LLM model identifier"
     )
     parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    parser.add_argument(
         "--temperature",
         type=float,
         default=0.1,
@@ -665,7 +725,11 @@ def main():
         os.environ["CUDA_VISIBLE_DEVICES"] = ""
     
     # Initialize summarizer
-    summarizer = BaselineLLMSummarizer(model_id=args.model)
+    summarizer = BaselineLLMSummarizer(
+        model_id=args.model,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
+    )
     
     # Load raw triples
     raw_triples = summarizer.load_triples(args.triple_file)

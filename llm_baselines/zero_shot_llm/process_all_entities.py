@@ -179,6 +179,8 @@ class AllEntitiesProcessor:
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
+        model_local_dir: str = None,
+        download_model: bool = False,
         max_new_tokens: int = 1024,
         top_p: float = None,
         no_sample: bool = False,
@@ -204,6 +206,8 @@ class AllEntitiesProcessor:
         self.batch_processor = BatchProcessor(
             model_id=model_id,
             dataset_root=str(self.dataset_root),
+            model_local_dir=model_local_dir,
+            download_model=download_model,
         )
         logger.info(f"Using model: {model_id}")
         
@@ -435,6 +439,17 @@ def main():
         default="meta-llama/Llama-3.2-3B-Instruct",
         help="LLM model identifier"
     )
+    parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
     
     # Processing control
     parser.add_argument(
@@ -539,6 +554,8 @@ def main():
         output_dir=args.output_dir,
         temperature=args.temperature,
         model_id=args.model,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
         max_new_tokens=args.max_new_tokens,
         top_p=args.top_p,
         no_sample=args.no_sample,

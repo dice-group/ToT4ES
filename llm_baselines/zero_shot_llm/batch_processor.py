@@ -37,6 +37,8 @@ class BatchProcessor:
         self,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
         dataset_root: str = "../datasets/ESBM_benchmark_v1.2",
+        model_local_dir: str = None,
+        download_model: bool = False,
     ):
         """
         Initialize batch processor.
@@ -45,7 +47,11 @@ class BatchProcessor:
             model_id: LLM model identifier
             dataset_root: Root path to datasets
         """
-        self.summarizer = BaselineLLMSummarizer(model_id=model_id)
+        self.summarizer = BaselineLLMSummarizer(
+            model_id=model_id,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
         self.dataset_root = Path(dataset_root)
     
     def process_entity(
@@ -338,6 +344,17 @@ def main():
         help="LLM model identifier"
     )
     proc_group.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    proc_group.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    proc_group.add_argument(
         "--dataset-root",
         type=str,
         default="../datasets/ESBM_benchmark_v1.2",
@@ -360,6 +377,8 @@ def main():
     processor = BatchProcessor(
         model_id=args.model,
         dataset_root=args.dataset_root,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
     )
     
     # Process based on input type

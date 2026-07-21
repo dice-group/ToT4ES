@@ -178,6 +178,17 @@ def main():
         help="HuggingFace model to use"
     )
     parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    parser.add_argument(
         "--gpu",
         type=int,
         default=0,
@@ -253,6 +264,8 @@ def main():
         device=args.gpu,
         temperature=args.temperature,
         max_tokens=args.max_new_tokens,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
     )
     
     # Process entities

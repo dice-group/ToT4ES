@@ -134,6 +134,8 @@ class CoTLLMSummarizer:
         device: int = 0,
         temperature: float = 0.1,
         max_tokens: int = 2048,
+        model_local_dir: Optional[str] = None,
+        download_model: bool = False,
     ):
         """
         Initialize CoT LLM summarizer.
@@ -145,12 +147,17 @@ class CoTLLMSummarizer:
             max_tokens: Maximum tokens for generation
         """
         self.parser = NTriplesParser()
-        self.model_name = model_name
+        model_source = self._resolve_model_source(
+            model_name=model_name,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
+        self.model_name = model_source
         self.device = device
         self.temperature = temperature
         self.max_tokens = max_tokens
         
-        logger.info(f"Loading model: {model_name}")
+        logger.info(f"Loading model: {model_source}")
         
         # Setup device
         if torch.cuda.is_available():
@@ -170,13 +177,56 @@ class CoTLLMSummarizer:
         # Load pipeline
         self.pipe = pipeline(
             "text-generation",
-            model=model_name,
+            model=model_source,
+            tokenizer=model_source,
             torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
             device_map="auto",
         )
         generation_config = self.pipe.model.generation_config
         generation_config.max_length = None
         generation_config.min_length = None
+
+    @staticmethod
+    def _resolve_model_source(
+        model_name: str,
+        model_local_dir: Optional[str],
+        download_model: bool,
+    ) -> str:
+        """Resolve model source path, optionally downloading once to a local directory."""
+        if model_local_dir:
+            local_path = Path(model_local_dir).expanduser().resolve()
+            if local_path.exists() and any(local_path.iterdir()):
+                return str(local_path)
+
+            if not download_model:
+                raise FileNotFoundError(
+                    f"Model local directory not found or empty: {local_path}. "
+                    "Use --download-model to fetch model files once."
+                )
+
+            try:
+                from huggingface_hub import snapshot_download
+            except Exception as e:
+                raise RuntimeError(
+                    "huggingface_hub is required for --download-model. "
+                    "Install it with: pip install huggingface_hub"
+                ) from e
+
+            logger.info(
+                f"Downloading model {model_name} to local directory: {local_path}"
+            )
+            snapshot_download(
+                repo_id=model_name,
+                local_dir=str(local_path),
+                resume_download=True,
+            )
+            return str(local_path)
+
+        model_path = Path(model_name).expanduser()
+        if model_path.exists():
+            return str(model_path.resolve())
+
+        return model_name
     
     def load_triples(self, triple_file: str) -> List[str]:
         """Load raw triples from N-Triples file."""
@@ -482,6 +532,17 @@ def main():
         help="HuggingFace model to use"
     )
     parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    parser.add_argument(
         "--gpu",
         type=int,
         default=0,
@@ -519,6 +580,8 @@ def main():
         device=args.gpu,
         temperature=args.temperature,
         max_tokens=args.max_new_tokens,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
     )
     
     # Auto-discover entity URI if not provided
