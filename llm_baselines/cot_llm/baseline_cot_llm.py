@@ -185,6 +185,10 @@ class CoTLLMSummarizer:
         generation_config = self.pipe.model.generation_config
         generation_config.max_length = None
         generation_config.min_length = None
+        # Some pipelines keep forward defaults with max_length/min_length.
+        # Remove them so max_new_tokens/min_new_tokens are the only length controls.
+        self.pipe._forward_params.pop("max_length", None)
+        self.pipe._forward_params.pop("min_length", None)
 
     @staticmethod
     def _resolve_model_source(
@@ -434,6 +438,8 @@ Then output ONLY the selected triples in valid N-Triples format, one per line.
                 "min_new_tokens": 1,
                 "temperature": resolved_temperature,
                 "do_sample": resolved_do_sample,
+                "max_length": None,
+                "min_length": None,
                 "return_full_text": False,
                 "pad_token_id": self.pipe.tokenizer.eos_token_id,
             }

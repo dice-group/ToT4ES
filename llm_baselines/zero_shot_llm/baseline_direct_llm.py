@@ -197,6 +197,10 @@ class BaselineLLMSummarizer:
             generation_config = self.pipe.model.generation_config
             generation_config.max_length = None
             generation_config.min_length = None
+            # Some pipelines keep forward defaults with max_length/min_length.
+            # Remove them so max_new_tokens/min_new_tokens are the only length controls.
+            self.pipe._forward_params.pop("max_length", None)
+            self.pipe._forward_params.pop("min_length", None)
             logger.info("LLM model loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load LLM model: {e}")
@@ -429,6 +433,8 @@ Output rules:
                 "min_new_tokens": 1,
                 "temperature": temperature,
                 "do_sample": resolved_do_sample,
+                "max_length": None,
+                "min_length": None,
                 "num_return_sequences": 1,
                 "pad_token_id": self.tokenizer.eos_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
