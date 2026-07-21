@@ -424,8 +424,6 @@ Then output ONLY the selected triples in valid N-Triples format, one per line.
                 "min_new_tokens": 1,
                 "temperature": resolved_temperature,
                 "do_sample": resolved_do_sample,
-                "max_length": None,
-                "min_length": None,
                 "return_full_text": False,
                 "pad_token_id": self.pipe.tokenizer.eos_token_id,
             }

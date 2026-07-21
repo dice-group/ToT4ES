@@ -383,7 +383,8 @@ class BaselineEvaluator:
         f1_scores = []
         precision_scores = []
         recall_scores = []
-        successful = 0
+        evaluated = 0
+        missing_summaries = 0
         
         for entity_id in entity_ids:
             # Load all ground truths (multiple annotators) for this summary size
@@ -392,10 +393,15 @@ class BaselineEvaluator:
             )
             predicted = self.get_baseline_summary(dataset_name, entity_id, summary_size)
             
-            # Skip if no data
-            if not ground_truths or not predicted:
-                logger.debug(f"Skipping entity {entity_id}: missing data")
+            # Skip only when the entity has no usable reference data.
+            # A missing prediction should be counted as an empty summary so the
+            # aggregate metrics still reflect all dataset entities.
+            if not ground_truths:
+                logger.debug(f"Skipping entity {entity_id}: missing ground truth")
                 continue
+
+            if not predicted:
+                missing_summaries += 1
             
             # Calculate metrics against all annotators
             metrics = self.calculate_metrics(predicted, ground_truths)
@@ -404,7 +410,7 @@ class BaselineEvaluator:
             f1_scores.append(metrics["f1"])
             precision_scores.append(metrics["precision"])
             recall_scores.append(metrics["recall"])
-            successful += 1
+            evaluated += 1
             
             results.append({
                 "entity_id": entity_id,
@@ -414,14 +420,16 @@ class BaselineEvaluator:
                 "num_annotators": metrics["num_annotators"],
                 "f1_per_annotator": ";".join(f"{f:.4f}" for f in metrics["f1_per_annotator"]),
                 "pred_size": len(predicted),
+                "has_prediction": bool(predicted),
             })
         
         # Calculate aggregated metrics - average across entities
-        if successful > 0:
+        if evaluated > 0:
             agg_metrics = {
                 "dataset": dataset_name,
                 "summary_size": summary_size,
-                "entities_evaluated": successful,
+                "entities_evaluated": evaluated,
+                "missing_summaries": missing_summaries,
                 "precision": sum(precision_scores) / len(precision_scores),
                 "recall": sum(recall_scores) / len(recall_scores),
                 "f1": sum(f1_scores) / len(f1_scores),
@@ -512,6 +520,8 @@ def main():
             # Print results
             print(f"\n{dataset_name.upper()} Results:")
             print(f"  Entities Evaluated: {agg_metrics['entities_evaluated']}")
+            if 'missing_summaries' in agg_metrics:
+                print(f"  Missing Summaries: {agg_metrics['missing_summaries']}")
             print(f"  Precision: {agg_metrics['precision']:.4f}")
             print(f"  Recall:    {agg_metrics['recall']:.4f}")
             print(f"  F1-Score:  {agg_metrics['f1']:.4f}")
@@ -536,7 +546,7 @@ def main():
     if args.output_csv and all_results:
         os.makedirs(os.path.dirname(os.path.abspath(args.output_csv)) or ".", exist_ok=True)
         with open(args.output_csv, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = ["dataset", "summary_size", "entities_evaluated", "precision", "recall", "f1"]
+            fieldnames = ["dataset", "summary_size", "entities_evaluated", "missing_summaries", "precision", "recall", "f1"]
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_results)
@@ -546,7 +556,7 @@ def main():
     if args.detailed_csv and all_detailed:
         os.makedirs(os.path.dirname(os.path.abspath(args.detailed_csv)) or ".", exist_ok=True)
         with open(args.detailed_csv, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = ["entity_id", "precision", "recall", "f1", "num_annotators", "f1_per_annotator", "pred_size"]
+            fieldnames = ["entity_id", "precision", "recall", "f1", "num_annotators", "f1_per_annotator", "pred_size", "has_prediction"]
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_detailed)

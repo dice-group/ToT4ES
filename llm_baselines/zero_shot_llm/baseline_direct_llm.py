@@ -407,8 +407,6 @@ Output rules:
                 "min_new_tokens": 1,
                 "temperature": temperature,
                 "do_sample": resolved_do_sample,
-                "max_length": None,
-                "min_length": None,
                 "num_return_sequences": 1,
                 "pad_token_id": self.tokenizer.eos_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
