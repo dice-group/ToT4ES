@@ -11,6 +11,7 @@ import os
 import sys
 import logging
 import argparse
+import json
 from pathlib import Path
 from typing import List, Tuple
 from tqdm import tqdm
@@ -108,6 +109,39 @@ def discover_entities(dataset_root: str, dataset_name: str) -> List[int]:
     return sorted(entity_ids)
 
 
+def save_runtime_report(
+    runtime_entries: List[dict],
+    total_time: float,
+    dataset: str,
+    model: str,
+    summary_size: int,
+    runtime_file: str,
+) -> None:
+    """Persist per-entity and aggregate runtime statistics to a JSON file."""
+    measured_times = [entry["time"] for entry in runtime_entries if entry.get("status") != "skipped"]
+    average_time = sum(measured_times) / len(measured_times) if measured_times else 0.0
+    min_time = min(measured_times) if measured_times else 0.0
+    max_time = max(measured_times) if measured_times else 0.0
+
+    report = {
+        "dataset": dataset,
+        "model": model,
+        "summary_size": summary_size,
+        "total_runtime_seconds": total_time,
+        "average_runtime_seconds": average_time,
+        "min_runtime_seconds": min_time,
+        "max_runtime_seconds": max_time,
+        "entities": runtime_entries,
+    }
+
+    runtime_path = Path(runtime_file)
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(runtime_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Runtime report saved to {runtime_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Batch Process All Entities with CoT Baseline"
@@ -189,6 +223,12 @@ def main():
         default=None,
         help="End at specific entity ID"
     )
+    parser.add_argument(
+        "--runtime-file",
+        type=str,
+        default=None,
+        help="Optional JSON file to save per-entity and aggregate runtime statistics"
+    )
     
     args = parser.parse_args()
     
@@ -219,6 +259,7 @@ def main():
     successful = 0
     failed = 0
     skipped = 0
+    runtime_entries = []
     
     print("\n" + "=" * 80)
     print(f"Processing {len(entity_ids)} entities from {args.dataset.upper()}")
@@ -250,11 +291,22 @@ def main():
         # Check if input exists
         if not input_file.exists():
             logger.warning(f"Entity {entity_id}: input file not found")
+            runtime_entries.append({
+                "entity_id": entity_id,
+                "status": "failed",
+                "time": 0.0,
+                "reason": "input_file_not_found",
+            })
             failed += 1
             continue
         
         # Check if already processed
         if args.skip_existing and output_file.exists():
+            runtime_entries.append({
+                "entity_id": entity_id,
+                "status": "skipped",
+                "time": 0.0,
+            })
             skipped += 1
             continue
         
@@ -262,6 +314,12 @@ def main():
         uri, label = extract_entity_uri(entity_id, args.dataset_root, args.dataset)
         if not uri:
             logger.warning(f"Entity {entity_id}: could not extract URI")
+            runtime_entries.append({
+                "entity_id": entity_id,
+                "status": "failed",
+                "time": 0.0,
+                "reason": "uri_extraction_failed",
+            })
             failed += 1
             continue
         
@@ -290,13 +348,30 @@ def main():
                         f.write(triple + '\n')
                 
                 successful += 1
+                runtime_entries.append({
+                    "entity_id": entity_id,
+                    "status": "success",
+                    "time": entity_time,
+                })
             else:
                 failed += 1
+                runtime_entries.append({
+                    "entity_id": entity_id,
+                    "status": "failed",
+                    "time": entity_time,
+                    "reason": "empty_summary",
+                })
         
         except Exception as e:
             entity_time = time.time() - entity_start_time
             timings.append(entity_time)
             logger.error(f"Entity {entity_id}: {e}")
+            runtime_entries.append({
+                "entity_id": entity_id,
+                "status": "failed",
+                "time": entity_time,
+                "reason": str(e),
+            })
             failed += 1
     
     # Calculate timing stats
@@ -323,6 +398,18 @@ def main():
             remaining = len(entity_ids) - successful - failed
             estimated = avg_time * remaining
             print(f"Estimated remaining time: {estimated:.2f}s ({int(estimated//60)}m)")
+
+    runtime_file = args.runtime_file
+    if runtime_file is None:
+        runtime_file = str(Path(args.output_dir) / args.dataset / "runtime_report.json")
+    save_runtime_report(
+        runtime_entries=runtime_entries,
+        total_time=total_time,
+        dataset=args.dataset,
+        model=args.model,
+        summary_size=args.summary_size,
+        runtime_file=runtime_file,
+    )
     
     print("=" * 80 + "\n")
 

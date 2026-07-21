@@ -220,40 +220,25 @@ class BaselineLLMSummarizer:
     
     def preprocess_triples(self, triples: List[str]) -> List[Tuple[str, str, str]]:
         """
-        Preprocess triples by deduplication and filtering.
-        
+        Parse the full raw triple set without method-specific filtering or deduplication.
+
         Args:
             triples: List of N-Triples strings
-            
+
         Returns:
-            List of (subject, predicate, object) tuples
+            List of valid (subject, predicate, object) tuples
         """
         parsed_triples = []
-        seen_predicates = {}  # Track predicates per subject for deduplication
-        
+
         for triple_str in triples:
             s, p, o = self.parser.parse_triple(triple_str)
-            
             if s is None:
                 continue
-            
-            # Filter metadata predicates
-            predicate_name = p.split('/')[-1].rstrip('>')
-            if self._is_metadata_predicate(predicate_name):
-                continue
-            
-            # Apply predicate aliases for deduplication
-            p_normalized = self.PREDICATE_ALIASES.get(p, p)
-            
-            # Track to avoid duplicate predicates
-            if s not in seen_predicates:
-                seen_predicates[s] = set()
-            
-            if p_normalized not in seen_predicates[s]:
-                parsed_triples.append((s, p_normalized, o))
-                seen_predicates[s].add(p_normalized)
-        
-        logger.info(f"Preprocessed to {len(parsed_triples)} unique triples after filtering")
+            parsed_triples.append((s, p, o))
+
+        logger.info(
+            f"Prepared {len(parsed_triples)} valid triples without filtering or deduplication"
+        )
         return parsed_triples
     
     def _is_metadata_predicate(self, predicate_name: str) -> bool:
