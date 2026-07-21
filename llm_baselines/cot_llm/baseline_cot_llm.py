@@ -174,6 +174,9 @@ class CoTLLMSummarizer:
             torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
             device_map="auto",
         )
+        generation_config = self.pipe.model.generation_config
+        generation_config.max_length = None
+        generation_config.min_length = None
     
     def load_triples(self, triple_file: str) -> List[str]:
         """Load raw triples from N-Triples file."""

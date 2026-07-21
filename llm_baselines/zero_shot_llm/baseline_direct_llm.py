@@ -187,6 +187,9 @@ class BaselineLLMSummarizer:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
                 self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
             self.tokenizer.model_max_length = 2147483647
+            generation_config = self.pipe.model.generation_config
+            generation_config.max_length = None
+            generation_config.min_length = None
             logger.info("LLM model loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load LLM model: {e}")
