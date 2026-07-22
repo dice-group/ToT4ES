@@ -12,7 +12,6 @@ scripts/tot_modules/
 ├── tree_node.py             # TreeNode data structure
 ├── llm_wrapper.py           # LLM interface (LLaMA-3.2)
 ├── tree_search.py           # Main Tree-of-Thoughts algorithm
-├── prompt_factory.py        # Prompt generation functions
 ├── heuristic.py             # Score aggregation logic
 └── utils.py                 # Utility functions (I/O, parsing)
 ```
@@ -41,21 +40,14 @@ scripts/tot_modules/
 - State evaluation using vote aggregation
 - Comprehensive verbose output
 
-### 4. `prompt_factory.py`
-**Purpose:** Prompt generation  
-**Key Features:**
-- Thought generation prompts
-- State evaluation prompts
-- Configurable for different criteria
-
-### 5. `heuristic.py`
+### 4. `heuristic.py`
 **Purpose:** Score aggregation  
 **Key Features:**
 - Multi-sample vote aggregation
 - Weighted criterion combination
 - Robust JSON parsing with fallbacks
 
-### 6. `utils.py`
+### 5. `utils.py`
 **Purpose:** Common utilities  
 **Key Features:**
 - N-Triples file loading
@@ -135,17 +127,7 @@ Set `--no-verbose` to False (default) to see:
 - Pruning decisions
 - Final selection
 
-### 3. Debug Prompt Generation
-
-```python
-from tot_modules.prompt_factory import make_entity_thought_gen_prompt
-
-prompt_fn = make_entity_thought_gen_prompt("Entity", ["triple1", "triple2"], 5)
-prompt = prompt_fn("", "1")  # Generate prompt for state "1"
-print(prompt)
-```
-
-### 4. Debug Evaluation
+### 3. Debug Evaluation
 
 ```python
 from tot_modules.heuristic import entity_heuristic_calculator
@@ -172,13 +154,13 @@ python -m pytest tests/test_utils.py
 ### Integration Tests
 
 ```bash
-# Test on small entity
-python scripts/tot_entity_summarizer_modular.py \
+# Test the task-decomposed runner on a small entity
+python scripts/tot_entity_summarizer_task_decomposed.py \
   --nt datasets/ESBM_benchmark_v1.2/dbpedia_data/1/1_desc.nt \
   --dataset dbpedia \
   --max-summary-len 3 \
-  --n-candidates 3 \
-  --breadth-limit 2
+  --n-candidates-per-task 3 \
+  --beam-width 2
 ```
 
 ## Benefits of Modular Design
@@ -219,27 +201,33 @@ The original `tot_entity_summarizer.py` is preserved. The modular version provid
 | Hard to test | Easy unit testing |
 | Hard to debug | Module-level debugging |
 
-## Example: Custom Search Strategy
+## Example: Task-Decomposed Search
 
 ```python
-from tot_modules import TreeOfThoughts, Llama32Chat
-from tot_modules import make_entity_thought_gen_prompt
-from tot_modules import entity_heuristic_calculator
+from tot_modules import Llama32Chat, entity_heuristic_calculator
+from tot_modules.task_prompts import (
+  make_relatedness_prompt,
+  make_informativeness_prompt,
+  make_diversity_prompt,
+  make_combined_evaluation_prompt,
+)
+from tot_modules.task_decomposed_search import TaskDecomposedToT
 
-# Create custom search
+all_triples = ["triple1", "triple2", "triple3"]
 llm = Llama32Chat()
-tot = TreeOfThoughts(
-    llm=llm,
-    input_seq="...",
-    get_thought_gen_prompt=make_entity_thought_gen_prompt(...),
-    get_state_eval_prompt=my_custom_eval_prompt,  # Custom!
-    heuristic_calculator=my_custom_heuristic,      # Custom!
-    num_triples=100,
+tot = TaskDecomposedToT(
+  llm=llm,
+  input_seq="\n".join(all_triples),
+  get_relatedness_prompt=make_relatedness_prompt("Entity", all_triples),
+  get_informativeness_prompt=make_informativeness_prompt("Entity", all_triples),
+  get_diversity_prompt=make_diversity_prompt("Entity", all_triples),
+  get_state_eval_prompt=make_combined_evaluation_prompt("Entity", all_triples),
+  heuristic_calculator=entity_heuristic_calculator,
+  num_triples=len(all_triples),
 )
 
-# Run with custom parameters
-tot.n_steps = 10
-tot.breadth_limit = 5
+tot.n_steps = 3
+tot.breadth_limit = 2
 result = tot.bfs(verbose=True)
 ```
 

@@ -36,7 +36,7 @@ def make_relatedness_prompt(
         return ""
     
     def _get_core_predicates(top_n: int = 8) -> str:
-        """Get most common/core predicates from corpus statistics."""
+        """Get the most common predicates in the current entity description."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -89,7 +89,7 @@ A triple is RELATED/CENTRAL if it:
     Do NOT optimize across informativeness or diversity here.
     Pick the single triple that is most central and defining for the entity.
 
-DOMAIN CONTEXT - Core/frequent predicates (entity-defining):
+LOCAL CONTEXT - Frequent predicates in this entity description:
 {core_preds_text}
 
 SELECTION CRITERION:
@@ -101,10 +101,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: predicate frequency + value specificity + whether it defines the entity.
 Select ONE triple index that is MOST RELATED/CENTRAL to the entity.{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -148,7 +148,7 @@ def make_informativeness_prompt(
         return predicates
     
     def _get_rare_predicates(top_n: int = 8) -> str:
-        """Get rare predicates from corpus statistics."""
+        """Get the least frequent predicates in the current entity description."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -203,7 +203,7 @@ A triple is informative if it combines:
     Do NOT trade off against relatedness or diversity here.
     Pick the single triple that adds the most new, non-trivial information.
 
-DOMAIN CONTEXT - Rare predicates in this dataset:
+LOCAL CONTEXT - Less frequent predicates in this entity description:
 {rare_preds_text}
 
 CURRENT STATE - Already selected predicates:
@@ -219,10 +219,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: predicate rarity + topic coverage + value specificity.
 Select ONE triple index that is MOST INFORMATIVE (best combines rarity + novelty + specificity).{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -346,10 +346,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: semantic role novelty + predicate distinctness + perspective breadth.
 Select ONE triple index that MAXIMIZES DIVERSITY and coverage.{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -401,7 +401,7 @@ SUMMARIES TO EVALUATE ({n_states} total):
 {states_block}
 
 RESPONSE FORMAT:
-Output ONLY valid JSON array with {n_states} objects.
+Output ONLY a valid JSON array with {n_states} objects.
 Each object: {{"idx": N, "relatedness": X, "informativeness": Y, "coverage": Z}}
 WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.0-1.0
 
@@ -418,7 +418,6 @@ CRITICAL:
 - NO text, NO explanations, NO markdown.
 - Start with '[', end with ']'.
 - Valid JSON syntax required.
-
-BEGIN RESPONSE WITH '[':""".strip()
+""".strip()
 
     return _inner
