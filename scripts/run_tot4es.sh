@@ -36,6 +36,7 @@ Options:
   -g INT    GPU device index or list (sets CUDA_VISIBLE_DEVICES in subcommands)
   -L INT    Limit entities (for quick tests)
   -r FILE   Runtime report JSON path
+  -s MODE   No-scoring mode (currently: greedy)
   -h        Show this help
 EOF
   exit 1
@@ -75,6 +76,21 @@ while [[ $# -gt 0 ]]; do
       shift
       continue
       ;;
+    --no-scoring-mode)
+      if [[ -n "${2-}" ]]; then
+        NO_SCORING_MODE="$2"
+        shift 2
+        continue
+      else
+        echo "Option --no-scoring-mode requires an argument." >&2
+        usage
+      fi
+      ;;
+    --no-scoring-mode=*)
+      NO_SCORING_MODE="${1#*=}"
+      shift
+      continue
+      ;;
     *)
       NEWARGS+=("$1")
       shift
@@ -84,7 +100,7 @@ done
 set -- "${NEWARGS[@]}"
 
 # Parse short CLI options
-while getopts ":d:o:l:n:k:m:t:e:g:L:r:h" opt; do
+while getopts ":d:o:l:n:k:m:t:e:g:L:r:s:h" opt; do
   case $opt in
     d) ROOT="$OPTARG" ;;
     o) OUT="$OPTARG" ;;
@@ -97,6 +113,7 @@ while getopts ":d:o:l:n:k:m:t:e:g:L:r:h" opt; do
     g) GPU_DEVICE="$OPTARG" ;;
     L) LIMIT_ENTITIES="$OPTARG" ;;
     r) RUNTIME_REPORT_FILE="$OPTARG" ;;
+    s) NO_SCORING_MODE="$OPTARG" ;;
     h) usage ;;
     \?) echo "Invalid option: -$OPTARG" >&2; usage ;;
     :) echo "Option -$OPTARG requires an argument." >&2; usage ;;
@@ -115,6 +132,7 @@ BEAM_WIDTH=${BEAM_WIDTH:-3}
 
 # Candidate selection strategy
 USE_RANDOM_CANDIDATES=${USE_RANDOM_CANDIDATES:-false}
+NO_SCORING_MODE=${NO_SCORING_MODE:-}
 
 # Heuristic scoring (alternative to LLM evaluation)
 # When enabled, uses heuristic-based scoring instead of LLM evaluation
@@ -175,10 +193,17 @@ echo "Search & Evaluation:"
 echo "  Beam width: $BEAM_WIDTH"
 echo "  Evaluation samples: $N_EVALUATION_SAMPLES"
 echo "  Random candidates: $USE_RANDOM_CANDIDATES"
+if [ -n "$NO_SCORING_MODE" ]; then
+  echo "  No-scoring mode: $NO_SCORING_MODE"
+fi
 if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
   echo "  Scoring method: HEURISTIC ($HEURISTIC_METHOD)"
 else
-  echo "  Scoring method: LLM-based (default)"
+  if [ -n "$NO_SCORING_MODE" ]; then
+    echo "  Scoring method: DISABLED (no-scoring mode)"
+  else
+    echo "  Scoring method: LLM-based (default)"
+  fi
 fi
 if (( LIMIT_ENTITIES > 0 )); then
   echo "  Limited to: $LIMIT_ENTITIES entities (for testing)"
@@ -249,6 +274,11 @@ for f in "${nt_files[@]}"; do
   # Add heuristic scoring if specified (ablation variant: no LLM evaluation)
   if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
     cmd="$cmd --use-heuristic-scoring --heuristic-method $HEURISTIC_METHOD"
+  fi
+
+  # Add no-scoring mode if specified
+  if [ -n "$NO_SCORING_MODE" ]; then
+    cmd="$cmd --no-scoring-mode $NO_SCORING_MODE"
   fi
 
   # Add task-specific models if defined

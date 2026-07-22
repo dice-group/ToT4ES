@@ -167,6 +167,13 @@ def parse_arguments():
         help="Use heuristic-based scoring instead of LLM evaluation (ablation variant)",
     )
     parser.add_argument(
+        "--no-scoring-mode",
+        type=str,
+        default=None,
+        choices=["greedy"],
+        help="Bypass state scoring entirely. 'greedy' keeps candidates in generation order.",
+    )
+    parser.add_argument(
         "--heuristic-method",
         type=str,
         default="fca",
@@ -316,6 +323,8 @@ def main():
     print(f"    beam_width:         {args.breadth_limit}")
     print(f"    eval_samples:       {args.n_evals}")
     print(f"    use_random_candidates: {args.use_random_candidates}")
+    if args.no_scoring_mode:
+        print(f"    no_scoring_mode:    {args.no_scoring_mode}")
     if args.use_heuristic_scoring:
         print(f"  Heuristic Scoring (No LLM):")
         print(f"    method:             {args.heuristic_method}")
@@ -444,6 +453,7 @@ def main():
         w_relatedness=args.w_relatedness,
         w_informativeness=args.w_informativeness,
         w_coverage=args.w_coverage,
+        no_scoring_mode=args.no_scoring_mode,
     )
     
     # Configure

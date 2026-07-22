@@ -45,6 +45,7 @@ class TaskDecomposedToT:
         w_relatedness: float = 0.4,
         w_informativeness: float = 0.4,
         w_coverage: float = 0.2,
+        no_scoring_mode: Optional[str] = None,
     ):
         """
         Initialize Task-Decomposed ToT search.
@@ -94,6 +95,11 @@ class TaskDecomposedToT:
         self.w_relatedness = w_relatedness
         self.w_informativeness = w_informativeness
         self.w_coverage = w_coverage
+
+        # Optional ablation mode that bypasses state scoring entirely.
+        if no_scoring_mode not in (None, "greedy"):
+            raise ValueError(f"Unsupported no_scoring_mode: {no_scoring_mode}")
+        self.no_scoring_mode = no_scoring_mode
         
         self.num_triples = num_triples
 
@@ -513,15 +519,23 @@ class TaskDecomposedToT:
                 break
 
             # Evaluate all states
-            if verbose:
-                print(f"\n--- Evaluating {len(queue)} states ---")
+            eval_time = 0.0
+            if self.no_scoring_mode == "greedy":
+                if verbose:
+                    print(f"\n--- No-scoring mode active ({self.no_scoring_mode}) ---")
+                    print("Skipping evaluation; keeping candidates in generation order.")
+                for node in queue:
+                    node.value = 0.0
+            else:
+                if verbose:
+                    print(f"\n--- Evaluating {len(queue)} states ---")
 
-            eval_start = time.time()
-            states = [node.state for node in queue]
-            values = self.state_evaluator(states)
-            eval_time = time.time() - eval_start
-            for node, val in zip(queue, values):
-                node.value = val
+                eval_start = time.time()
+                states = [node.state for node in queue]
+                values = self.state_evaluator(states)
+                eval_time = time.time() - eval_start
+                for node, val in zip(queue, values):
+                    node.value = val
 
             if verbose:
                 print(f"\n⏱  Step {step} timing: thought_gen={thought_gen_time:.1f}s, eval={eval_time:.1f}s, total={thought_gen_time+eval_time:.1f}s")
@@ -532,22 +546,23 @@ class TaskDecomposedToT:
                     print(f"  State {idx}: value={node.value:.4f}, depth={node.depth}, triples={len(node.get_triple_ids())}")
 
             # Prune
+            keep_k = 1 if step == self.n_steps else self.breadth_limit
             if verbose:
-                print(f"\nPruning to top {self.breadth_limit if step < self.n_steps else 1}...")
+                print(f"\nPruning to top {keep_k}...")
 
-            sorted_nodes = sorted(queue, key=lambda n: n.value, reverse=True)
-            if step == self.n_steps:
-                top_nodes = sorted_nodes[:1]
+            if self.no_scoring_mode == "greedy":
+                queue = deque(list(queue)[:keep_k])
             else:
-                top_nodes = sorted_nodes[:self.breadth_limit]
+                sorted_nodes = sorted(queue, key=lambda n: n.value, reverse=True)
+                top_nodes = sorted_nodes[:keep_k]
 
-            keep_states = set(node.state for node in top_nodes)
-            new_queue = deque()
-            for node in queue:
-                if node.state in keep_states:
-                    new_queue.append(node)
+                keep_states = set(node.state for node in top_nodes)
+                new_queue = deque()
+                for node in queue:
+                    if node.state in keep_states:
+                        new_queue.append(node)
 
-            queue = new_queue
+                queue = new_queue
 
             if verbose:
                 print(f"Queue size after pruning: {len(queue)}")
@@ -558,7 +573,10 @@ class TaskDecomposedToT:
             return self.root.state
 
         # Best node
-        best_node = max(queue, key=lambda n: n.value)
+        if self.no_scoring_mode == "greedy":
+            best_node = queue[0]
+        else:
+            best_node = max(queue, key=lambda n: n.value)
         if verbose:
             print("\n" + "="*70)
             print("SEARCH COMPLETE (Task-Decomposed)")
@@ -593,7 +611,10 @@ class TaskDecomposedToT:
             
             # Terminal condition
             if depth >= self.n_steps:
-                value = self.state_evaluator([node.state])[0]
+                if self.no_scoring_mode == "greedy":
+                    value = 0.0
+                else:
+                    value = self.state_evaluator([node.state])[0]
                 node.value = value
                 
                 if verbose:
@@ -659,19 +680,25 @@ class TaskDecomposedToT:
                     print(f"{'  ' * depth}No valid children - backtracking")
                 return
             
-            # Evaluate candidates
-            candidate_states = [c.state for c in candidates]
-            candidate_values = self.state_evaluator(candidate_states)
-            
-            for child, value in zip(candidates, candidate_values):
-                child.value = value
-            
-            # Sort by value (best first)
-            sorted_candidates = sorted(
-                zip(candidates, candidate_values),
-                key=lambda x: x[1],
-                reverse=True
-            )
+            if self.no_scoring_mode == "greedy":
+                # No-scoring ablation: preserve generation order, take first child only.
+                first_child = candidates[0]
+                first_child.value = 0.0
+                sorted_candidates = [(first_child, 0.0)]
+            else:
+                # Evaluate candidates
+                candidate_states = [c.state for c in candidates]
+                candidate_values = self.state_evaluator(candidate_states)
+
+                for child, value in zip(candidates, candidate_values):
+                    child.value = value
+
+                # Sort by value (best first)
+                sorted_candidates = sorted(
+                    zip(candidates, candidate_values),
+                    key=lambda x: x[1],
+                    reverse=True
+                )
             
             if verbose:
                 print(f"{'  ' * depth}Candidate evaluations:")
@@ -713,6 +740,7 @@ class TaskDecomposedToT:
             f"n_candidates_per_task={self.n_candidates_per_task}, "
             f"breadth_limit={self.breadth_limit}, "
             f"thought_temperature={self.thought_temperature}, "
-            f"eval_temperature={self.eval_temperature})"
+            f"eval_temperature={self.eval_temperature}, "
+            f"no_scoring_mode={self.no_scoring_mode})"
         )
 
