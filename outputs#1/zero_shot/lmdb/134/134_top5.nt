@@ -1,0 +1,5 @@
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/actor> <http://data.linkedmdb.org/resource/actor/39725> .
+<http://data.linkedmdb.org/resource/film/12260> <http://www.w3.org/2000/01/rdf-schema#label> "The Life of David Gale" .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/release_date> "2003-09-26" .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/person/12345> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/runtime> "135"^^<http://www.w3.org/2001/XMLSchema#int> .

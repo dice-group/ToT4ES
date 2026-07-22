@@ -1,0 +1,26 @@
+═══════════════════════════════════════════════════════════
+Task-Decomposed ToT Processing Report
+═══════════════════════════════════════════════════════════
+Start time:           2026-07-22 18:11:31
+End time:             2026-07-22 22:18:03
+Total runtime:        14792s
+
+Configuration:
+  Dataset: dbpedia
+  Model: Qwen/Qwen3-coder-30B-A3B-Instruct
+  Weights: R=0.4 I=0.4 C=0.2
+  Beam Width: 3
+  Evaluation Samples: 3
+  Candidates Per Task: 3
+
+Results:
+  Processed:          125
+  Skipped:            0
+  Total checked:      125
+  Avg time per entity: 118.34s
+
+Output locations:
+  Results saved to:   ../outputs#2/tot4es
+  Logs saved to:      ../outputs#2/tot4es/logs/experiment_test
+  Runtime report:     ../outputs#2/tot4es/runtime_report_k5.json
+═══════════════════════════════════════════════════════════

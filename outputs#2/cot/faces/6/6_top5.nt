@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/format> <http://dbpedia.org/resource/Game_show> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/network> <http://dbpedia.org/resource/CBS> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/presenter> <http://dbpedia.org/resource/Steve_Harvey> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/location> <http://dbpedia.org/resource/CBS_Television_City> .
+<http://dbpedia.org/resource/Family_Feud> <http://dbpedia.org/ontology/creator> <http://dbpedia.org/resource/Mark_Goodson> .

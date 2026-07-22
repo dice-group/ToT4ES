@@ -1,0 +1,31 @@
+======================================================================
+Task-Decomposed Tree-of-Thought Entity Summarization
+======================================================================
+
+Architecture:
+  - Separate prompts for: Relatedness, Informativeness, Diversity
+  - Combined evaluation of all criteria
+  - Multi-task thought generation per step
+  - Deterministic mode: disabled
+    thought_temperature=0.8, eval_temperature=0.3
+======================================================================
+
+Ablation Study Parameters (RQ2):
+  Semantic Weights (Value Function):
+    w_relatedness:      0.4
+    w_informativeness:  0.4
+    w_coverage:         0.2
+  Search Configuration:
+    beam_width:         3
+    eval_samples:       3
+    use_random_candidates: False
+======================================================================
+
+Loading: ../datasets/ESBM_benchmark_v1.2/dbpedia_data/141/141_desc.nt
+  Entity: Andrew Scott Sloan
+  Triples: 72
+  Unique predicates: 19
+  Semantic roles identified: attribute, location, other, time
+
+Initializing LLMs...
+  Default model: Qwen/Qwen3-coder-30B-A3B-Instruct

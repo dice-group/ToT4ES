@@ -1,0 +1,5 @@
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/actor> <http://data.linkedmdb.org/resource/actor/39725> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/title> "The Four Feathers" .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/release_date> "2002-01-01" .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/director/12345> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/runtime> "120"^^<http://www.w3.org/2001/XMLSchema#int> .

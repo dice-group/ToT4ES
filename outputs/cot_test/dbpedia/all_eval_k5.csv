@@ -1,0 +1,2 @@
+dataset,summary_size,entities_evaluated,precision,recall,f1
+dbpedia,5,125,0.816,0.299557337433808,0.38986666666666675

@@ -1,0 +1,5 @@
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/director/8669> .
+<http://data.linkedmdb.org/resource/film/22494> <http://xmlns.com/foaf/0.1/name> "Ringo Lam" .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/title> "The Mission" .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/year> "1986"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/genre> "Drama" .

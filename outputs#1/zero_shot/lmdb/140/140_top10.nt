@@ -1,0 +1,10 @@
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/director/8669> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/runtime> "95"^^<http://www.w3.org/2001/XMLSchema#int> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/release_date> "1992-01-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/title> "The Big Blue" .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/genre> <http://data.linkedmdb.org/resource/genre/Drama> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/genre> <http://data.linkedmdb.org/resource/genre/Thriller> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/language> <http://data.linkedmdb.org/resource/language/French> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/country> <http://data.linkedmdb.org/resource/country/France> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/producer> <http://data.linkedmdb.org/resource/producer/12345> .
+<http://data.linkedmdb.org/resource/film/22494> <http://data.linkedmdb.org/resource/movie/cast> <http://data.linkedmdb.org/resource/actor/67890> .

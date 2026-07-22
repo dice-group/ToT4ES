@@ -1,0 +1,523 @@
+======================================================================
+Task-Decomposed Tree-of-Thought Entity Summarization
+======================================================================
+
+Architecture:
+  - Separate prompts for: Relatedness, Informativeness, Diversity
+  - Combined evaluation of all criteria
+  - Multi-task thought generation per step
+  - Deterministic mode: disabled
+    thought_temperature=0.8, eval_temperature=0.3
+======================================================================
+
+Ablation Study Parameters (RQ2):
+  Semantic Weights (Value Function):
+    w_relatedness:      0.4
+    w_informativeness:  0.4
+    w_coverage:         0.2
+  Search Configuration:
+    beam_width:         3
+    eval_samples:       3
+    use_random_candidates: False
+======================================================================
+
+Loading: ../datasets/ESBM_benchmark_v1.2/dbpedia_data/35/35_desc.nt
+  Entity: Lepiota helveola
+  Triples: 28
+  Unique predicates: 10
+  Semantic roles identified: attribute, other, work
+
+Initializing LLMs...
+  Default model: Qwen/Qwen3-coder-30B-A3B-Instruct
+
+Creating task-specific prompts...
+  ✓ Relatedness prompt created
+  ✓ Informativeness prompt created
+  ✓ Diversity/Coverage prompt created
+  ✓ Evaluation prompt created
+
+Creating Task-Decomposed ToT search engine...
+  Configuration: TaskDecomposedToT(n_steps=5, n_candidates_per_task=3, breadth_limit=3, thought_temperature=0.8, eval_temperature=0.3)
+  Total candidates per step: ~9 (from 3 tasks)
+
+======================================================================
+Starting Task-Decomposed Search...
+======================================================================
+
+======================================================================
+Step 1 / 5
+======================================================================
+
+--- Expanding node 1/1 ---
+Current state: TreeNode(depth=0, triples=0, value=0.0000)
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['6']
+    informativeness: ['4']
+    diversity: ['28']
+
+Combined unique thoughts: ['6', '4', '28']
+Children created: 3
+
+--- Evaluating 3 states ---
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 0.8, "informativeness": 0.6, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.7, "informativeness": 0.5, "coverage": 0.3},
+{"idx": 2, "relatedness": 0.6, "informativeness": 0.4, "coverage": 0.2}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 0.8, "informativeness": 0.6, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.7, "informativeness": 0.5, "coverage": 0.3},
+{"idx": 2, "relatedness": 0.6, "informativeness": 0.4, "coverage": 0.2}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 0.8, "informativeness": 0.6, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.7, "informativeness": 0.5, "coverage": 0.3},
+{"idx": 2, "relatedness": 0.6, "informativeness": 0.4, "coverage": 0.2}
+]
+---------------
+
+⏱  Step 1 timing: thought_gen=2.0s, eval=7.5s, total=9.5s
+
+State evaluations:
+  State 0: value=0.6400, depth=1, triples=1
+  State 1: value=0.5400, depth=1, triples=1
+  State 2: value=0.4400, depth=1, triples=1
+
+Pruning to top 3...
+Queue size after pruning: 3
+
+======================================================================
+Step 2 / 5
+======================================================================
+
+--- Expanding node 1/3 ---
+Current state: TreeNode(depth=1, triples=1, value=0.6400)
+Triple IDs: 6
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['23']
+    informativeness: ['4']
+    diversity: ['1', '25']
+
+Combined unique thoughts: ['23', '4', '1', '25']
+Children created: 4
+
+--- Expanding node 2/3 ---
+Current state: TreeNode(depth=1, triples=1, value=0.5400)
+Triple IDs: 4
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['6']
+    informativeness: ['1']
+    diversity: ['1']
+
+Combined unique thoughts: ['6', '1']
+Children created: 2
+
+--- Expanding node 3/3 ---
+Current state: TreeNode(depth=1, triples=1, value=0.4400)
+Triple IDs: 28
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['6']
+    informativeness: ['4']
+    diversity: ['23', '17', '13']
+
+Combined unique thoughts: ['6', '4', '23', '17', '13']
+Children created: 5
+
+--- Evaluating 11 states ---
+
+[INFO] Evaluating 11 states in chunks of 10
+  Evaluating states 0-9...
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 8, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 9, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 8, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 9, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 8, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 9, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4}
+]
+---------------
+  Evaluating states 10-10...
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 1.0, "informativeness": 0.3, "coverage": 0.2}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 1.0, "informativeness": 0.3, "coverage": 0.2}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 1.0, "informativeness": 0.3, "coverage": 0.2}
+]
+---------------
+
+⏱  Step 2 timing: thought_gen=3.7s, eval=27.4s, total=31.1s
+
+State evaluations:
+  State 0: value=0.5600, depth=2, triples=2
+  State 1: value=0.5600, depth=2, triples=2
+  State 2: value=0.5600, depth=2, triples=2
+  State 3: value=0.5600, depth=2, triples=2
+  State 4: value=0.5600, depth=2, triples=2
+  State 5: value=0.5600, depth=2, triples=2
+  State 6: value=0.5600, depth=2, triples=2
+  State 7: value=0.5600, depth=2, triples=2
+  State 8: value=0.5600, depth=2, triples=2
+  State 9: value=0.5600, depth=2, triples=2
+  State 10: value=0.5600, depth=2, triples=2
+
+Pruning to top 3...
+Queue size after pruning: 3
+
+======================================================================
+Step 3 / 5
+======================================================================
+
+--- Expanding node 1/3 ---
+Current state: TreeNode(depth=2, triples=2, value=0.5600)
+Triple IDs: 6
+23
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['1']
+    informativeness: ['4']
+    diversity: ['1']
+
+Combined unique thoughts: ['1', '4']
+Children created: 2
+
+--- Expanding node 2/3 ---
+Current state: TreeNode(depth=2, triples=2, value=0.5600)
+Triple IDs: 6
+4
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['23']
+    informativeness: ['1']
+    diversity: ['1']
+
+Combined unique thoughts: ['23', '1']
+Children created: 2
+
+--- Expanding node 3/3 ---
+Current state: TreeNode(depth=2, triples=2, value=0.5600)
+Triple IDs: 6
+1
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['3']
+    informativeness: ['4']
+    diversity: ['24', '23']
+
+Combined unique thoughts: ['3', '4', '24', '23']
+Children created: 4
+
+--- Evaluating 8 states ---
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.5, "coverage": 0.5},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.5, "coverage": 0.5},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.5, "coverage": 0.5},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.5, "coverage": 0.5},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.4, "coverage": 0.5},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.3, "coverage": 0.4}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.7},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.7},
+{"idx": 7, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6}
+]
+---------------
+
+⏱  Step 3 timing: thought_gen=3.6s, eval=14.7s, total=18.3s
+
+State evaluations:
+  State 0: value=0.6667, depth=3, triples=3
+  State 1: value=0.7667, depth=3, triples=3
+  State 2: value=0.7667, depth=3, triples=3
+  State 3: value=0.7667, depth=3, triples=3
+  State 4: value=0.7733, depth=3, triples=3
+  State 5: value=0.7667, depth=3, triples=3
+  State 6: value=0.7000, depth=3, triples=3
+  State 7: value=0.6667, depth=3, triples=3
+
+Pruning to top 3...
+Queue size after pruning: 3
+
+======================================================================
+Step 4 / 5
+======================================================================
+
+--- Expanding node 1/3 ---
+Current state: TreeNode(depth=3, triples=3, value=0.7667)
+Triple IDs: 6
+23
+4
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['3']
+    informativeness: ['1']
+    diversity: ['1']
+
+Combined unique thoughts: ['3', '1']
+Children created: 2
+
+--- Expanding node 2/3 ---
+Current state: TreeNode(depth=3, triples=3, value=0.7667)
+Triple IDs: 6
+4
+23
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['1']
+    informativeness: ['1']
+    diversity: ['1']
+
+Combined unique thoughts: ['1']
+Children created: 1
+
+--- Expanding node 3/3 ---
+Current state: TreeNode(depth=3, triples=3, value=0.7733)
+Triple IDs: 6
+1
+3
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['23']
+    informativeness: ['4']
+    diversity: ['4']
+
+Combined unique thoughts: ['23', '4']
+Children created: 2
+
+--- Evaluating 5 states ---
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.8}
+]
+---------------
+
+⏱  Step 4 timing: thought_gen=3.4s, eval=9.7s, total=13.1s
+
+State evaluations:
+  State 0: value=0.8000, depth=4, triples=4
+  State 1: value=0.8000, depth=4, triples=4
+  State 2: value=0.8000, depth=4, triples=4
+  State 3: value=0.8000, depth=4, triples=4
+  State 4: value=0.8000, depth=4, triples=4
+
+Pruning to top 3...
+Queue size after pruning: 3
+
+======================================================================
+Step 5 / 5
+======================================================================
+
+--- Expanding node 1/3 ---
+Current state: TreeNode(depth=4, triples=4, value=0.8000)
+Triple IDs: 6
+23
+4
+3
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['1']
+    informativeness: ['1']
+    diversity: ['1']
+
+Combined unique thoughts: ['1']
+Children created: 1
+
+--- Expanding node 2/3 ---
+Current state: TreeNode(depth=4, triples=4, value=0.8000)
+Triple IDs: 6
+23
+4
+1
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['3']
+    informativeness: ['3']
+    diversity: ['5', '25']
+
+Combined unique thoughts: ['3', '5', '25']
+Children created: 3
+
+--- Expanding node 3/3 ---
+Current state: TreeNode(depth=4, triples=4, value=0.8000)
+Triple IDs: 6
+4
+23
+1
+  Generating thoughts for ALL TASKS (shared model)...
+    relatedness: ['3']
+    informativeness: ['3']
+    diversity: ['2', '5']
+
+Combined unique thoughts: ['3', '2', '5']
+Children created: 3
+
+--- Evaluating 7 states ---
+
+[DEBUG] Raw LLM evaluation outputs:
+--- sample 0 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7}
+]
+---------------
+--- sample 1 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7}
+]
+---------------
+--- sample 2 ---
+[
+{"idx": 0, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 1, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 2, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 3, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 4, "relatedness": 0.9, "informativeness": 0.6, "coverage": 0.6},
+{"idx": 5, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7},
+{"idx": 6, "relatedness": 0.9, "informativeness": 0.7, "coverage": 0.7}
+]
+---------------
+
+⏱  Step 5 timing: thought_gen=3.3s, eval=17.9s, total=21.2s
+
+State evaluations:
+  State 0: value=0.7200, depth=5, triples=5
+  State 1: value=0.7200, depth=5, triples=5
+  State 2: value=0.7800, depth=5, triples=5
+  State 3: value=0.7800, depth=5, triples=5
+  State 4: value=0.7200, depth=5, triples=5
+  State 5: value=0.7800, depth=5, triples=5
+  State 6: value=0.7800, depth=5, triples=5
+
+Pruning to top 1...
+Queue size after pruning: 1
+
+======================================================================
+SEARCH COMPLETE (Task-Decomposed)
+======================================================================
+Best state summary:
+  Value: 0.7800
+  Depth: 5
+  Triple count: 5
+  Selected triple IDs: 6
+23
+4
+1
+5
+======================================================================
+
+======================================================================
+FINAL SELECTED SUMMARY
+======================================================================
+1. <http://dbpedia.org/resource/Lepiota_helveola> <http://dbpedia.org/ontology/genus> <http://dbpedia.org/resource/Lepiota> .
+2. <http://dbpedia.org/resource/Lepiota_helveola> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Species> .
+3. <http://dbpedia.org/resource/Lepiota_helveola> <http://dbpedia.org/ontology/binomialAuthority> <http://dbpedia.org/resource/Giacomo_Bresadola> .
+4. <http://dbpedia.org/resource/Lepiota_helveola> <http://dbpedia.org/ontology/division> <http://dbpedia.org/resource/Basidiomycota> .
+5. <http://dbpedia.org/resource/Lepiota_helveola> <http://dbpedia.org/ontology/kingdom> <http://dbpedia.org/resource/Fungus> .
+
+✓ Saved (5 triples) to: ../outputs#2/tot4es/dbpedia/35/35_top5.nt
+
+======================================================================
+✓ Task-Decomposed Process Complete!
+======================================================================

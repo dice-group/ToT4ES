@@ -1,0 +1,5 @@
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/actor> <http://data.linkedmdb.org/resource/actor/39725> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/title> "The Golden Compass" .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/person/3570> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/year> "2007"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://data.linkedmdb.org/resource/film/12260> <http://data.linkedmdb.org/resource/movie/genre> <http://data.linkedmdb.org/resource/genre/Adventure> .

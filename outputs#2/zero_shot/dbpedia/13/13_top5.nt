@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/2012_League_of_Ireland_Cup_Final> <http://dbpedia.org/ontology/previousEvent> <http://dbpedia.org/resource/2011_League_of_Ireland_Cup_Final> .
+<http://dbpedia.org/resource/2012_League_of_Ireland_Cup_Final> <http://dbpedia.org/ontology/date> "2012-09-23"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://dbpedia.org/resource/2012_League_of_Ireland_Cup_Final> <http://dbpedia.org/ontology/team> <http://dbpedia.org/resource/Dundalk_F.C.> .
+<http://dbpedia.org/resource/2012_League_of_Ireland_Cup_Final> <http://dbpedia.org/ontology/team> <http://dbpedia.org/resource/Cork_City_F.C.> .
+<http://dbpedia.org/resource/2012_League_of_Ireland_Cup_Final> <http://dbpedia.org/ontology/location> <http://dbpedia.org/resource/Aviva_Stadium> .
