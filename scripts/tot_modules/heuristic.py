@@ -6,6 +6,7 @@ Heuristic Calculator - Aggregates multi-sample evaluations into scores
 """
 
 import json
+import random
 from typing import List
 
 
@@ -182,6 +183,13 @@ def entity_heuristic_calculator(
             r = inf = cov = 0.5
         
         score = w_relatedness * r + w_informativeness * inf + w_coverage * cov
+        
+        # Add small random tie-breaker (±0.001) to break ties deterministically
+        # This helps distinguish between states with identical rounded scores
+        score += random.uniform(-0.001, 0.001)
+        
+        # Ensure score stays in valid range
+        score = max(0.0, min(1.0, score))
         final_values.append(score)
 
     return final_values

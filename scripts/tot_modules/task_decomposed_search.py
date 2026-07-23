@@ -96,6 +96,9 @@ class TaskDecomposedToT:
         self.w_relatedness = w_relatedness
         self.w_informativeness = w_informativeness
         self.w_coverage = w_coverage
+        
+        # State evaluation cache to avoid re-evaluating identical states
+        self.eval_cache = {}
 
         # Optional ablation mode that bypasses state scoring entirely.
         if no_scoring_mode not in (None, "greedy"):
@@ -297,30 +300,48 @@ class TaskDecomposedToT:
 
     def state_evaluator(self, states: List[str]) -> List[float]:
         """
-        Evaluate states using vote-based aggregation.
+        Evaluate states using vote-based aggregation with chunking and caching.
         
-        For large state counts, evaluates in chunks to improve reliability.
+        - Caches results to avoid re-evaluating identical states
+        - Chunks evaluation into smaller batches for faster inference
+        - Returns scores in same order as input states
         """
         n_states = len(states)
         
-        # If too many states, evaluate in chunks
-        MAX_STATES_PER_EVAL = 10
+        # Check cache for already-evaluated states
+        scores = []
+        uncached_indices = []
+        uncached_states = []
         
-        if n_states > MAX_STATES_PER_EVAL:
-            print(f"\n[INFO] Evaluating {n_states} states in chunks of {MAX_STATES_PER_EVAL}")
-            all_scores = []
+        for i, state in enumerate(states):
+            if state in self.eval_cache:
+                scores.append(self.eval_cache[state])
+            else:
+                scores.append(None)  # Placeholder
+                uncached_indices.append(i)
+                uncached_states.append(state)
+        
+        if uncached_states:
+            # Evaluate uncached states in chunks (max 5 per chunk for faster inference)
+            MAX_STATES_PER_CHUNK = 5
+            chunk_scores = []
             
-            for chunk_start in range(0, n_states, MAX_STATES_PER_EVAL):
-                chunk_end = min(chunk_start + MAX_STATES_PER_EVAL, n_states)
-                chunk_states = states[chunk_start:chunk_end]
+            for chunk_start in range(0, len(uncached_states), MAX_STATES_PER_CHUNK):
+                chunk_end = min(chunk_start + MAX_STATES_PER_CHUNK, len(uncached_states))
+                chunk_states = uncached_states[chunk_start:chunk_end]
                 
-                print(f"  Evaluating states {chunk_start}-{chunk_end-1}...")
-                chunk_scores = self._evaluate_chunk(chunk_states)
-                all_scores.extend(chunk_scores)
+                chunk_result = self._evaluate_chunk(chunk_states)
+                chunk_scores.extend(chunk_result)
+                
+                # Cache results immediately
+                for state, score in zip(chunk_states, chunk_result):
+                    self.eval_cache[state] = score
             
-            return all_scores
-        else:
-            return self._evaluate_chunk(states)
+            # Fill in the uncached scores in the original order
+            for idx, score in zip(uncached_indices, chunk_scores):
+                scores[idx] = score
+        
+        return scores
     
     def _evaluate_chunk(self, states: List[str]) -> List[float]:
         """
@@ -560,16 +581,16 @@ class TaskDecomposedToT:
             if self.no_scoring_mode == "greedy":
                 queue = deque(list(queue)[:keep_k])
             else:
-                sorted_nodes = sorted(queue, key=lambda n: n.value, reverse=True)
+                # Sort by value (descending), then by triple ID sum (ascending) for deterministic tie-breaking
+                sorted_nodes = sorted(
+                    queue,
+                    key=lambda n: (-n.value, sum(n.get_triple_ids()) if n.get_triple_ids() else float('inf')),
+                    reverse=False
+                )
                 top_nodes = sorted_nodes[:keep_k]
 
-                keep_states = set(node.state for node in top_nodes)
-                new_queue = deque()
-                for node in queue:
-                    if node.state in keep_states:
-                        new_queue.append(node)
-
-                queue = new_queue
+                # Use sorted order directly instead of preserving original queue order
+                queue = deque(top_nodes)
 
             if verbose:
                 print(f"Queue size after pruning: {len(queue)}")

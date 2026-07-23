@@ -380,7 +380,7 @@ def make_combined_evaluation_prompt(
 
         return f"""EVALUATE: {entity_label}
 
-RATE each on 3 criteria (0.0-1.0):
+RATE each on 3 criteria (0.00-1.00, use TWO decimals):
 1. RELATEDNESS: How central/defining to entity?
 2. INFORMATIVENESS: How much unique valuable info?
 3. COVERAGE: How diverse are the aspects?
@@ -392,18 +392,18 @@ SUMMARIES TO EVALUATE ({n_states} total):
 RESPONSE FORMAT:
 Output ONLY a valid JSON array with {n_states} objects.
 Each object: {{"idx": N, "relatedness": X, "informativeness": Y, "coverage": Z}}
-WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.0-1.0
+WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.00-1.00 (TWO decimals)
 
 EXAMPLE FORMAT (for reference):
 [
-{{"idx": 0, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7}},
-{{"idx": 1, "relatedness": 0.7, "informativeness": 0.9, "coverage": 0.65}}
+{{"idx": 0, "relatedness": 0.87, "informativeness": 0.75, "coverage": 0.69}},
+{{"idx": 1, "relatedness": 0.72, "informativeness": 0.91, "coverage": 0.65}}
 ]
 
 CRITICAL:
 - ONLY JSON output. NOTHING else before/after.
 - EXACTLY {n_states} objects (indices 0 to {n_states-1}).
-- All values between 0.0 and 1.0 (decimals, not integers).
+- All values between 0.00 and 1.00 (TWO decimals, not one).
 - NO text, NO explanations, NO markdown.
 - Start with '[', end with ']'.
 - Valid JSON syntax required.
