@@ -16,20 +16,40 @@ class FMeasure:
     @staticmethod
     def get_score(summ_tids, gold_list):
         """F-score = 2 * (precision * recall) / (precision + recall)"""
-        print(summ_tids)
-        k = len(summ_tids)
+        print("gold_list", gold_list)
+        print("summ_tids", summ_tids)
         f_list = []
         for gold in gold_list:
-            if len(gold) != k:
-                print('gold-k:',len(gold), k)
-            assert len(gold) == k # for ESBM
+            pred_size = len(summ_tids)
+            gold_size = len(gold)
+            if len(gold) != pred_size:
+                print('gold-k:', len(gold), pred_size)
+
+            if pred_size == 0 or gold_size == 0:
+                f_list.append(0)
+                continue
+
             corr = len([t for t in summ_tids if t in gold])
-            precision = corr/k
-            recall = corr/len(gold)
-            f_score = 2*((precision*recall)/(precision+recall)) if corr != 0 else 0
+            precision = corr / pred_size
+            recall = corr / gold_size
+            f_score = 2 * ((precision * recall) / (precision + recall)) if corr != 0 else 0
             f_list.append(f_score)
         favg = np.mean(f_list)
         return favg
+
+    @staticmethod
+    def get_penalized_score(summ_tids, gold_list, top_k):
+        """Completeness-penalized F-score.
+
+        This keeps the base F-measure but downweights it when the model returns
+        fewer than top_k triples. Empty summaries therefore score 0.
+        """
+        if top_k <= 0:
+            return 0
+
+        base_score = FMeasure.get_score(summ_tids, gold_list)
+        completeness = min(len(summ_tids), top_k) / top_k
+        return base_score * completeness
     def __repr__(self):
         return self.__class__.__name__
     

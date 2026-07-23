@@ -19,6 +19,7 @@ MODEL_ID="Qwen/Qwen3-coder-30B-A3B-Instruct"
 # LLM temperatures (defaults used by the Python script)
 THOUGHT_TEMPERATURE=0.8
 EVAL_TEMPERATURE=0.3
+DO_SAMPLE=${DO_SAMPLE:-auto}
 
 usage() {
   cat <<EOF
@@ -33,6 +34,7 @@ Options:
   -m ID     Model id (HuggingFace model identifier)
   -t FLOAT  Thought temperature
   -e FLOAT  Eval temperature
+  -S MODE   Sampling mode: auto|true|false
   -g INT    GPU device index or list (sets CUDA_VISIBLE_DEVICES in subcommands)
   -L INT    Limit entities (for quick tests)
   -r FILE   Runtime report JSON path
@@ -100,7 +102,7 @@ done
 set -- "${NEWARGS[@]}"
 
 # Parse short CLI options
-while getopts ":d:o:l:n:k:m:t:e:g:L:r:s:h" opt; do
+while getopts ":d:o:l:n:k:m:t:e:S:g:L:r:s:h" opt; do
   case $opt in
     d) ROOT="$OPTARG" ;;
     o) OUT="$OPTARG" ;;
@@ -110,6 +112,7 @@ while getopts ":d:o:l:n:k:m:t:e:g:L:r:s:h" opt; do
     m) MODEL_ID="$OPTARG" ;;
     t) THOUGHT_TEMPERATURE="$OPTARG" ;;
     e) EVAL_TEMPERATURE="$OPTARG" ;;
+    S) DO_SAMPLE="$OPTARG" ;;
     g) GPU_DEVICE="$OPTARG" ;;
     L) LIMIT_ENTITIES="$OPTARG" ;;
     r) RUNTIME_REPORT_FILE="$OPTARG" ;;
@@ -182,6 +185,7 @@ echo "  Max summary length: $MAX_SUMMARY_LEN"
 echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
 echo "  GPU device: $GPU_DEVICE"
 echo "  Model: $MODEL_ID"
+echo "  Sampling mode: $DO_SAMPLE"
 echo ""
 echo "Semantic Dimensions (Value Function):"
 echo "  Relatedness weight (w_r): $W_RELATEDNESS"
@@ -260,6 +264,7 @@ for f in "${nt_files[@]}"; do
     --model-id \"$MODEL_ID\" \
     --thought-temperature $THOUGHT_TEMPERATURE \
     --eval-temperature $EVAL_TEMPERATURE \
+    --do-sample $DO_SAMPLE \
     --w-relatedness $W_RELATEDNESS \
     --w-informativeness $W_INFORMATIVENESS \
     --w-coverage $W_COVERAGE \

@@ -110,6 +110,13 @@ def parse_arguments():
         help="Temperature for state evaluation",
     )
     parser.add_argument(
+        "--do-sample",
+        type=str,
+        default="auto",
+        choices=["auto", "true", "false"],
+        help="Sampling behavior for generation: auto(temperature-based), true, or false",
+    )
+    parser.add_argument(
         "--deterministic",
         action="store_true",
         help="Enable deterministic mode (sets temperatures to 0 and fixed seeds)",
@@ -294,6 +301,7 @@ def main():
         _set_deterministic_mode(args.seed)
         args.thought_temperature = 0.0
         args.eval_temperature = 0.0
+        args.do_sample = "false"
 
     print("="*70)
     print("Task-Decomposed Tree-of-Thought Entity Summarization")
@@ -304,12 +312,13 @@ def main():
     print("  - Multi-task thought generation per step")
     if args.deterministic:
         print("  - Deterministic mode: enabled")
-        print(f"    seed={args.seed}, thought_temperature=0.0, eval_temperature=0.0")
+        print(f"    seed={args.seed}, thought_temperature=0.0, eval_temperature=0.0, do_sample=false")
     else:
         print("  - Deterministic mode: disabled")
         print(
             f"    thought_temperature={args.thought_temperature}, "
-            f"eval_temperature={args.eval_temperature}"
+            f"eval_temperature={args.eval_temperature}, "
+            f"do_sample={args.do_sample}"
         )
     print("="*70)
     
@@ -463,6 +472,12 @@ def main():
     tot.breadth_limit = args.breadth_limit
     tot.thought_temperature = args.thought_temperature
     tot.eval_temperature = args.eval_temperature
+    if args.do_sample == "true":
+        tot.do_sample = True
+    elif args.do_sample == "false":
+        tot.do_sample = False
+    else:
+        tot.do_sample = None
     
     print(f"  Configuration: {tot}")
     print(f"  Total candidates per step: ~{args.n_candidates_per_task * 3} (from 3 tasks)")

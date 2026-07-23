@@ -74,6 +74,7 @@ class TaskDecomposedToT:
         self.breadth_limit = 3
         self.thought_temperature = 0.8
         self.eval_temperature = 0.3
+        self.do_sample: Optional[bool] = None
         
         # Task-specific prompt generators
         self.get_relatedness_prompt = get_relatedness_prompt
@@ -126,6 +127,7 @@ class TaskDecomposedToT:
         n: int = 1,
         stop: Optional[List[str]] = None,
         llm: Optional[Llama32Chat] = None,
+        do_sample: Optional[bool] = None,
         enable_thinking: bool = False,
     ) -> List[str]:
         """Query LLM with chat interface."""
@@ -139,6 +141,8 @@ class TaskDecomposedToT:
             max_new_tokens=max_tokens,
             n=n,
         )
+        if do_sample is not None:
+            chat_kwargs["do_sample"] = do_sample
         # Qwen3CoderChat accepts enable_thinking; others will ignore unknown kwargs
         import inspect
         if "enable_thinking" in inspect.signature(llm_to_use.chat).parameters:
@@ -185,6 +189,7 @@ class TaskDecomposedToT:
             n=self.n_candidates_per_task,
             stop=["\n", ".", ","],
             llm=llm,
+            do_sample=self.do_sample,
             enable_thinking=False,
         )
 
@@ -206,6 +211,7 @@ class TaskDecomposedToT:
                 n=max(2, self.n_candidates_per_task),
                 stop=None,
                 llm=llm,
+                do_sample=False,
                 enable_thinking=False,
             )
 
@@ -336,6 +342,7 @@ class TaskDecomposedToT:
             max_tokens=eval_max_tokens,
             n=self.n_evals,
             llm=self.llm_evaluation,
+            do_sample=self.do_sample,
         )
 
         print("\n[DEBUG] Raw LLM evaluation outputs:")
@@ -741,6 +748,7 @@ class TaskDecomposedToT:
             f"breadth_limit={self.breadth_limit}, "
             f"thought_temperature={self.thought_temperature}, "
             f"eval_temperature={self.eval_temperature}, "
+            f"do_sample={self.do_sample}, "
             f"no_scoring_mode={self.no_scoring_mode})"
         )
 

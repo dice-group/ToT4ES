@@ -80,20 +80,15 @@ Entity: {entity_label}
 
 RELATEDNESS DEFINITION:
 A triple is RELATED/CENTRAL if it:
-1. CENTRALITY: Uses core/frequent predicates that define entity types (identity, classification, basic properties)
-2. SPECIFICITY: Provides distinctive values NOT generic descriptions
-3. ESSENTIALITY: Best answers "What fundamentally IS this entity?"
+CENTRALITY: Uses core/frequent predicates that define entity types (identity, core facts)
 
     IMPORTANT:
     In this stage, judge candidates only on RELATEDNESS.
     Do NOT optimize across informativeness or diversity here.
     Pick the single triple that is most central and defining for the entity.
 
-LOCAL CONTEXT - Frequent predicates in this entity description:
-{core_preds_text}
-
 SELECTION CRITERION:
-Choose the candidate combining: Centrality (frequent predicate?) + Specificity (distinctive value?) + Essentiality (defines the entity?)
+Choose triples central to the entity identity and core facts.
 
 Already selected:
 {selected_text}
@@ -196,22 +191,17 @@ INFORMATIVENESS DEFINITION:
 A triple is informative if it combines:
 1. RARITY: Uses uncommon predicates (not generic like rdf:type, rdfs:label, or rdf:comment)
 2. NOVELTY: Introduces predicates NOT already in your selection
-3. SPECIFICITY: Provides concrete, detailed values (not generic categories/descriptions)
 
     IMPORTANT:
     In this stage, judge candidates only on INFORMATIVENESS.
     Do NOT trade off against relatedness or diversity here.
     Pick the single triple that adds the most new, non-trivial information.
 
-LOCAL CONTEXT - Less frequent predicates in this entity description:
-{rare_preds_text}
-
 CURRENT STATE - Already selected predicates:
 {covered_predicates_text}
 
 SELECTION CRITERION:
-Choose the candidate with highest information gain:
-- PredicateRarity (is it uncommon?) + TopicNovelty (covers new predicate?) + Specificity (concrete value?)
+Choose specific, non-trivial facts with strong information value.
 
 Already selected:
 {selected_text}
@@ -337,8 +327,7 @@ AVAILABLE OPPORTUNITIES - Roles NOT yet covered:
 {available_roles_text}
 
 SELECTION CRITERION:
-Choose the candidate with highest diversity impact:
-- RoleNovelty (covers missing semantic role?) + PredicateNovelty (different predicate?) + PerspectiveBreadth (new aspect?)
+Cover different aspects of the entity and avoid redundant predicates.
 
 Already selected:
 {selected_text}

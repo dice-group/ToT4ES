@@ -107,22 +107,14 @@ def main():
         for k in args.topk:
             # ESBenchmark(ds_name, file_n, topk, split_flag)
             dataset = ESBenchmark(ds_name, args.file_n, k, args.use_gold_split)
-            # evaluation() prints one summary line itself; capture a copy too
-            evaluation(dataset, k, args.model_name)
-            # Optionally, compute and record individual scores again if you want per-line CSV detail.
-            # To keep this runner simple (and not duplicate logic from evaluation.py),
-            # we’ll store only the printed summary fields.
-            rows.append({
-                "dataset": ds_name,
-                "k": k,
-                "model": args.model_name,
-                "timestamp": datetime.now().isoformat(timespec="seconds"),
-            })
+            metrics = evaluation(dataset, k, args.model_name)
+            metrics["model"] = args.model_name
+            metrics["timestamp"] = datetime.now().isoformat(timespec="seconds")
+            rows.append(metrics)
 
     print("Evaluation is done ...")
 
-    # Write a CSV index of what was evaluated (you still see metric values in stdout).
-    # If you prefer full metrics in CSV, you can modify evaluation() to return the averages.
+    # Write a CSV index of what was evaluated, including completeness stats.
     if args.results_csv:
         os.makedirs(os.path.dirname(os.path.abspath(args.results_csv)), exist_ok=True)
         with open(args.results_csv, "w", newline="", encoding="utf-8") as f:
