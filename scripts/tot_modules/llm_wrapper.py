@@ -159,21 +159,16 @@ class Qwen3CoderChat:
             batch_prompts = [prompt] * n
             batch_out = self.pipe(
                 batch_prompts,
-        # Always use sequential generation to ensure temperature variation
-        # (batch mode with identical prompts doesn't produce variation)
-        outputs = []
-        for _ in range(n):
-            out = self.pipe(
-                prompt,
                 max_new_tokens=max_new_tokens,
                 min_new_tokens=1,
-                do_sample=do_sample,
+                do_sample=resolved_do_sample,
                 temperature=temperature,
                 pad_token_id=self.tokenizer.eos_token_id,
                 return_full_text=False,
             )
             outputs = [item[0]["generated_text"].strip() for item in batch_out]
         else:
+            # Sequential generation to ensure temperature variation
             outputs = []
             for _ in range(n):
                 out = self.pipe(
@@ -187,8 +182,6 @@ class Qwen3CoderChat:
                 )
                 text = out[0]["generated_text"]
                 outputs.append(text.strip())
-            text = out[0]["generated_text"]
-            outputs.append(text.strip())
         return outputs
 
     def __repr__(self) -> str:
