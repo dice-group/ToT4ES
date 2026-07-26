@@ -45,7 +45,7 @@ def evaluation(dataset, k, model_name):
         #ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
         ndcg_score = 0
         f_score = fmeasure.get_score(encoded_topk_triples, gold_list_top)
-        penalized_f_score = fmeasure.get_penalized_score(encoded_topk_triples, gold_list_top, k)
+        penalized_f_score = fmeasure.get_penalized_score(encoded_topk_triples, gold_list_top, k, base_score=f_score)
         #map_score = m.get_map(encoded_rank_triples, gold_list_top)
         map_score = 0
         pred_len = len(encoded_topk_triples)
@@ -74,7 +74,7 @@ def evaluation(dataset, k, model_name):
         #ndcg_score = ndcg_class.get_score(gold_list_top, encoded_rank_triples)
         ndcg_score = 0
         f_score = fmeasure.get_score(encoded_topk_triples, gold_list_top)
-        penalized_f_score = fmeasure.get_penalized_score(encoded_topk_triples, gold_list_top, k)
+        penalized_f_score = fmeasure.get_penalized_score(encoded_topk_triples, gold_list_top, k, base_score=f_score)
         #map_score = m.get_map(encoded_rank_triples, gold_list_top)
         map_score = 0
         pred_len = len(encoded_topk_triples)

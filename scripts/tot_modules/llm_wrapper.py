@@ -154,8 +154,8 @@ class Qwen3CoderChat:
         )
         resolved_do_sample = (temperature > 0.0) if do_sample is None else do_sample
 
-        if n > 1 and resolved_do_sample:
-            # Batch: pass n copies of the prompt for parallel generation
+        if n > 1:
+            # Batch processing: pass n copies of the prompt to maximize GPU efficiency
             batch_prompts = [prompt] * n
             batch_out = self.pipe(
                 batch_prompts,
@@ -165,23 +165,21 @@ class Qwen3CoderChat:
                 temperature=temperature,
                 pad_token_id=self.tokenizer.eos_token_id,
                 return_full_text=False,
+                batch_size=n,
             )
             outputs = [item[0]["generated_text"].strip() for item in batch_out]
         else:
-            # Sequential generation to ensure temperature variation
-            outputs = []
-            for _ in range(n):
-                out = self.pipe(
-                    prompt,
-                    max_new_tokens=max_new_tokens,
-                    min_new_tokens=1,
-                    do_sample=resolved_do_sample,
-                    temperature=temperature,
-                    pad_token_id=self.tokenizer.eos_token_id,
-                    return_full_text=False,
-                )
-                text = out[0]["generated_text"]
-                outputs.append(text.strip())
+            # Single generation
+            out = self.pipe(
+                prompt,
+                max_new_tokens=max_new_tokens,
+                min_new_tokens=1,
+                do_sample=resolved_do_sample,
+                temperature=temperature,
+                pad_token_id=self.tokenizer.eos_token_id,
+                return_full_text=False,
+            )
+            outputs = [out[0]["generated_text"].strip()]
         return outputs
 
     def __repr__(self) -> str:

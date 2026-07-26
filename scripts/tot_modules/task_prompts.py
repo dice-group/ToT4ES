@@ -87,6 +87,9 @@ CENTRALITY: Uses core/frequent predicates that define entity types (identity, co
     Do NOT optimize across informativeness or diversity here.
     Pick the single triple that is most central and defining for the entity.
 
+DOMAIN CONTEXT - Core/frequent predicates (entity-defining):
+{core_preds_text}
+
 SELECTION CRITERION:
 Choose triples central to the entity identity and core facts.
 
@@ -196,6 +199,9 @@ A triple is informative if it combines:
     In this stage, judge candidates only on INFORMATIVENESS.
     Do NOT trade off against relatedness or diversity here.
     Pick the single triple that adds the most new, non-trivial information.
+
+DOMAIN CONTEXT - Rare predicates in this dataset:
+{rare_preds_text}    
 
 CURRENT STATE - Already selected predicates:
 {covered_predicates_text}

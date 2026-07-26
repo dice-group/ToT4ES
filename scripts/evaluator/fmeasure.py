@@ -38,18 +38,21 @@ class FMeasure:
         return favg
 
     @staticmethod
-    def get_penalized_score(summ_tids, gold_list, top_k):
-        """Completeness-penalized F-score.
+    def get_penalized_score(summ_tids, gold_list, top_k, base_score=None):
+        """Strict task-success penalized F-score.
 
-        This keeps the base F-measure but downweights it when the model returns
-        fewer than top_k triples. Empty summaries therefore score 0.
+        Any incomplete output (including empty summaries) gets zero score.
+        Only summaries with exactly top_k triples keep their base F-measure.
         """
         if top_k <= 0:
             return 0
 
-        base_score = FMeasure.get_score(summ_tids, gold_list)
-        completeness = min(len(summ_tids), top_k) / top_k
-        return base_score * completeness
+        if len(summ_tids) != top_k:
+            return 0
+
+        if base_score is None:
+            base_score = FMeasure.get_score(summ_tids, gold_list)
+        return base_score
     def __repr__(self):
         return self.__class__.__name__
     
