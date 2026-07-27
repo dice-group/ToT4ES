@@ -321,9 +321,8 @@ Entity URI: {entity_uri}
 You are given candidate triples for this entity. Select exactly {summary_size} triples that best summarize the entity.
 
 Selection criteria:
-1. Relatedness: prefer triples that relate to the entity's identity and general nature.
-2. Informativeness: prefer triples that provide meaningful or distinctive facts about the entity.
-3. Coverage/Diversity: aim to cover different aspects of the entity where possible.
+- Focus on the most informative and related triples (central facts about the entity)
+- Ensure diversity across different predicates/facets
 
 Candidate triples (index: triple):
 {formatted_triples}
