@@ -266,36 +266,21 @@ class CoTLLMSummarizer:
             [f"{i+1}. {self.parser.format_triple(s, p, o)}" for i, (s, p, o) in enumerate(triples)]
         )
         
-        prompt = f"""You are an expert in entity summarization over RDF triples.
+        prompt = f"""Select {summary_size} triples from the following candidates for {entity_label} ({entity_uri}):
 
-Entity: {entity_label}
-Entity URI: {entity_uri}
-
-You are given candidate triples for this entity. Select exactly {summary_size} triples that best summarize the entity.
-
-Selection criteria (same semantic dimensions as ToT4ES):
-1. Relatedness: prefer triples that relate to the entity's identity and general nature.
-2. Informativeness: prefer triples that provide meaningful or distinctive facts about the entity.
-3. Coverage/Diversity: aim to cover different aspects of the entity where possible.
-
-Candidate triples (index: triple):
 {formatted_triples}
 
-Task:
-- Think step-by-step about which triples best satisfy the three criteria jointly.
-- You may reason briefly, but the final answer must contain only the selected triples.
+Criteria:
+1. Relatedness: central to the entity's identity
+2. Informativeness: meaningful and distinctive facts
+3. Diversity: different aspects and predicates
 
-Output rules:
-- Select exactly {summary_size} triples from the candidates.
-- Use {entity_uri} as subject for all output triples.
-- All URIs must be wrapped in angle brackets.
-- Each output line must end with " .".
-- Do not use numbering or bullet points in the final answer.
+Think step-by-step about which triples best satisfy the three criteria, then output your final selection.
 
 After your reasoning, output this header exactly:
 FINAL SELECTED TRIPLES:
 
-Then output ONLY the selected triples in valid N-Triples format, one per line.
+Then output ONLY the selected triples in N-Triples format (one per line, ending with " .").
 """
         return prompt
     
