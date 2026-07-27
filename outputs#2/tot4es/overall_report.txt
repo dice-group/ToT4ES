@@ -1,12 +1,12 @@
 ═══════════════════════════════════════════════════════════
 Task-Decomposed ToT Processing Report
 ═══════════════════════════════════════════════════════════
-Start time:           2026-07-22 18:11:31
-End time:             2026-07-22 22:18:03
-Total runtime:        14792s
+Start time:           2026-07-25 13:38:35
+End time:             2026-07-25 15:50:24
+Total runtime:        7909s
 
 Configuration:
-  Dataset: dbpedia
+  Dataset: faces
   Model: Qwen/Qwen3-coder-30B-A3B-Instruct
   Weights: R=0.4 I=0.4 C=0.2
   Beam Width: 3
@@ -14,13 +14,13 @@ Configuration:
   Candidates Per Task: 3
 
 Results:
-  Processed:          125
+  Processed:          50
   Skipped:            0
-  Total checked:      125
-  Avg time per entity: 118.34s
+  Total checked:      50
+  Avg time per entity: 158.18s
 
 Output locations:
   Results saved to:   ../outputs#2/tot4es
-  Logs saved to:      ../outputs#2/tot4es/logs/experiment_test
-  Runtime report:     ../outputs#2/tot4es/runtime_report_k5.json
+  Logs saved to:      ../outputs#2/tot4es/logs
+  Runtime report:     ../outputs#2/tot4es/faces/runtime_report_k5.json
 ═══════════════════════════════════════════════════════════
