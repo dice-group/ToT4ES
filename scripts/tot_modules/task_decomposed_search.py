@@ -45,6 +45,7 @@ class TaskDecomposedToT:
         w_relatedness: float = 0.4,
         w_informativeness: float = 0.4,
         w_coverage: float = 0.2,
+        prune_keep_multiplier: float = 1.5,
         no_scoring_mode: Optional[str] = None,
     ):
         """
@@ -96,6 +97,7 @@ class TaskDecomposedToT:
         self.w_relatedness = w_relatedness
         self.w_informativeness = w_informativeness
         self.w_coverage = w_coverage
+        self.prune_keep_multiplier = max(1.0, prune_keep_multiplier)
         
         # State evaluation cache to avoid re-evaluating identical states
         self.eval_cache = {}
@@ -573,8 +575,12 @@ class TaskDecomposedToT:
                 for idx, node in enumerate(queue):
                     print(f"  State {idx}: value={node.value:.4f}, depth={node.depth}, triples={len(node.get_triple_ids())}")
 
-            # Prune
-            keep_k = 1 if step == self.n_steps else self.breadth_limit
+            # Prune more softly during intermediate steps so a single noisy score
+            # does not eliminate a promising branch too early.
+            keep_k = 1 if step == self.n_steps else min(
+                len(queue),
+                max(1, int(round(self.breadth_limit * self.prune_keep_multiplier))),
+            )
             if verbose:
                 print(f"\nPruning to top {keep_k}...")
 

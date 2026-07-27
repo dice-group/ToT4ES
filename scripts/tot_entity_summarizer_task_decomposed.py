@@ -134,6 +134,12 @@ def parse_arguments():
         help="Beam width",
     )
     parser.add_argument(
+        "--prune-keep-multiplier",
+        type=float,
+        default=1.5,
+        help="Keep this multiple of the beam width before pruning in intermediate steps",
+    )
+    parser.add_argument(
         "--beam-width",
         type=int,
         default=None,
@@ -330,6 +336,7 @@ def main():
     print(f"    w_coverage:         {args.w_coverage}")
     print(f"  Search Configuration:")
     print(f"    beam_width:         {args.breadth_limit}")
+    print(f"    prune_keep_multiplier: {args.prune_keep_multiplier}")
     print(f"    eval_samples:       {args.n_evals}")
     print(f"    use_random_candidates: {args.use_random_candidates}")
     if args.no_scoring_mode:
@@ -462,6 +469,7 @@ def main():
         w_relatedness=args.w_relatedness,
         w_informativeness=args.w_informativeness,
         w_coverage=args.w_coverage,
+        prune_keep_multiplier=args.prune_keep_multiplier,
         no_scoring_mode=args.no_scoring_mode,
     )
     

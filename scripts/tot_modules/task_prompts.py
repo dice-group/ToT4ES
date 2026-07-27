@@ -386,10 +386,31 @@ def make_combined_evaluation_prompt(
 
         return f"""EVALUATE: {entity_label}
 
-RATE each on 3 criteria (0.00-1.00, use TWO decimals):
-1. RELATEDNESS: How central/defining to entity?
-2. INFORMATIVENESS: How much unique valuable info?
-3. COVERAGE: How diverse are the aspects?
+    Score each summary independently on 3 criteria using this rubric.
+
+    SCORING RUBRIC:
+    0.00-0.20 = mostly irrelevant, generic, empty, or redundant
+    0.21-0.40 = weak evidence, minor relation, little new information
+    0.41-0.60 = moderately useful, partially central, some novelty
+    0.61-0.80 = strong, clearly relevant, clearly informative, adds coverage
+    0.81-1.00 = excellent, highly central, highly specific, clearly non-redundant
+
+    1. RELATEDNESS:
+    - High when the triples describe identity, core type, major roles, or defining facts.
+    - Low when the triples are peripheral, incidental, or mostly metadata.
+
+    2. INFORMATIVENESS:
+    - High when the triples add specific, non-trivial facts that are not generic labels.
+    - Low when the triples repeat obvious facts, generic attributes, or boilerplate.
+
+    3. COVERAGE:
+    - High when the triples cover different semantic aspects or new predicates/roles.
+    - Low when the triples repeat the same kind of fact or the same predicate pattern.
+
+    TIE-BREAK RULES:
+    - Prefer conservative scores when the evidence is mixed.
+    - Do not overuse extreme 0.00 or 1.00 scores unless the summary is clearly empty or clearly excellent.
+    - When summaries are close, preserve relative ordering rather than forcing artificial gaps.
 
 SUMMARIES TO EVALUATE ({n_states} total):
 
