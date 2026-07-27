@@ -313,27 +313,16 @@ class BaselineLLMSummarizer:
             Prompt string
         """
         formatted_triples = self.format_full_triples_for_prompt(triples)
-        prompt = f"""You are an expert in entity summarization over RDF triples.
+        prompt = f"""Select {summary_size} triples from the following candidates for {entity_label} ({entity_uri}):
 
-Entity: {entity_label}
-Entity URI: {entity_uri}
-
-You are given candidate triples for this entity. Select exactly {summary_size} triples that best summarize the entity.
-
-Selection criteria:
-- Focus on the most informative and related triples (central facts about the entity)
-- Ensure diversity across different predicates/facets
-
-Candidate triples (index: triple):
 {formatted_triples}
 
-Output rules:
-- Output ONLY selected triples in valid N-Triples format, one per line.
-- Select exactly {summary_size} triples from the candidates.
-- Use {entity_uri} as subject for all output triples.
-- All URIs must be wrapped in angle brackets.
-- Each output line must end with " .".
-- Do not output explanations, numbering, or extra text.
+Criteria:
+1. Relatedness: central to the entity's identity
+2. Informativeness: meaningful and distinctive facts
+3. Diversity: different aspects and predicates
+
+Output ONLY the selected triples in N-Triples format (one per line, ending with " .").
 """
         return prompt
     
