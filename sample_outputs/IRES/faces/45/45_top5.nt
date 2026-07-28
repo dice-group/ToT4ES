@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/divisions> <http://dbpedia.org/resource/Lexus_F> .
+<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/founder> <http://dbpedia.org/resource/Eiji_Toyoda> .
+<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/type> <http://dbpedia.org/resource/Division_(business)> .
+<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/property/industry> <http://dbpedia.org/resource/Automotive_industry> .
+<http://dbpedia.org/resource/Lexus> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Lexus_division_emblem.svg/200px-Lexus_division_emblem.svg.png> .

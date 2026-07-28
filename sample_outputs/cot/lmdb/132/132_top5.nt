@@ -1,0 +1,5 @@
+<http://data.linkedmdb.org/resource/actor/38225> <http://data.linkedmdb.org/resource/movie/actor_name> "Dante Basco" .
+<http://data.linkedmdb.org/resource/actor/38225> <http://data.linkedmdb.org/resource/movie/performance> <http://data.linkedmdb.org/resource/performance/122675> .
+<http://data.linkedmdb.org/resource/actor/38225> <http://data.linkedmdb.org/resource/movie/performance> <http://data.linkedmdb.org/resource/performance/152327> .
+<http://data.linkedmdb.org/resource/actor/38225> <http://data.linkedmdb.org/resource/movie/performance> <http://data.linkedmdb.org/resource/performance/121760> .
+<http://data.linkedmdb.org/resource/actor/38225> <http://data.linkedmdb.org/resource/movie/performance> <http://data.linkedmdb.org/resource/performance/44873> .

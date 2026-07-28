@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/leaderName> <http://dbpedia.org/resource/Eric_van_der_Burg> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/ontology/leaderName> <http://dbpedia.org/resource/Andr%C3%A9e_van_Es> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/ontology/leaderParty> <http://dbpedia.org/resource/Labour_Party_(Netherlands)> .
+<http://dbpedia.org/resource/Amsterdam> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Amsterdam?oldid=548577509> .
+<http://dbpedia.org/resource/Amsterdam> <http://dbpedia.org/property/hasPhotoCollection> <http://wifo5-03.informatik.uni-mannheim.de/flickrwrappr/photos/Amsterdam> .

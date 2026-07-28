@@ -1,0 +1,3 @@
+<http://dbpedia.org/resource/The_Honolulu_Advertiser> <http://dbpedia.org/ontology/headquarter> <http://dbpedia.org/resource/Honolulu> .
+<http://dbpedia.org/resource/The_Honolulu_Advertiser> <http://xmlns.com/foaf/0.1/homepage> <http://www.honoluluadvertiser.com> .
+<http://dbpedia.org/resource/The_Honolulu_Advertiser> <http://dbpedia.org/ontology/type> <http://dbpedia.org/resource/Newspaper> .
