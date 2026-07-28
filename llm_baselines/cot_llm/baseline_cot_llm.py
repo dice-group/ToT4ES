@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 import warnings
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 import torch
 from transformers import pipeline
@@ -115,25 +115,15 @@ class NTriplesParser:
 class CoTLLMSummarizer:
     """Chain-of-Thought LLM-based entity summarizer."""
     
-    # Metadata predicates to exclude
-    METADATA_PREDICATES = {
-        'thumbnail', 'depiction', 'wasDerivedFrom', 'homepage',
-        'hasPhotoCollection', 'wikiPageWikiLink', 'wikiPageExternalLink',
-        'wikiPageID', 'wikiPageRevisionID', 'wikiPageLength', 'abstract',
-    }
-    
-    PREDICATE_ALIASES = {
-        # Common aliases
-        '<http://dbpedia.org/ontology/name>': '<http://dbpedia.org/ontology/name>',
-        '<http://xmlns.com/foaf/0.1/name>': '<http://dbpedia.org/ontology/name>',
-    }
-    
     def __init__(
         self,
         model_name: str = "meta-llama/Llama-3.2-3B-Instruct",
         device: int = 0,
         temperature: float = 0.1,
         max_tokens: int = 2048,
+        model_local_dir: Optional[str] = None,
+        download_model: bool = False,
+        enable_fallback: bool = False,
     ):
         """
         Initialize CoT LLM summarizer.
@@ -145,12 +135,18 @@ class CoTLLMSummarizer:
             max_tokens: Maximum tokens for generation
         """
         self.parser = NTriplesParser()
-        self.model_name = model_name
+        model_source = self._resolve_model_source(
+            model_name=model_name,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
+        self.model_name = model_source
         self.device = device
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.enable_fallback = enable_fallback
         
-        logger.info(f"Loading model: {model_name}")
+        logger.info(f"Loading model: {model_source}")
         
         # Setup device
         if torch.cuda.is_available():
@@ -170,10 +166,60 @@ class CoTLLMSummarizer:
         # Load pipeline
         self.pipe = pipeline(
             "text-generation",
-            model=model_name,
+            model=model_source,
+            tokenizer=model_source,
             torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
             device_map="auto",
         )
+        generation_config = self.pipe.model.generation_config
+        generation_config.max_length = None
+        generation_config.min_length = None
+        # Some pipelines keep forward defaults with max_length/min_length.
+        # Remove them so max_new_tokens/min_new_tokens are the only length controls.
+        self.pipe._forward_params.pop("max_length", None)
+        self.pipe._forward_params.pop("min_length", None)
+
+    @staticmethod
+    def _resolve_model_source(
+        model_name: str,
+        model_local_dir: Optional[str],
+        download_model: bool,
+    ) -> str:
+        """Resolve model source path, optionally downloading once to a local directory."""
+        if model_local_dir:
+            local_path = Path(model_local_dir).expanduser().resolve()
+            if local_path.exists() and any(local_path.iterdir()):
+                return str(local_path)
+
+            if not download_model:
+                raise FileNotFoundError(
+                    f"Model local directory not found or empty: {local_path}. "
+                    "Use --download-model to fetch model files once."
+                )
+
+            try:
+                from huggingface_hub import snapshot_download
+            except Exception as e:
+                raise RuntimeError(
+                    "huggingface_hub is required for --download-model. "
+                    "Install it with: pip install huggingface_hub"
+                ) from e
+
+            logger.info(
+                f"Downloading model {model_name} to local directory: {local_path}"
+            )
+            snapshot_download(
+                repo_id=model_name,
+                local_dir=str(local_path),
+                resume_download=True,
+            )
+            return str(local_path)
+
+        model_path = Path(model_name).expanduser()
+        if model_path.exists():
+            return str(model_path.resolve())
+
+        return model_name
     
     def load_triples(self, triple_file: str) -> List[str]:
         """Load raw triples from N-Triples file."""
@@ -191,38 +237,19 @@ class CoTLLMSummarizer:
         
         return triples
     
-    def _is_metadata_predicate(self, predicate_name: str) -> bool:
-        """Check if predicate is metadata/non-content."""
-        return predicate_name.lower() in self.METADATA_PREDICATES
-    
     def preprocess_triples(self, triples: List[str]) -> List[Tuple[str, str, str]]:
-        """Preprocess triples by filtering and deduplication."""
+        """Parse the full raw triple set without method-specific filtering or deduplication."""
         parsed_triples = []
-        seen_predicates = {}
-        
+
         for triple_str in triples:
             s, p, o = self.parser.parse_triple(triple_str)
-            
             if s is None:
                 continue
-            
-            # Filter metadata predicates
-            predicate_name = p.split('/')[-1].rstrip('>')
-            if self._is_metadata_predicate(predicate_name):
-                continue
-            
-            # Apply predicate aliases
-            p_normalized = self.PREDICATE_ALIASES.get(p, p)
-            
-            # Track to avoid duplicate predicates per subject
-            if s not in seen_predicates:
-                seen_predicates[s] = set()
-            
-            if p_normalized not in seen_predicates[s]:
-                parsed_triples.append((s, p_normalized, o))
-                seen_predicates[s].add(p_normalized)
-        
-        logger.info(f"Preprocessed to {len(parsed_triples)} unique triples after filtering")
+            parsed_triples.append((s, p, o))
+
+        logger.info(
+            f"Prepared {len(parsed_triples)} valid triples without filtering or deduplication"
+        )
         return parsed_triples
     
     def create_cot_prompt(
@@ -233,69 +260,27 @@ class CoTLLMSummarizer:
         summary_size: int = 5,
     ) -> str:
         """
-        Create a chain-of-thought prompt for summarization.
-        
-        The prompt guides the LLM to:
-        1. Understand the entity
-        2. Identify core facts
-        3. Reason about importance
-        4. Select top-k triples
+        Create a CoT prompt aligned with the ToT4ES semantic criteria.
         """
-        # Format triples for the prompt
         formatted_triples = "\n".join(
             [f"{i+1}. {self.parser.format_triple(s, p, o)}" for i, (s, p, o) in enumerate(triples)]
         )
         
-        prompt = f"""You are an expert in knowledge representation and entity summarization.
+        prompt = f"""Select {summary_size} triples from the following candidates for {entity_label} ({entity_uri}):
 
-Given an entity and its properties, your task is to select the most important triples
-that best describe this entity in a concise and comprehensive way.
-
-ENTITY INFORMATION:
-- Entity URI: {entity_uri}
-- Entity Label: {entity_label}
-
-AVAILABLE TRIPLES (Properties and relationships):
 {formatted_triples}
 
-YOUR TASK:
-Think step-by-step to identify the top {summary_size} most important triples.
+Criteria:
+1. Relatedness: central to the entity's identity
+2. Informativeness: meaningful and distinctive facts
+3. Diversity: different aspects and predicates
 
-REASONING PROCESS:
-1. First, understand what this entity is and its main characteristics
-2. Identify core facts (what, who, when, where, why)
-3. For each triple, assess its importance:
-   - Essential facts that define the entity (highest importance)
-   - Key relationships and properties (high importance)
-   - Supporting details and additional context (medium importance)
-4. Reason about which triples best capture the entity's essence
-5. Select the {summary_size} triples that are most informative and representative
+Think step-by-step about which triples best satisfy the three criteria, then output your final selection.
 
-SELECTION CRITERIA:
-- Prioritize triples that convey essential information about the entity
-- Avoid redundancy (if multiple triples express similar information, keep the most specific)
-- Include diverse aspects of the entity (type, properties, relationships, context)
-- Each triple should be significant for understanding this entity
+After your reasoning, output this header exactly:
+FINAL SELECTED TRIPLES:
 
-OUTPUT FORMAT:
-Provide your reasoning, then at the end output EXACTLY {summary_size} triples in N-Triples format.
-
-Format each triple as a single line:
-<subject> <predicate> <object> .
-
-Examples:
-<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/type> <http://dbpedia.org/ontology/Person> .
-<http://dbpedia.org/resource/Entity> <http://dbpedia.org/ontology/name> "John Doe"@en .
-
-Rules:
-- All URIs must be wrapped in angle brackets
-- Literals must be in double quotes with language tag or type
-- Each line must end with a period and space: " ."
-- No line numbers or bullet points - just the raw triples
-
-IMPORTANT: Output the {summary_size} selected triples directly at the end, one per line, with NO other text or numbering.
-
-START YOUR CHAIN-OF-THOUGHT REASONING:
+Then output ONLY the selected triples in N-Triples format (one per line, ending with " .").
 """
         return prompt
     
@@ -374,6 +359,11 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         entity_label: str,
         triple_file: str,
         summary_size: int = 5,
+        temperature: Optional[float] = None,
+        max_new_tokens: Optional[int] = None,
+        top_p: Optional[float] = None,
+        do_sample: Optional[bool] = None,
+        enable_fallback: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize an entity using CoT prompting.
@@ -410,14 +400,22 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         # Generate response using LLM
         logger.info(f"Generating summary for entity {entity_id}...")
         try:
-            response = self.pipe(
-                prompt,
-                max_new_tokens=self.max_tokens,
-                temperature=self.temperature,
-                top_p=0.95,
-                do_sample=True,
-                return_full_text=False,
-            )
+            resolved_temperature = self.temperature if temperature is None else temperature
+            resolved_max_new_tokens = self.max_tokens if max_new_tokens is None else max_new_tokens
+            resolved_do_sample = (resolved_temperature > 0.0) if do_sample is None else do_sample
+
+            generation_kwargs = {
+                "max_new_tokens": resolved_max_new_tokens,
+                "min_new_tokens": 1,
+                "temperature": resolved_temperature,
+                "do_sample": resolved_do_sample,
+                "return_full_text": False,
+                "pad_token_id": self.pipe.tokenizer.eos_token_id,
+            }
+            if top_p is not None and resolved_do_sample:
+                generation_kwargs["top_p"] = top_p
+
+            response = self.pipe(prompt, **generation_kwargs)
             
             response_text = response[0]['generated_text']
             logger.debug(f"Response length: {len(response_text)} characters")
@@ -428,18 +426,26 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         
         # Parse response to extract triples
         selected_triples = self._parse_cot_response(response_text, entity_uri)
+        use_fallback = self.enable_fallback if enable_fallback is None else enable_fallback
         
         if not selected_triples:
+            if not use_fallback:
+                logger.warning(
+                    f"No triples extracted from response for entity {entity_id}; "
+                    "fallback is disabled"
+                )
+                return []
+
             logger.warning(f"No triples extracted from response for entity {entity_id}")
             logger.info(f"Falling back to first {summary_size} preprocessed triples")
-            
+
             # Fallback: use the first summary_size triples from preprocessed
             fallback_triples = processed_triples[:summary_size]
             selected_triples = [
-                self.parser.format_triple(entity_uri, p, o) 
+                self.parser.format_triple(entity_uri, p, o)
                 for _, p, o in fallback_triples
             ]
-            
+
             if selected_triples:
                 logger.info(f"Using fallback with {len(selected_triples)} triples")
             else:
@@ -449,12 +455,13 @@ START YOUR CHAIN-OF-THOUGHT REASONING:
         # Ensure we have the correct number of triples
         if len(selected_triples) < summary_size:
             logger.warning(f"Got {len(selected_triples)} triples, expected {summary_size}")
-            # Pad with additional fallback triples if needed
-            if len(selected_triples) < len(processed_triples):
-                remaining = processed_triples[len(selected_triples):summary_size]
-                for _, p, o in remaining:
-                    selected_triples.append(self.parser.format_triple(entity_uri, p, o))
-                logger.info(f"Padded with fallback to reach {len(selected_triples)} triples")
+            if use_fallback:
+                # Pad with additional fallback triples if needed
+                if len(selected_triples) < len(processed_triples):
+                    remaining = processed_triples[len(selected_triples):summary_size]
+                    for _, p, o in remaining:
+                        selected_triples.append(self.parser.format_triple(entity_uri, p, o))
+                    logger.info(f"Padded with fallback to reach {len(selected_triples)} triples")
         elif len(selected_triples) > summary_size:
             logger.info(f"Truncating to {summary_size} triples (got {len(selected_triples)})")
             selected_triples = selected_triples[:summary_size]
@@ -509,6 +516,17 @@ def main():
         help="HuggingFace model to use"
     )
     parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    parser.add_argument(
         "--gpu",
         type=int,
         default=0,
@@ -520,6 +538,28 @@ def main():
         default=0.1,
         help="Sampling temperature (default: 0.1)"
     )
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=2048,
+        help="Maximum new tokens to generate (default: 2048)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
+        "--enable-fallback",
+        action="store_true",
+        help="Enable deterministic fallback when extraction fails or returns fewer than k triples"
+    )
     
     args = parser.parse_args()
     
@@ -528,6 +568,10 @@ def main():
         model_name=args.model,
         device=args.gpu,
         temperature=args.temperature,
+        max_tokens=args.max_new_tokens,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
+        enable_fallback=args.enable_fallback,
     )
     
     # Auto-discover entity URI if not provided
@@ -551,6 +595,11 @@ def main():
         entity_label=args.entity_label,
         triple_file=args.input_file,
         summary_size=args.summary_size,
+        temperature=args.temperature,
+        max_new_tokens=args.max_new_tokens,
+        top_p=args.top_p,
+        do_sample=None if not args.no_sample else False,
+        enable_fallback=args.enable_fallback,
     )
     
     # Save output

@@ -36,7 +36,7 @@ def make_relatedness_prompt(
         return ""
     
     def _get_core_predicates(top_n: int = 8) -> str:
-        """Get most common/core predicates from corpus statistics."""
+        """Get the most common predicates in the current entity description."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -80,9 +80,7 @@ Entity: {entity_label}
 
 RELATEDNESS DEFINITION:
 A triple is RELATED/CENTRAL if it:
-1. CENTRALITY: Uses core/frequent predicates that define entity types (identity, classification, basic properties)
-2. SPECIFICITY: Provides distinctive values NOT generic descriptions
-3. ESSENTIALITY: Best answers "What fundamentally IS this entity?"
+CENTRALITY: Uses core/frequent predicates that define entity types (identity, core facts)
 
     IMPORTANT:
     In this stage, judge candidates only on RELATEDNESS.
@@ -93,7 +91,7 @@ DOMAIN CONTEXT - Core/frequent predicates (entity-defining):
 {core_preds_text}
 
 SELECTION CRITERION:
-Choose the candidate combining: Centrality (frequent predicate?) + Specificity (distinctive value?) + Essentiality (defines the entity?)
+Choose triples central to the entity identity and core facts.
 
 Already selected:
 {selected_text}
@@ -101,10 +99,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: predicate frequency + value specificity + whether it defines the entity.
 Select ONE triple index that is MOST RELATED/CENTRAL to the entity.{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -148,7 +146,7 @@ def make_informativeness_prompt(
         return predicates
     
     def _get_rare_predicates(top_n: int = 8) -> str:
-        """Get rare predicates from corpus statistics."""
+        """Get the least frequent predicates in the current entity description."""
         if not predicate_frequencies:
             return "Not available in this run."
         
@@ -196,7 +194,6 @@ INFORMATIVENESS DEFINITION:
 A triple is informative if it combines:
 1. RARITY: Uses uncommon predicates (not generic like rdf:type, rdfs:label, or rdf:comment)
 2. NOVELTY: Introduces predicates NOT already in your selection
-3. SPECIFICITY: Provides concrete, detailed values (not generic categories/descriptions)
 
     IMPORTANT:
     In this stage, judge candidates only on INFORMATIVENESS.
@@ -204,14 +201,13 @@ A triple is informative if it combines:
     Pick the single triple that adds the most new, non-trivial information.
 
 DOMAIN CONTEXT - Rare predicates in this dataset:
-{rare_preds_text}
+{rare_preds_text}    
 
 CURRENT STATE - Already selected predicates:
 {covered_predicates_text}
 
 SELECTION CRITERION:
-Choose the candidate with highest information gain:
-- PredicateRarity (is it uncommon?) + TopicNovelty (covers new predicate?) + Specificity (concrete value?)
+Choose specific, non-trivial facts with strong information value.
 
 Already selected:
 {selected_text}
@@ -219,10 +215,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: predicate rarity + topic coverage + value specificity.
 Select ONE triple index that is MOST INFORMATIVE (best combines rarity + novelty + specificity).{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -337,8 +333,7 @@ AVAILABLE OPPORTUNITIES - Roles NOT yet covered:
 {available_roles_text}
 
 SELECTION CRITERION:
-Choose the candidate with highest diversity impact:
-- RoleNovelty (covers missing semantic role?) + PredicateNovelty (different predicate?) + PerspectiveBreadth (new aspect?)
+Cover different aspects of the entity and avoid redundant predicates.
 
 Already selected:
 {selected_text}
@@ -346,10 +341,10 @@ Already selected:
 Remaining candidates:
 {candidates_text}
 
-For each candidate, briefly evaluate: semantic role novelty + predicate distinctness + perspective breadth.
 Select ONE triple index that MAXIMIZES DIVERSITY and coverage.{exclusion_note}
 
-Output ONLY the integer index:
+Return ONLY the integer index.
+Do NOT include candidate lists, reasoning, or any other text.
 """.strip()
 
     return _inner
@@ -391,34 +386,54 @@ def make_combined_evaluation_prompt(
 
         return f"""EVALUATE: {entity_label}
 
-RATE each on 3 criteria (0.0-1.0):
-1. RELATEDNESS: How central/defining to entity?
-2. INFORMATIVENESS: How much unique valuable info?
-3. COVERAGE: How diverse are the aspects?
+    Score each summary independently on 3 criteria using this rubric.
+
+    SCORING RUBRIC:
+    0.00-0.20 = mostly irrelevant, generic, empty, or redundant
+    0.21-0.40 = weak evidence, minor relation, little new information
+    0.41-0.60 = moderately useful, partially central, some novelty
+    0.61-0.80 = strong, clearly relevant, clearly informative, adds coverage
+    0.81-1.00 = excellent, highly central, highly specific, clearly non-redundant
+
+    1. RELATEDNESS:
+    - High when the triples describe identity, core type, major roles, or defining facts.
+    - Low when the triples are peripheral, incidental, or mostly metadata.
+
+    2. INFORMATIVENESS:
+    - High when the triples add specific, non-trivial facts that are not generic labels.
+    - Low when the triples repeat obvious facts, generic attributes, or boilerplate.
+
+    3. COVERAGE:
+    - High when the triples cover different semantic aspects or new predicates/roles.
+    - Low when the triples repeat the same kind of fact or the same predicate pattern.
+
+    TIE-BREAK RULES:
+    - Prefer conservative scores when the evidence is mixed.
+    - Do not overuse extreme 0.00 or 1.00 scores unless the summary is clearly empty or clearly excellent.
+    - When summaries are close, preserve relative ordering rather than forcing artificial gaps.
 
 SUMMARIES TO EVALUATE ({n_states} total):
 
 {states_block}
 
 RESPONSE FORMAT:
-Output ONLY valid JSON array with {n_states} objects.
+Output ONLY a valid JSON array with {n_states} objects.
 Each object: {{"idx": N, "relatedness": X, "informativeness": Y, "coverage": Z}}
-WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.0-1.0
+WHERE: N is 0 to {n_states-1}, X/Y/Z are decimals 0.00-1.00 (TWO decimals)
 
 EXAMPLE FORMAT (for reference):
 [
-{{"idx": 0, "relatedness": 0.9, "informativeness": 0.8, "coverage": 0.7}},
-{{"idx": 1, "relatedness": 0.7, "informativeness": 0.9, "coverage": 0.65}}
+{{"idx": 0, "relatedness": 0.87, "informativeness": 0.75, "coverage": 0.69}},
+{{"idx": 1, "relatedness": 0.72, "informativeness": 0.91, "coverage": 0.65}}
 ]
 
 CRITICAL:
 - ONLY JSON output. NOTHING else before/after.
 - EXACTLY {n_states} objects (indices 0 to {n_states-1}).
-- All values between 0.0 and 1.0 (decimals, not integers).
+- All values between 0.00 and 1.00 (TWO decimals, not one).
 - NO text, NO explanations, NO markdown.
 - Start with '[', end with ']'.
 - Valid JSON syntax required.
-
-BEGIN RESPONSE WITH '[':""".strip()
+""".strip()
 
     return _inner

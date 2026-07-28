@@ -110,6 +110,13 @@ def parse_arguments():
         help="Temperature for state evaluation",
     )
     parser.add_argument(
+        "--do-sample",
+        type=str,
+        default="auto",
+        choices=["auto", "true", "false"],
+        help="Sampling behavior for generation: auto(temperature-based), true, or false",
+    )
+    parser.add_argument(
         "--deterministic",
         action="store_true",
         help="Enable deterministic mode (sets temperatures to 0 and fixed seeds)",
@@ -125,6 +132,12 @@ def parse_arguments():
         type=int,
         default=3,
         help="Beam width",
+    )
+    parser.add_argument(
+        "--prune-keep-multiplier",
+        type=float,
+        default=1.5,
+        help="Keep this multiple of the beam width before pruning in intermediate steps",
     )
     parser.add_argument(
         "--beam-width",
@@ -165,6 +178,13 @@ def parse_arguments():
         "--use-heuristic-scoring",
         action="store_true",
         help="Use heuristic-based scoring instead of LLM evaluation (ablation variant)",
+    )
+    parser.add_argument(
+        "--no-scoring-mode",
+        type=str,
+        default=None,
+        choices=["greedy"],
+        help="Bypass state scoring entirely. 'greedy' keeps candidates in generation order.",
     )
     parser.add_argument(
         "--heuristic-method",
@@ -287,6 +307,7 @@ def main():
         _set_deterministic_mode(args.seed)
         args.thought_temperature = 0.0
         args.eval_temperature = 0.0
+        args.do_sample = "false"
 
     print("="*70)
     print("Task-Decomposed Tree-of-Thought Entity Summarization")
@@ -297,12 +318,13 @@ def main():
     print("  - Multi-task thought generation per step")
     if args.deterministic:
         print("  - Deterministic mode: enabled")
-        print(f"    seed={args.seed}, thought_temperature=0.0, eval_temperature=0.0")
+        print(f"    seed={args.seed}, thought_temperature=0.0, eval_temperature=0.0, do_sample=false")
     else:
         print("  - Deterministic mode: disabled")
         print(
             f"    thought_temperature={args.thought_temperature}, "
-            f"eval_temperature={args.eval_temperature}"
+            f"eval_temperature={args.eval_temperature}, "
+            f"do_sample={args.do_sample}"
         )
     print("="*70)
     
@@ -314,8 +336,11 @@ def main():
     print(f"    w_coverage:         {args.w_coverage}")
     print(f"  Search Configuration:")
     print(f"    beam_width:         {args.breadth_limit}")
+    print(f"    prune_keep_multiplier: {args.prune_keep_multiplier}")
     print(f"    eval_samples:       {args.n_evals}")
     print(f"    use_random_candidates: {args.use_random_candidates}")
+    if args.no_scoring_mode:
+        print(f"    no_scoring_mode:    {args.no_scoring_mode}")
     if args.use_heuristic_scoring:
         print(f"  Heuristic Scoring (No LLM):")
         print(f"    method:             {args.heuristic_method}")
@@ -444,6 +469,8 @@ def main():
         w_relatedness=args.w_relatedness,
         w_informativeness=args.w_informativeness,
         w_coverage=args.w_coverage,
+        prune_keep_multiplier=args.prune_keep_multiplier,
+        no_scoring_mode=args.no_scoring_mode,
     )
     
     # Configure
@@ -453,6 +480,12 @@ def main():
     tot.breadth_limit = args.breadth_limit
     tot.thought_temperature = args.thought_temperature
     tot.eval_temperature = args.eval_temperature
+    if args.do_sample == "true":
+        tot.do_sample = True
+    elif args.do_sample == "false":
+        tot.do_sample = False
+    else:
+        tot.do_sample = None
     
     print(f"  Configuration: {tot}")
     print(f"  Total candidates per step: ~{args.n_candidates_per_task * 3} (from 3 tasks)")

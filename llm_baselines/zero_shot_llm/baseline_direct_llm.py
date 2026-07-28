@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 import warnings
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 import torch
 from transformers import pipeline
@@ -133,33 +133,14 @@ class NTriplesParser:
 class BaselineLLMSummarizer:
     """Direct LLM-based entity summarizer using instructional prompt."""
     
-    # Metadata predicates to exclude
-    METADATA_PREDICATES = {
-        'thumbnail',
-        'depiction',
-        'wasDerivedFrom',
-        'homepage',
-        'hasPhotoCollection',
-        'wikiPageWikiLink',
-        'wikiPageExternalLink',
-        'wikiPageID',
-        'wikiPageRevisionID',
-        'wikiPageLength',
-        'abstract',  # Often too generic
-    }
-    
-    # Predicate aliases for deduplication (maps to preferred form)
-    PREDICATE_ALIASES = {
-        'http://purl.org/dc/terms/subject': 'http://dbpedia.org/ontology/subject',
-        'http://purl.org/dc/terms/knownFor': 'http://dbpedia.org/ontology/knownFor',
-        'http://xmlns.com/foaf/0.1/name': 'http://www.w3.org/2000/01/rdf-schema#label',
-    }
-    
     def __init__(
         self,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
         device_map: str = "auto",
         torch_dtype=torch.bfloat16,
+        model_local_dir: Optional[str] = None,
+        download_model: bool = False,
+        enable_fallback: bool = False,
     ):
         """
         Initialize the baseline summarizer with LLM.
@@ -169,15 +150,21 @@ class BaselineLLMSummarizer:
             device_map: Device placement strategy
             torch_dtype: Torch data type
         """
-        logger.info(f"Initializing Llama model: {model_id}")
+        model_source = self._resolve_model_source(
+            model_id=model_id,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
+        logger.info(f"Initializing Llama model from: {model_source}")
         self.device_map = device_map
         self.torch_dtype = torch_dtype
+        self.enable_fallback = enable_fallback
         
         try:
             self.pipe = pipeline(
                 "text-generation",
-                model=model_id,
-                tokenizer=model_id,
+                model=model_source,
+                tokenizer=model_source,
                 torch_dtype=torch_dtype,
                 device_map=device_map,
                 trust_remote_code=True,
@@ -187,12 +174,61 @@ class BaselineLLMSummarizer:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
                 self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
             self.tokenizer.model_max_length = 2147483647
+            generation_config = self.pipe.model.generation_config
+            generation_config.max_length = None
+            generation_config.min_length = None
+            # Some pipelines keep forward defaults with max_length/min_length.
+            # Remove them so max_new_tokens/min_new_tokens are the only length controls.
+            self.pipe._forward_params.pop("max_length", None)
+            self.pipe._forward_params.pop("min_length", None)
             logger.info("LLM model loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load LLM model: {e}")
             raise
         
         self.parser = NTriplesParser()
+
+    @staticmethod
+    def _resolve_model_source(
+        model_id: str,
+        model_local_dir: Optional[str],
+        download_model: bool,
+    ) -> str:
+        """Resolve model source path, optionally downloading once to a local directory."""
+        if model_local_dir:
+            local_path = Path(model_local_dir).expanduser().resolve()
+            if local_path.exists() and any(local_path.iterdir()):
+                return str(local_path)
+
+            if not download_model:
+                raise FileNotFoundError(
+                    f"Model local directory not found or empty: {local_path}. "
+                    "Use --download-model to fetch model files once."
+                )
+
+            try:
+                from huggingface_hub import snapshot_download
+            except Exception as e:
+                raise RuntimeError(
+                    "huggingface_hub is required for --download-model. "
+                    "Install it with: pip install huggingface_hub"
+                ) from e
+
+            logger.info(
+                f"Downloading model {model_id} to local directory: {local_path}"
+            )
+            snapshot_download(
+                repo_id=model_id,
+                local_dir=str(local_path),
+                resume_download=True,
+            )
+            return str(local_path)
+
+        model_path = Path(model_id).expanduser()
+        if model_path.exists():
+            return str(model_path.resolve())
+
+        return model_id
     
     def load_triples(self, triple_file: str) -> List[str]:
         """
@@ -220,67 +256,40 @@ class BaselineLLMSummarizer:
     
     def preprocess_triples(self, triples: List[str]) -> List[Tuple[str, str, str]]:
         """
-        Preprocess triples by deduplication and filtering.
-        
+        Parse the full raw triple set without method-specific filtering or deduplication.
+
         Args:
             triples: List of N-Triples strings
-            
+
         Returns:
-            List of (subject, predicate, object) tuples
+            List of valid (subject, predicate, object) tuples
         """
         parsed_triples = []
-        seen_predicates = {}  # Track predicates per subject for deduplication
-        
+
         for triple_str in triples:
             s, p, o = self.parser.parse_triple(triple_str)
-            
             if s is None:
                 continue
-            
-            # Filter metadata predicates
-            predicate_name = p.split('/')[-1].rstrip('>')
-            if self._is_metadata_predicate(predicate_name):
-                continue
-            
-            # Apply predicate aliases for deduplication
-            p_normalized = self.PREDICATE_ALIASES.get(p, p)
-            
-            # Track to avoid duplicate predicates
-            if s not in seen_predicates:
-                seen_predicates[s] = set()
-            
-            if p_normalized not in seen_predicates[s]:
-                parsed_triples.append((s, p_normalized, o))
-                seen_predicates[s].add(p_normalized)
-        
-        logger.info(f"Preprocessed to {len(parsed_triples)} unique triples after filtering")
+            parsed_triples.append((s, p, o))
+
+        logger.info(
+            f"Prepared {len(parsed_triples)} valid triples without filtering or deduplication"
+        )
         return parsed_triples
     
-    def _is_metadata_predicate(self, predicate_name: str) -> bool:
-        """Check if predicate is metadata that should be excluded."""
-        for meta_pred in self.METADATA_PREDICATES:
-            if meta_pred in predicate_name.lower():
-                return True
-        return False
-    
-    def format_triples_for_prompt(self, triples: List[Tuple[str, str, str]]) -> str:
+    def format_full_triples_for_prompt(self, triples: List[Tuple[str, str, str]]) -> str:
         """
-        Format triples for the prompt as numbered list.
-        
+        Format triples as indexed full N-Triples to match ToT candidate representation.
+
         Args:
             triples: List of (subject, predicate, object) tuples
-            
+
         Returns:
-            Formatted string for prompt
+            Numbered N-Triples string
         """
         formatted = []
         for i, (s, p, o) in enumerate(triples, 1):
-            # Extract shortened predicate name for readability
-            pred_short = p.split('/')[-1].rstrip('>')
-            # Shorten object URI if needed
-            o_short = o.split('/')[-1].rstrip('>') if o.startswith('<') else o
-            formatted.append(f"{i}. {pred_short}: {o_short}")
-        
+            formatted.append(f"{i}. {self.parser.format_triple(s, p, o)}")
         return '\n'.join(formatted)
     
     def create_prompt(
@@ -289,6 +298,7 @@ class BaselineLLMSummarizer:
         entity_label: str,
         triples: List[Tuple[str, str, str]],
         summary_size: int = 5,
+        prompt_style: str = "tot_matched",
     ) -> str:
         """
         Create the instructional prompt for LLM summarization.
@@ -302,35 +312,18 @@ class BaselineLLMSummarizer:
         Returns:
             Prompt string
         """
-        formatted_triples = self.format_triples_for_prompt(triples)
-        
-        prompt = f"""You are an expert knowledge graph engineer. Your task is to summarize the provided RDF triples for the entity {entity_label} ({entity_uri}) into exactly {summary_size} unique, high-value triples.
+        formatted_triples = self.format_full_triples_for_prompt(triples)
+        prompt = f"""Select {summary_size} triples from the following candidates for {entity_label} ({entity_uri}):
 
-Strictly adhere to the following selection and formatting rules:
-1. Deduplicate: Remove redundant properties that express the same relationship (e.g., choose between the ontology/ and property/ versions of 'knownFor').
-2. Prioritize Core Facts: Focus on core identity attributes: Academic Field, Key Discoveries/Achievements, Spouse, Birthplace, and Alma Mater.
-3. Eliminate Metadata: Do not include web-specific or system metadata triples such as 'thumbnail', 'depiction', 'wasDerivedFrom', 'homepage', or 'hasPhotoCollection'.
-4. Format: Output ONLY valid N-Triples format (RFC 2396 compliant), one per line:
-   - ALL URIs must be wrapped in angle brackets: <http://...>
-   - The subject MUST be: {entity_uri}
-   - Literals must use proper format: "value"@en or "value"^^<datatype>
-   - Each line must end with a space and a period: .
-5. No explanations: Output only the triples, no introductory or concluding text.
-
-Input Triples (numbered for reference):
 {formatted_triples}
 
-Instructions:
-- Select exactly {summary_size} triples from the input
-- The subject of ALL output triples must be: {entity_uri}
-- Ensure each triple follows this exact format: <uri_subject> <uri_predicate> <uri_or_literal_object> .
-- Focus on the most informative and central facts about the entity
-- Ensure diversity across different predicates/facets
-- Each line must be a valid N-Triple with subject, predicate, and object
-- IMPORTANT: All URIs must be wrapped in angle brackets <..>
-- IMPORTANT: The subject must be {entity_uri} for all triples
-- No explanations, just the triples."""
-        
+Criteria:
+1. Relatedness: central to the entity's identity
+2. Informativeness: meaningful and distinctive facts
+3. Diversity: different aspects and predicates
+
+Output ONLY the selected triples in N-Triples format (one per line, ending with " .").
+"""
         return prompt
     
     def summarize(
@@ -341,6 +334,10 @@ Instructions:
         summary_size: int = 5,
         temperature: float = 0.1,
         max_new_tokens: int = 1024,
+        prompt_style: str = "tot_matched",
+        top_p: Optional[float] = None,
+        do_sample: Optional[bool] = None,
+        enable_fallback: Optional[bool] = None,
     ) -> List[str]:
         """
         Summarize entity triples using direct LLM prompt.
@@ -359,7 +356,7 @@ Instructions:
         logger.info(f"Summarizing entity: {entity_label}")
         logger.info(f"Input: {len(raw_triples)} triples, Target: {summary_size} triples")
         
-        # Preprocess: filter and deduplicate
+        # Preprocess: parse all valid triples
         processed_triples = self.preprocess_triples(raw_triples)
         
         if len(processed_triples) <= summary_size:
@@ -371,7 +368,11 @@ Instructions:
         
         # Create prompt
         prompt = self.create_prompt(
-            entity_uri, entity_label, processed_triples, summary_size
+            entity_uri,
+            entity_label,
+            processed_triples,
+            summary_size,
+            prompt_style,
         )
         
         logger.info("Sending prompt to LLM...")
@@ -387,15 +388,22 @@ Instructions:
                 tokenize=False,
                 add_generation_prompt=True,
             )
+
+            resolved_do_sample = (temperature > 0.0) if do_sample is None else do_sample
+            generation_kwargs = {
+                "max_new_tokens": max_new_tokens,
+                "min_new_tokens": 1,
+                "temperature": temperature,
+                "do_sample": resolved_do_sample,
+                "num_return_sequences": 1,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+                "return_full_text": False,
+            }
+            if top_p is not None and resolved_do_sample:
+                generation_kwargs["top_p"] = top_p
             
-            outputs = self.pipe(
-                prompt_template,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                do_sample=temperature > 0,
-                num_return_sequences=1,
-                eos_token_id=self.tokenizer.eos_token_id,
-            )
+            outputs = self.pipe(prompt_template, **generation_kwargs)
             
             response = outputs[0]['generated_text']
             
@@ -408,6 +416,32 @@ Instructions:
             # Parse response - expect N-Triples format
             # Pass entity_uri to ensure correct subject for all triples
             summary_triples = self._parse_llm_response(response, entity_uri)
+            use_fallback = self.enable_fallback if enable_fallback is None else enable_fallback
+
+            if use_fallback:
+                if not summary_triples:
+                    logger.warning(
+                        "No triples extracted from LLM response; "
+                        "using deterministic fallback from candidate order"
+                    )
+                    fallback_triples = processed_triples[:summary_size]
+                    summary_triples = [
+                        self.parser.format_triple(entity_uri, p, o)
+                        for _, p, o in fallback_triples
+                    ]
+                elif len(summary_triples) < summary_size:
+                    logger.warning(
+                        f"Extracted {len(summary_triples)} triples, expected {summary_size}; "
+                        "padding with deterministic fallback"
+                    )
+                    remaining = processed_triples[len(summary_triples):summary_size]
+                    for _, p, o in remaining:
+                        summary_triples.append(self.parser.format_triple(entity_uri, p, o))
+                elif len(summary_triples) > summary_size:
+                    logger.info(
+                        f"Extracted {len(summary_triples)} triples; truncating to {summary_size}"
+                    )
+                    summary_triples = summary_triples[:summary_size]
             
             logger.info(f"Extracted {len(summary_triples)} triples from LLM response")
             
@@ -600,10 +634,50 @@ def main():
         help="LLM model identifier"
     )
     parser.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
+    )
+    parser.add_argument(
         "--temperature",
         type=float,
         default=0.1,
         help="LLM temperature for generation"
+    )
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=1024,
+        help="Maximum new tokens to generate (default: 1024)"
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value when sampling is enabled"
+    )
+    parser.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    parser.add_argument(
+        "--enable-fallback",
+        action="store_true",
+        help="Enable deterministic fallback when extraction fails or returns wrong number of triples"
+    )
+    parser.add_argument(
+        "--prompt-style",
+        type=str,
+        default="tot_matched",
+        choices=["tot_matched"],
+        help="Prompt template style (ToT-aligned single-pass)"
     )
     parser.add_argument(
         "--output-dir",
@@ -648,7 +722,12 @@ def main():
         os.environ["CUDA_VISIBLE_DEVICES"] = ""
     
     # Initialize summarizer
-    summarizer = BaselineLLMSummarizer(model_id=args.model)
+    summarizer = BaselineLLMSummarizer(
+        model_id=args.model,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
+        enable_fallback=args.enable_fallback,
+    )
     
     # Load raw triples
     raw_triples = summarizer.load_triples(args.triple_file)
@@ -660,6 +739,11 @@ def main():
         raw_triples=raw_triples,
         summary_size=args.summary_size,
         temperature=args.temperature,
+        max_new_tokens=args.max_new_tokens,
+        prompt_style=args.prompt_style,
+        top_p=args.top_p,
+        do_sample=None if not args.no_sample else False,
+        enable_fallback=args.enable_fallback,
     )
     
     # Determine output location

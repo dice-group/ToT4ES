@@ -19,6 +19,7 @@ MODEL_ID="Qwen/Qwen3-coder-30B-A3B-Instruct"
 # LLM temperatures (defaults used by the Python script)
 THOUGHT_TEMPERATURE=0.8
 EVAL_TEMPERATURE=0.3
+DO_SAMPLE=${DO_SAMPLE:-auto}
 
 usage() {
   cat <<EOF
@@ -33,14 +34,17 @@ Options:
   -m ID     Model id (HuggingFace model identifier)
   -t FLOAT  Thought temperature
   -e FLOAT  Eval temperature
-  -g INT    GPU device index (sets CUDA_VISIBLE_DEVICES in subcommands)
+  -S MODE   Sampling mode: auto|true|false
+  -g INT    GPU device index or list (sets CUDA_VISIBLE_DEVICES in subcommands)
   -L INT    Limit entities (for quick tests)
+  -r FILE   Runtime report JSON path
+  -s MODE   No-scoring mode (currently: greedy)
   -h        Show this help
 EOF
   exit 1
 }
 
-# Support a single long option `--gpu` (accepts `--gpu=IDX` or `--gpu IDX`)
+# Support long options for flags that need shell-side handling.
 NEWARGS=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -59,6 +63,36 @@ while [[ $# -gt 0 ]]; do
       shift
       continue
       ;;
+    --runtime-report)
+      if [[ -n "${2-}" ]]; then
+        RUNTIME_REPORT_FILE="$2"
+        shift 2
+        continue
+      else
+        echo "Option --runtime-report requires an argument." >&2
+        usage
+      fi
+      ;;
+    --runtime-report=*)
+      RUNTIME_REPORT_FILE="${1#*=}"
+      shift
+      continue
+      ;;
+    --no-scoring-mode)
+      if [[ -n "${2-}" ]]; then
+        NO_SCORING_MODE="$2"
+        shift 2
+        continue
+      else
+        echo "Option --no-scoring-mode requires an argument." >&2
+        usage
+      fi
+      ;;
+    --no-scoring-mode=*)
+      NO_SCORING_MODE="${1#*=}"
+      shift
+      continue
+      ;;
     *)
       NEWARGS+=("$1")
       shift
@@ -68,7 +102,7 @@ done
 set -- "${NEWARGS[@]}"
 
 # Parse short CLI options
-while getopts ":d:o:l:n:k:m:t:e:g:L:h" opt; do
+while getopts ":d:o:l:n:k:m:t:e:S:g:L:r:s:h" opt; do
   case $opt in
     d) ROOT="$OPTARG" ;;
     o) OUT="$OPTARG" ;;
@@ -78,8 +112,11 @@ while getopts ":d:o:l:n:k:m:t:e:g:L:h" opt; do
     m) MODEL_ID="$OPTARG" ;;
     t) THOUGHT_TEMPERATURE="$OPTARG" ;;
     e) EVAL_TEMPERATURE="$OPTARG" ;;
+    S) DO_SAMPLE="$OPTARG" ;;
     g) GPU_DEVICE="$OPTARG" ;;
     L) LIMIT_ENTITIES="$OPTARG" ;;
+    r) RUNTIME_REPORT_FILE="$OPTARG" ;;
+    s) NO_SCORING_MODE="$OPTARG" ;;
     h) usage ;;
     \?) echo "Invalid option: -$OPTARG" >&2; usage ;;
     :) echo "Option -$OPTARG requires an argument." >&2; usage ;;
@@ -98,6 +135,7 @@ BEAM_WIDTH=${BEAM_WIDTH:-3}
 
 # Candidate selection strategy
 USE_RANDOM_CANDIDATES=${USE_RANDOM_CANDIDATES:-false}
+NO_SCORING_MODE=${NO_SCORING_MODE:-}
 
 # Heuristic scoring (alternative to LLM evaluation)
 # When enabled, uses heuristic-based scoring instead of LLM evaluation
@@ -108,6 +146,13 @@ HEURISTIC_METHOD=${HEURISTIC_METHOD:-fca}  # Options: fca, tfidf, random, llm (d
 VARIANT_NAME="${VARIANT_NAME:-full}"  # For logging/tracking
 
 mkdir -p "$OUT" "$LOGS"
+mkdir -p "$OUT/$DATASET"
+
+RUNTIME_REPORT_FILE="${RUNTIME_REPORT_FILE:-$OUT/$DATASET/runtime_report.json}"
+RUNTIME_REPORT_DIR="$(dirname "$RUNTIME_REPORT_FILE")"
+RUNTIME_ENTRIES_FILE="$RUNTIME_REPORT_DIR/.runtime_entries.jsonl"
+mkdir -p "$RUNTIME_REPORT_DIR"
+: > "$RUNTIME_ENTRIES_FILE"
 
 # Make globs vanish instead of staying literal when they don't match
 shopt -s nullglob
@@ -140,6 +185,7 @@ echo "  Max summary length: $MAX_SUMMARY_LEN"
 echo "  Candidates per task: $N_CANDIDATES_PER_TASK"
 echo "  GPU device: $GPU_DEVICE"
 echo "  Model: $MODEL_ID"
+echo "  Sampling mode: $DO_SAMPLE"
 echo ""
 echo "Semantic Dimensions (Value Function):"
 echo "  Relatedness weight (w_r): $W_RELATEDNESS"
@@ -151,10 +197,17 @@ echo "Search & Evaluation:"
 echo "  Beam width: $BEAM_WIDTH"
 echo "  Evaluation samples: $N_EVALUATION_SAMPLES"
 echo "  Random candidates: $USE_RANDOM_CANDIDATES"
+if [ -n "$NO_SCORING_MODE" ]; then
+  echo "  No-scoring mode: $NO_SCORING_MODE"
+fi
 if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
   echo "  Scoring method: HEURISTIC ($HEURISTIC_METHOD)"
 else
-  echo "  Scoring method: LLM-based (default)"
+  if [ -n "$NO_SCORING_MODE" ]; then
+    echo "  Scoring method: DISABLED (no-scoring mode)"
+  else
+    echo "  Scoring method: LLM-based (default)"
+  fi
 fi
 if (( LIMIT_ENTITIES > 0 )); then
   echo "  Limited to: $LIMIT_ENTITIES entities (for testing)"
@@ -164,6 +217,7 @@ echo "Paths:"
 echo "  Input data: $ROOT"
 echo "  Output directory: $OUT"
 echo "  Log directory: $LOGS"
+echo "  Runtime report: $RUNTIME_REPORT_FILE"
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo ""
@@ -186,6 +240,7 @@ for f in "${nt_files[@]}"; do
   # Skip if output .nt file already exists (indicates processing completed)
   if [ -f "$OUT/$DATASET/$id/${id}_top${MAX_SUMMARY_LEN}.nt" ]; then
     echo "[$current/$total_to_process] [$id] ⊘ Skipped (output already exists)"
+    printf '{"entity_id":"%s","status":"skipped","time":0.0,"reason":"output_exists"}\n' "$id" >> "$RUNTIME_ENTRIES_FILE"
     skipped_count=$((skipped_count + 1))
     continue
   fi
@@ -209,6 +264,7 @@ for f in "${nt_files[@]}"; do
     --model-id \"$MODEL_ID\" \
     --thought-temperature $THOUGHT_TEMPERATURE \
     --eval-temperature $EVAL_TEMPERATURE \
+    --do-sample $DO_SAMPLE \
     --w-relatedness $W_RELATEDNESS \
     --w-informativeness $W_INFORMATIVENESS \
     --w-coverage $W_COVERAGE \
@@ -223,6 +279,11 @@ for f in "${nt_files[@]}"; do
   # Add heuristic scoring if specified (ablation variant: no LLM evaluation)
   if [ "$USE_HEURISTIC_SCORING" = "true" ]; then
     cmd="$cmd --use-heuristic-scoring --heuristic-method $HEURISTIC_METHOD"
+  fi
+
+  # Add no-scoring mode if specified
+  if [ -n "$NO_SCORING_MODE" ]; then
+    cmd="$cmd --no-scoring-mode $NO_SCORING_MODE"
   fi
 
   # Add task-specific models if defined
@@ -248,9 +309,13 @@ for f in "${nt_files[@]}"; do
     proc_end=$(date +%s)
     proc_time=$((proc_end - proc_start))
     echo "  ✓ [$id] Success (completed in ${proc_time}s)"
+    printf '{"entity_id":"%s","status":"success","time":%s}\n' "$id" "$proc_time" >> "$RUNTIME_ENTRIES_FILE"
     processed_count=$((processed_count + 1))
   else
+    proc_end=$(date +%s)
+    proc_time=$((proc_end - proc_start))
     echo "  ✗ [$id] Failed (see $LOGS/$DATASET/$id/stderr.log)"
+    printf '{"entity_id":"%s","status":"failed","time":%s,"reason":"command_failed"}\n' "$id" "$proc_time" >> "$RUNTIME_ENTRIES_FILE"
     tail -10 "$LOGS/$DATASET/$id/stderr.log" | sed 's/^/    /'
   fi
   entity_count=$((entity_count + 1))
@@ -282,6 +347,48 @@ else
   avg_time=0
 fi
 
+python - "$RUNTIME_ENTRIES_FILE" "$RUNTIME_REPORT_FILE" "$DATASET" "$MODEL_ID" "$MAX_SUMMARY_LEN" "$total_time" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+entries_path = Path(sys.argv[1])
+report_path = Path(sys.argv[2])
+dataset = sys.argv[3]
+model = sys.argv[4]
+summary_size = int(sys.argv[5])
+total_time = float(sys.argv[6])
+
+entities = []
+if entries_path.exists():
+    with entries_path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if line:
+                entities.append(json.loads(line))
+
+measured_times = [entry["time"] for entry in entities if entry.get("status") != "skipped"]
+avg_time = sum(measured_times) / len(measured_times) if measured_times else 0.0
+min_time = min(measured_times) if measured_times else 0.0
+max_time = max(measured_times) if measured_times else 0.0
+
+report = {
+    "dataset": dataset,
+    "model": model,
+    "summary_size": summary_size,
+    "total_runtime_seconds": total_time,
+    "average_runtime_seconds": avg_time,
+    "min_runtime_seconds": min_time,
+    "max_runtime_seconds": max_time,
+    "entities": entities,
+}
+
+report_path.parent.mkdir(parents=True, exist_ok=True)
+with report_path.open("w", encoding="utf-8") as handle:
+    json.dump(report, handle, indent=2)
+PY
+rm -f "$RUNTIME_ENTRIES_FILE"
+
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo "Processing Summary"
@@ -299,6 +406,7 @@ echo ""
 echo "Output locations:"
 echo "  Results saved to:   $OUT"
 echo "  Logs saved to:      $LOGS"
+echo "  Runtime report:     $RUNTIME_REPORT_FILE"
 echo "═══════════════════════════════════════════════════════════"
 
 # Save summary to overall_report.txt
@@ -337,6 +445,7 @@ REPORT_FILE="$OUT/overall_report.txt"
   echo "Output locations:"
   echo "  Results saved to:   $OUT"
   echo "  Logs saved to:      $LOGS"
+  echo "  Runtime report:     $RUNTIME_REPORT_FILE"
   echo "═══════════════════════════════════════════════════════════"
 } | tee "$REPORT_FILE"
 

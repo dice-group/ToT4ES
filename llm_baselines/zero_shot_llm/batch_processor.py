@@ -37,6 +37,8 @@ class BatchProcessor:
         self,
         model_id: str = "meta-llama/Llama-3.2-3B-Instruct",
         dataset_root: str = "../datasets/ESBM_benchmark_v1.2",
+        model_local_dir: str = None,
+        download_model: bool = False,
     ):
         """
         Initialize batch processor.
@@ -45,7 +47,11 @@ class BatchProcessor:
             model_id: LLM model identifier
             dataset_root: Root path to datasets
         """
-        self.summarizer = BaselineLLMSummarizer(model_id=model_id)
+        self.summarizer = BaselineLLMSummarizer(
+            model_id=model_id,
+            model_local_dir=model_local_dir,
+            download_model=download_model,
+        )
         self.dataset_root = Path(dataset_root)
     
     def process_entity(
@@ -57,6 +63,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> Tuple[bool, str]:
         """
         Process a single entity and save to .nt file.
@@ -99,6 +109,10 @@ class BatchProcessor:
                 raw_triples=raw_triples,
                 summary_size=summary_size,
                 temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                prompt_style=prompt_style,
+                top_p=top_p,
+                do_sample=False if no_sample else None,
             )
             
             # Save
@@ -125,6 +139,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> dict:
         """
         Process multiple entities.
@@ -158,6 +176,10 @@ class BatchProcessor:
                 dataset_name=dataset_name,
                 output_dir=output_dir,
                 temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                top_p=top_p,
+                no_sample=no_sample,
+                prompt_style=prompt_style,
             )
             
             if success:
@@ -189,6 +211,10 @@ class BatchProcessor:
         dataset_name: str = "dbpedia",
         output_dir: str = "baseline_outputs",
         temperature: float = 0.1,
+        max_new_tokens: int = 1024,
+        top_p: float = None,
+        no_sample: bool = False,
+        prompt_style: str = "legacy",
     ) -> dict:
         """
         Process a range of entity IDs.
@@ -226,6 +252,10 @@ class BatchProcessor:
             dataset_name=dataset_name,
             output_dir=output_dir,
             temperature=temperature,
+            max_new_tokens=max_new_tokens,
+            top_p=top_p,
+            no_sample=no_sample,
+            prompt_style=prompt_style,
         )
 
 
@@ -284,10 +314,45 @@ def main():
         help="LLM temperature (default: 0.1)"
     )
     proc_group.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=1024,
+        help="Maximum new tokens to generate (default: 1024)"
+    )
+    proc_group.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top-p nucleus sampling value"
+    )
+    proc_group.add_argument(
+        "--no-sample",
+        action="store_true",
+        help="Force greedy decoding regardless of temperature"
+    )
+    proc_group.add_argument(
+        "--prompt-style",
+        type=str,
+        default="legacy",
+        choices=["legacy", "tot_matched"],
+        help="Prompt template style: legacy baseline or ToT-aligned single-pass"
+    )
+    proc_group.add_argument(
         "--model",
         type=str,
         default="meta-llama/Llama-3.2-3B-Instruct",
         help="LLM model identifier"
+    )
+    proc_group.add_argument(
+        "--model-local-dir",
+        type=str,
+        default=None,
+        help="Optional local directory containing model files"
+    )
+    proc_group.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download model to --model-local-dir if not present"
     )
     proc_group.add_argument(
         "--dataset-root",
@@ -312,6 +377,8 @@ def main():
     processor = BatchProcessor(
         model_id=args.model,
         dataset_root=args.dataset_root,
+        model_local_dir=args.model_local_dir,
+        download_model=args.download_model,
     )
     
     # Process based on input type
@@ -329,6 +396,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     elif args.id_range:
@@ -342,6 +413,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     else:  # entity_file
@@ -365,6 +440,10 @@ def main():
             dataset_name=args.dataset,
             output_dir=args.output_dir,
             temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens,
+            top_p=args.top_p,
+            no_sample=args.no_sample,
+            prompt_style=args.prompt_style,
         )
     
     # Print results

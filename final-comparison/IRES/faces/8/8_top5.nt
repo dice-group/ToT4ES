@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/Candle_in_the_Wind> <http://dbpedia.org/ontology/recordedIn> <http://dbpedia.org/resource/Trident_Studios> .
+<http://dbpedia.org/resource/Candle_in_the_Wind> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Elton_John_-_Candle_in_the_Wind_(1986).jpg/200px-Elton_John_-_Candle_in_the_Wind_(1986).jpg> .
+<http://dbpedia.org/resource/Candle_in_the_Wind> <http://dbpedia.org/property/label> <http://dbpedia.org/resource/DJM_Records> .
+<http://dbpedia.org/resource/Candle_in_the_Wind> <http://dbpedia.org/property/format> <http://dbpedia.org/resource/Gramophone_record> .
+<http://dbpedia.org/resource/Candle_in_the_Wind> <http://dbpedia.org/ontology/subsequentWork> <http://dbpedia.org/resource/Bennie_and_the_Jets> .

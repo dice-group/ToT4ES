@@ -1,0 +1,639 @@
+{
+  "dataset": "dbpedia",
+  "model": "Qwen/Qwen3-coder-30B-A3B-Instruct",
+  "summary_size": 10,
+  "total_runtime_seconds": 4394.858349561691,
+  "average_runtime_seconds": 35.158451917648314,
+  "min_runtime_seconds": 28.046252250671387,
+  "max_runtime_seconds": 101.17360663414001,
+  "entities": [
+    {
+      "entity_id": 1,
+      "status": "success",
+      "time": 30.49836754798889
+    },
+    {
+      "entity_id": 2,
+      "status": "success",
+      "time": 39.24037146568298
+    },
+    {
+      "entity_id": 3,
+      "status": "success",
+      "time": 36.27298021316528
+    },
+    {
+      "entity_id": 4,
+      "status": "success",
+      "time": 38.07806706428528
+    },
+    {
+      "entity_id": 5,
+      "status": "success",
+      "time": 32.45470404624939
+    },
+    {
+      "entity_id": 6,
+      "status": "success",
+      "time": 33.84360098838806
+    },
+    {
+      "entity_id": 7,
+      "status": "success",
+      "time": 37.59468626976013
+    },
+    {
+      "entity_id": 8,
+      "status": "success",
+      "time": 101.17360663414001
+    },
+    {
+      "entity_id": 9,
+      "status": "success",
+      "time": 33.86249351501465
+    },
+    {
+      "entity_id": 10,
+      "status": "success",
+      "time": 36.11252760887146
+    },
+    {
+      "entity_id": 11,
+      "status": "success",
+      "time": 38.128143310546875
+    },
+    {
+      "entity_id": 12,
+      "status": "success",
+      "time": 37.24367380142212
+    },
+    {
+      "entity_id": 13,
+      "status": "failed",
+      "time": 41.7588472366333,
+      "reason": "empty_summary"
+    },
+    {
+      "entity_id": 14,
+      "status": "success",
+      "time": 41.76478672027588
+    },
+    {
+      "entity_id": 15,
+      "status": "success",
+      "time": 44.859442472457886
+    },
+    {
+      "entity_id": 16,
+      "status": "success",
+      "time": 37.6306095123291
+    },
+    {
+      "entity_id": 17,
+      "status": "success",
+      "time": 38.474794149398804
+    },
+    {
+      "entity_id": 18,
+      "status": "success",
+      "time": 30.515181303024292
+    },
+    {
+      "entity_id": 19,
+      "status": "success",
+      "time": 38.680156230926514
+    },
+    {
+      "entity_id": 20,
+      "status": "success",
+      "time": 49.197880029678345
+    },
+    {
+      "entity_id": 21,
+      "status": "success",
+      "time": 32.32513451576233
+    },
+    {
+      "entity_id": 22,
+      "status": "success",
+      "time": 36.681878328323364
+    },
+    {
+      "entity_id": 23,
+      "status": "success",
+      "time": 39.24559926986694
+    },
+    {
+      "entity_id": 24,
+      "status": "success",
+      "time": 35.06507921218872
+    },
+    {
+      "entity_id": 25,
+      "status": "success",
+      "time": 38.56852126121521
+    },
+    {
+      "entity_id": 26,
+      "status": "success",
+      "time": 43.61613154411316
+    },
+    {
+      "entity_id": 27,
+      "status": "success",
+      "time": 34.91838502883911
+    },
+    {
+      "entity_id": 28,
+      "status": "success",
+      "time": 37.597413301467896
+    },
+    {
+      "entity_id": 29,
+      "status": "success",
+      "time": 37.72940802574158
+    },
+    {
+      "entity_id": 30,
+      "status": "success",
+      "time": 33.966559171676636
+    },
+    {
+      "entity_id": 31,
+      "status": "success",
+      "time": 29.665708780288696
+    },
+    {
+      "entity_id": 32,
+      "status": "success",
+      "time": 32.40503740310669
+    },
+    {
+      "entity_id": 33,
+      "status": "success",
+      "time": 33.64666962623596
+    },
+    {
+      "entity_id": 34,
+      "status": "success",
+      "time": 30.453061819076538
+    },
+    {
+      "entity_id": 35,
+      "status": "success",
+      "time": 30.301908254623413
+    },
+    {
+      "entity_id": 36,
+      "status": "success",
+      "time": 29.90851354598999
+    },
+    {
+      "entity_id": 37,
+      "status": "success",
+      "time": 28.485469341278076
+    },
+    {
+      "entity_id": 38,
+      "status": "success",
+      "time": 30.070663452148438
+    },
+    {
+      "entity_id": 39,
+      "status": "success",
+      "time": 31.739291191101074
+    },
+    {
+      "entity_id": 40,
+      "status": "success",
+      "time": 32.72678828239441
+    },
+    {
+      "entity_id": 41,
+      "status": "success",
+      "time": 35.373656272888184
+    },
+    {
+      "entity_id": 42,
+      "status": "success",
+      "time": 36.563777923583984
+    },
+    {
+      "entity_id": 43,
+      "status": "success",
+      "time": 33.015769720077515
+    },
+    {
+      "entity_id": 44,
+      "status": "success",
+      "time": 36.62244200706482
+    },
+    {
+      "entity_id": 45,
+      "status": "success",
+      "time": 34.122342348098755
+    },
+    {
+      "entity_id": 46,
+      "status": "success",
+      "time": 32.12435531616211
+    },
+    {
+      "entity_id": 47,
+      "status": "success",
+      "time": 33.77065968513489
+    },
+    {
+      "entity_id": 48,
+      "status": "success",
+      "time": 31.58042883872986
+    },
+    {
+      "entity_id": 49,
+      "status": "success",
+      "time": 36.20246720314026
+    },
+    {
+      "entity_id": 50,
+      "status": "success",
+      "time": 37.83455419540405
+    },
+    {
+      "entity_id": 51,
+      "status": "success",
+      "time": 34.844807386398315
+    },
+    {
+      "entity_id": 52,
+      "status": "success",
+      "time": 36.15004587173462
+    },
+    {
+      "entity_id": 53,
+      "status": "success",
+      "time": 34.723153829574585
+    },
+    {
+      "entity_id": 54,
+      "status": "success",
+      "time": 33.29728984832764
+    },
+    {
+      "entity_id": 55,
+      "status": "success",
+      "time": 32.20465040206909
+    },
+    {
+      "entity_id": 56,
+      "status": "success",
+      "time": 34.65487265586853
+    },
+    {
+      "entity_id": 57,
+      "status": "success",
+      "time": 35.01014494895935
+    },
+    {
+      "entity_id": 58,
+      "status": "success",
+      "time": 29.893917322158813
+    },
+    {
+      "entity_id": 59,
+      "status": "success",
+      "time": 35.93687391281128
+    },
+    {
+      "entity_id": 60,
+      "status": "success",
+      "time": 36.463521003723145
+    },
+    {
+      "entity_id": 61,
+      "status": "success",
+      "time": 34.23407030105591
+    },
+    {
+      "entity_id": 62,
+      "status": "success",
+      "time": 34.529789209365845
+    },
+    {
+      "entity_id": 63,
+      "status": "success",
+      "time": 38.64586901664734
+    },
+    {
+      "entity_id": 64,
+      "status": "failed",
+      "time": 36.521520137786865,
+      "reason": "empty_summary"
+    },
+    {
+      "entity_id": 65,
+      "status": "success",
+      "time": 39.71723532676697
+    },
+    {
+      "entity_id": 66,
+      "status": "failed",
+      "time": 36.78291916847229,
+      "reason": "empty_summary"
+    },
+    {
+      "entity_id": 67,
+      "status": "success",
+      "time": 32.068339586257935
+    },
+    {
+      "entity_id": 68,
+      "status": "success",
+      "time": 35.85748791694641
+    },
+    {
+      "entity_id": 69,
+      "status": "success",
+      "time": 32.974900245666504
+    },
+    {
+      "entity_id": 70,
+      "status": "success",
+      "time": 28.98106813430786
+    },
+    {
+      "entity_id": 71,
+      "status": "success",
+      "time": 34.58888220787048
+    },
+    {
+      "entity_id": 72,
+      "status": "success",
+      "time": 39.13151216506958
+    },
+    {
+      "entity_id": 73,
+      "status": "success",
+      "time": 37.15620303153992
+    },
+    {
+      "entity_id": 74,
+      "status": "success",
+      "time": 38.540244817733765
+    },
+    {
+      "entity_id": 75,
+      "status": "success",
+      "time": 33.917617082595825
+    },
+    {
+      "entity_id": 76,
+      "status": "success",
+      "time": 39.10429835319519
+    },
+    {
+      "entity_id": 77,
+      "status": "success",
+      "time": 39.046486139297485
+    },
+    {
+      "entity_id": 78,
+      "status": "success",
+      "time": 32.284448862075806
+    },
+    {
+      "entity_id": 79,
+      "status": "success",
+      "time": 40.48939538002014
+    },
+    {
+      "entity_id": 80,
+      "status": "success",
+      "time": 34.051974296569824
+    },
+    {
+      "entity_id": 81,
+      "status": "success",
+      "time": 31.647760152816772
+    },
+    {
+      "entity_id": 82,
+      "status": "success",
+      "time": 28.046252250671387
+    },
+    {
+      "entity_id": 83,
+      "status": "success",
+      "time": 34.02953791618347
+    },
+    {
+      "entity_id": 84,
+      "status": "success",
+      "time": 31.103240251541138
+    },
+    {
+      "entity_id": 85,
+      "status": "success",
+      "time": 31.334731578826904
+    },
+    {
+      "entity_id": 86,
+      "status": "success",
+      "time": 31.62252426147461
+    },
+    {
+      "entity_id": 87,
+      "status": "success",
+      "time": 32.1602463722229
+    },
+    {
+      "entity_id": 88,
+      "status": "success",
+      "time": 31.348039150238037
+    },
+    {
+      "entity_id": 89,
+      "status": "success",
+      "time": 32.29577279090881
+    },
+    {
+      "entity_id": 90,
+      "status": "success",
+      "time": 35.21796369552612
+    },
+    {
+      "entity_id": 91,
+      "status": "success",
+      "time": 32.140329360961914
+    },
+    {
+      "entity_id": 92,
+      "status": "success",
+      "time": 29.442570686340332
+    },
+    {
+      "entity_id": 93,
+      "status": "success",
+      "time": 33.21957492828369
+    },
+    {
+      "entity_id": 94,
+      "status": "success",
+      "time": 34.094281911849976
+    },
+    {
+      "entity_id": 95,
+      "status": "success",
+      "time": 36.2999165058136
+    },
+    {
+      "entity_id": 96,
+      "status": "success",
+      "time": 29.345709323883057
+    },
+    {
+      "entity_id": 97,
+      "status": "success",
+      "time": 32.149911642074585
+    },
+    {
+      "entity_id": 98,
+      "status": "success",
+      "time": 33.24225425720215
+    },
+    {
+      "entity_id": 99,
+      "status": "success",
+      "time": 34.886149883270264
+    },
+    {
+      "entity_id": 100,
+      "status": "success",
+      "time": 30.712867259979248
+    },
+    {
+      "entity_id": 141,
+      "status": "success",
+      "time": 35.612497329711914
+    },
+    {
+      "entity_id": 142,
+      "status": "success",
+      "time": 35.01510500907898
+    },
+    {
+      "entity_id": 143,
+      "status": "success",
+      "time": 30.897131204605103
+    },
+    {
+      "entity_id": 144,
+      "status": "success",
+      "time": 34.55392265319824
+    },
+    {
+      "entity_id": 145,
+      "status": "success",
+      "time": 30.42319107055664
+    },
+    {
+      "entity_id": 146,
+      "status": "success",
+      "time": 34.352368116378784
+    },
+    {
+      "entity_id": 147,
+      "status": "success",
+      "time": 32.39118766784668
+    },
+    {
+      "entity_id": 148,
+      "status": "success",
+      "time": 36.02482008934021
+    },
+    {
+      "entity_id": 149,
+      "status": "success",
+      "time": 32.603700160980225
+    },
+    {
+      "entity_id": 150,
+      "status": "success",
+      "time": 32.364757776260376
+    },
+    {
+      "entity_id": 151,
+      "status": "success",
+      "time": 29.70266604423523
+    },
+    {
+      "entity_id": 152,
+      "status": "success",
+      "time": 37.406688928604126
+    },
+    {
+      "entity_id": 153,
+      "status": "success",
+      "time": 34.24432611465454
+    },
+    {
+      "entity_id": 154,
+      "status": "success",
+      "time": 42.6913857460022
+    },
+    {
+      "entity_id": 155,
+      "status": "success",
+      "time": 38.689988136291504
+    },
+    {
+      "entity_id": 156,
+      "status": "success",
+      "time": 28.719284296035767
+    },
+    {
+      "entity_id": 157,
+      "status": "success",
+      "time": 40.39161396026611
+    },
+    {
+      "entity_id": 158,
+      "status": "success",
+      "time": 31.773942947387695
+    },
+    {
+      "entity_id": 159,
+      "status": "success",
+      "time": 35.49428963661194
+    },
+    {
+      "entity_id": 160,
+      "status": "success",
+      "time": 31.426002740859985
+    },
+    {
+      "entity_id": 161,
+      "status": "success",
+      "time": 34.27404522895813
+    },
+    {
+      "entity_id": 162,
+      "status": "success",
+      "time": 29.829469203948975
+    },
+    {
+      "entity_id": 163,
+      "status": "success",
+      "time": 33.769113063812256
+    },
+    {
+      "entity_id": 164,
+      "status": "success",
+      "time": 31.869892835617065
+    },
+    {
+      "entity_id": 165,
+      "status": "success",
+      "time": 30.42933201789856
+    }
+  ]
+}

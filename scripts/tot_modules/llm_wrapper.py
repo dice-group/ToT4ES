@@ -5,7 +5,7 @@
 LLM Wrapper for LLaMA 3.2 and other models
 """
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 import torch
 import requests
 from transformers import pipeline
@@ -58,6 +58,7 @@ class Llama32Chat:
         temperature: float = 0.0,
         max_new_tokens: int = 1024,
         n: int = 1,
+        do_sample: Optional[bool] = None,
     ) -> List[str]:
         """
         Generate responses using chat template.
@@ -74,9 +75,9 @@ class Llama32Chat:
             tokenize=False,
             add_generation_prompt=True,
         )
-        do_sample = temperature > 0.0
+        resolved_do_sample = (temperature > 0.0) if do_sample is None else do_sample
 
-        if n > 1 and do_sample:
+        if n > 1 and resolved_do_sample:
             # Batch: pass n copies of the prompt for parallel generation
             batch_prompts = [prompt] * n
             batch_out = self.pipe(
@@ -97,7 +98,7 @@ class Llama32Chat:
                     prompt,
                     max_new_tokens=max_new_tokens,
                     min_new_tokens=1,
-                    do_sample=do_sample,
+                    do_sample=resolved_do_sample,
                     temperature=temperature,
                     pad_token_id=self.tokenizer.eos_token_id,
                     return_full_text=False,
@@ -142,6 +143,7 @@ class Qwen3CoderChat:
         temperature: float = 0.0,
         max_new_tokens: int = 1024,
         n: int = 1,
+        do_sample: Optional[bool] = None,
         enable_thinking: bool = False,
     ) -> List[str]:
         prompt = self.tokenizer.apply_chat_template(
@@ -150,16 +152,16 @@ class Qwen3CoderChat:
             add_generation_prompt=True,
             enable_thinking=enable_thinking,
         )
-        do_sample = temperature > 0.0
+        resolved_do_sample = (temperature > 0.0) if do_sample is None else do_sample
 
-        if n > 1 and do_sample:
-            # Batch: pass n copies of the prompt for parallel generation
+        if n > 1:
+            # Batch processing: pass n copies of the prompt to maximize GPU efficiency
             batch_prompts = [prompt] * n
             batch_out = self.pipe(
                 batch_prompts,
                 max_new_tokens=max_new_tokens,
                 min_new_tokens=1,
-                do_sample=True,
+                do_sample=resolved_do_sample,
                 temperature=temperature,
                 pad_token_id=self.tokenizer.eos_token_id,
                 return_full_text=False,
@@ -167,19 +169,17 @@ class Qwen3CoderChat:
             )
             outputs = [item[0]["generated_text"].strip() for item in batch_out]
         else:
-            outputs = []
-            for _ in range(n):
-                out = self.pipe(
-                    prompt,
-                    max_new_tokens=max_new_tokens,
-                    min_new_tokens=1,
-                    do_sample=do_sample,
-                    temperature=temperature,
-                    pad_token_id=self.tokenizer.eos_token_id,
-                    return_full_text=False,
-                )
-                text = out[0]["generated_text"]
-                outputs.append(text.strip())
+            # Single generation
+            out = self.pipe(
+                prompt,
+                max_new_tokens=max_new_tokens,
+                min_new_tokens=1,
+                do_sample=resolved_do_sample,
+                temperature=temperature,
+                pad_token_id=self.tokenizer.eos_token_id,
+                return_full_text=False,
+            )
+            outputs = [out[0]["generated_text"].strip()]
         return outputs
 
     def __repr__(self) -> str:
@@ -194,7 +194,14 @@ class OllamaChat:
         self.model_id = model_id.replace("ollama:", "")
         self.base_url = base_url.rstrip("/")
 
-    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.0, max_new_tokens: int = 1024, n: int = 1) -> List[str]:
+    def chat(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.0,
+        max_new_tokens: int = 1024,
+        n: int = 1,
+        do_sample: Optional[bool] = None,
+    ) -> List[str]:
         # Ollama expects a single prompt string, so we concatenate messages
         prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
         results = []

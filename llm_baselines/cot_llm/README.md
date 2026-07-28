@@ -16,10 +16,8 @@ baseline_cot/
 
 The CoT approach guides the LLM through:
 
-1. **Understanding Phase**: Analyze the entity and its nature
-2. **Identification Phase**: Identify core facts, properties, and relationships
-3. **Assessment Phase**: Reason about the importance and relevance of each triple
-4. **Selection Phase**: Select the top-k most important triples
+1. **Reasoning Phase**: Analyze candidate triples using Relatedness, Informativeness, and Coverage/Diversity
+2. **Selection Phase**: Select the top-k triples after brief step-by-step reasoning
 
 This structured reasoning helps the LLM produce more thoughtful and comprehensive summaries.
 
@@ -46,6 +44,9 @@ python baseline_cot_llm.py \
 - `--model`: HuggingFace model (default: `meta-llama/Llama-3.2-3B-Instruct`)
 - `--gpu`: GPU device ID (default: 0)
 - `--temperature`: Sampling temperature (default: 0.1)
+- `--max-new-tokens`: Maximum new tokens to generate (default: 2048)
+- `--top-p`: Optional top-p nucleus sampling value
+- `--no-sample`: Force greedy decoding regardless of temperature
 
 ### 2. Batch Process All Entities
 
@@ -55,7 +56,9 @@ Automatically process all entities in a dataset:
 python process_all_entities_cot.py \
     --dataset dbpedia \
     --summary-size 5 \
-    --model "Qwen/Qwen3-coder-30B-A3B-Instruct"
+    --model "Qwen/Qwen3-coder-30B-A3B-Instruct" \
+    --temperature 0.8 \
+    --max-new-tokens 1024 \
     --output-dir baseline_cot_outputs
 ```
 
@@ -66,9 +69,23 @@ python process_all_entities_cot.py \
 - `--summary-size`: Summary size k (default: 5)
 - `--model`: Model name (default: `meta-llama/Llama-3.2-3B-Instruct`)
 - `--gpu`: GPU device ID
+- `--temperature`: Sampling temperature (default: 0.1)
+- `--max-new-tokens`: Maximum new tokens to generate (default: 2048)
+- `--top-p`: Optional top-p nucleus sampling value
+- `--no-sample`: Force greedy decoding regardless of temperature
 - `--skip-existing`: Skip entities already processed
 - `--start-id`: Start from specific entity ID
 - `--end-id`: End at specific entity ID
+
+## Fairness-oriented matched setting
+
+To reduce prompt and decoding confounds against ToT4ES without scoring:
+
+- use the same backbone model as ToT4ES
+- keep full indexed N-Triples in the prompt
+- use the same temperature as ToT thought generation when comparing reasoning strategies
+- keep `max-new-tokens` aligned across methods
+- set `--top-p` only if you also match it in the compared setting
 
 **Example:**
 ```bash

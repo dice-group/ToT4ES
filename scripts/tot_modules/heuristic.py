@@ -182,6 +182,9 @@ def entity_heuristic_calculator(
             r = inf = cov = 0.5
         
         score = w_relatedness * r + w_informativeness * inf + w_coverage * cov
+        
+        # Ensure score stays in valid range
+        score = max(0.0, min(1.0, score))
         final_values.append(score)
 
     return final_values

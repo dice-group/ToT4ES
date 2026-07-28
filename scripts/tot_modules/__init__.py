@@ -5,10 +5,6 @@ Tree-of-Thought Entity Summarization - Modular Components
 from .tree_node import TreeNode
 from .llm_wrapper import Llama32Chat, Qwen3CoderChat, OllamaChat
 from .tree_search import TreeOfThoughts
-from .prompt_factory import (
-    make_entity_thought_gen_prompt,
-    make_entity_state_eval_prompt
-)
 from .heuristic import entity_heuristic_calculator
 from .utils import (
     extract_first_int,
@@ -29,19 +25,6 @@ try:
     _task_decomposed_available = True
 except ImportError:
     _task_decomposed_available = False
-
-# Semantic enhancement components
-try:
-    from .semantic_analyzer import SemanticAnalyzer
-    from .semantic_prompts import (
-        make_semantic_relatedness_prompt,
-        make_semantic_informativeness_prompt,
-        make_semantic_diversity_prompt,
-    )
-    
-    _semantic_available = True
-except ImportError:
-    _semantic_available = False
 
 # LMDB-specific semantic components
 try:
@@ -67,8 +50,6 @@ __all__ = [
     'Qwen3CoderChat',
     'OllamaChat',
     'TreeOfThoughts',
-    'make_entity_thought_gen_prompt',
-    'make_entity_state_eval_prompt',
     'entity_heuristic_calculator',
     'extract_first_int',
     'decode_state_to_triples',
@@ -82,14 +63,6 @@ if _task_decomposed_available:
         'make_diversity_prompt',
         'make_combined_evaluation_prompt',
         'TaskDecomposedToT',
-    ])
-
-if _semantic_available:
-    __all__.extend([
-        'SemanticAnalyzer',
-        'make_semantic_relatedness_prompt',
-        'make_semantic_informativeness_prompt',
-        'make_semantic_diversity_prompt',
     ])
 
 if _lmdb_available:

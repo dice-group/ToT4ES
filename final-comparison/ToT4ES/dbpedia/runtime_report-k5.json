@@ -1,0 +1,636 @@
+{
+  "dataset": "dbpedia",
+  "model": "Qwen/Qwen3-coder-30B-A3B-Instruct",
+  "summary_size": 5,
+  "total_runtime_seconds": 27758.0,
+  "average_runtime_seconds": 222.056,
+  "min_runtime_seconds": 165,
+  "max_runtime_seconds": 289,
+  "entities": [
+    {
+      "entity_id": "100",
+      "status": "success",
+      "time": 195
+    },
+    {
+      "entity_id": "10",
+      "status": "success",
+      "time": 289
+    },
+    {
+      "entity_id": "11",
+      "status": "success",
+      "time": 180
+    },
+    {
+      "entity_id": "1",
+      "status": "success",
+      "time": 198
+    },
+    {
+      "entity_id": "12",
+      "status": "success",
+      "time": 236
+    },
+    {
+      "entity_id": "13",
+      "status": "success",
+      "time": 186
+    },
+    {
+      "entity_id": "141",
+      "status": "success",
+      "time": 271
+    },
+    {
+      "entity_id": "14",
+      "status": "success",
+      "time": 226
+    },
+    {
+      "entity_id": "142",
+      "status": "success",
+      "time": 245
+    },
+    {
+      "entity_id": "143",
+      "status": "success",
+      "time": 237
+    },
+    {
+      "entity_id": "144",
+      "status": "success",
+      "time": 200
+    },
+    {
+      "entity_id": "145",
+      "status": "success",
+      "time": 200
+    },
+    {
+      "entity_id": "146",
+      "status": "success",
+      "time": 225
+    },
+    {
+      "entity_id": "147",
+      "status": "success",
+      "time": 225
+    },
+    {
+      "entity_id": "148",
+      "status": "success",
+      "time": 205
+    },
+    {
+      "entity_id": "149",
+      "status": "success",
+      "time": 210
+    },
+    {
+      "entity_id": "150",
+      "status": "success",
+      "time": 246
+    },
+    {
+      "entity_id": "151",
+      "status": "success",
+      "time": 230
+    },
+    {
+      "entity_id": "15",
+      "status": "success",
+      "time": 239
+    },
+    {
+      "entity_id": "152",
+      "status": "success",
+      "time": 262
+    },
+    {
+      "entity_id": "153",
+      "status": "success",
+      "time": 240
+    },
+    {
+      "entity_id": "154",
+      "status": "success",
+      "time": 273
+    },
+    {
+      "entity_id": "155",
+      "status": "success",
+      "time": 209
+    },
+    {
+      "entity_id": "156",
+      "status": "success",
+      "time": 183
+    },
+    {
+      "entity_id": "157",
+      "status": "success",
+      "time": 193
+    },
+    {
+      "entity_id": "158",
+      "status": "success",
+      "time": 190
+    },
+    {
+      "entity_id": "159",
+      "status": "success",
+      "time": 193
+    },
+    {
+      "entity_id": "160",
+      "status": "success",
+      "time": 221
+    },
+    {
+      "entity_id": "161",
+      "status": "success",
+      "time": 244
+    },
+    {
+      "entity_id": "16",
+      "status": "success",
+      "time": 275
+    },
+    {
+      "entity_id": "162",
+      "status": "success",
+      "time": 252
+    },
+    {
+      "entity_id": "163",
+      "status": "success",
+      "time": 238
+    },
+    {
+      "entity_id": "164",
+      "status": "success",
+      "time": 231
+    },
+    {
+      "entity_id": "165",
+      "status": "success",
+      "time": 244
+    },
+    {
+      "entity_id": "17",
+      "status": "success",
+      "time": 234
+    },
+    {
+      "entity_id": "18",
+      "status": "success",
+      "time": 234
+    },
+    {
+      "entity_id": "19",
+      "status": "success",
+      "time": 196
+    },
+    {
+      "entity_id": "20",
+      "status": "success",
+      "time": 183
+    },
+    {
+      "entity_id": "21",
+      "status": "success",
+      "time": 234
+    },
+    {
+      "entity_id": "22",
+      "status": "success",
+      "time": 216
+    },
+    {
+      "entity_id": "2",
+      "status": "success",
+      "time": 248
+    },
+    {
+      "entity_id": "23",
+      "status": "success",
+      "time": 223
+    },
+    {
+      "entity_id": "24",
+      "status": "success",
+      "time": 165
+    },
+    {
+      "entity_id": "25",
+      "status": "success",
+      "time": 221
+    },
+    {
+      "entity_id": "26",
+      "status": "success",
+      "time": 192
+    },
+    {
+      "entity_id": "27",
+      "status": "success",
+      "time": 252
+    },
+    {
+      "entity_id": "28",
+      "status": "success",
+      "time": 205
+    },
+    {
+      "entity_id": "29",
+      "status": "success",
+      "time": 208
+    },
+    {
+      "entity_id": "30",
+      "status": "success",
+      "time": 208
+    },
+    {
+      "entity_id": "31",
+      "status": "success",
+      "time": 183
+    },
+    {
+      "entity_id": "32",
+      "status": "success",
+      "time": 253
+    },
+    {
+      "entity_id": "33",
+      "status": "success",
+      "time": 220
+    },
+    {
+      "entity_id": "3",
+      "status": "success",
+      "time": 213
+    },
+    {
+      "entity_id": "34",
+      "status": "success",
+      "time": 231
+    },
+    {
+      "entity_id": "35",
+      "status": "success",
+      "time": 205
+    },
+    {
+      "entity_id": "36",
+      "status": "success",
+      "time": 254
+    },
+    {
+      "entity_id": "37",
+      "status": "success",
+      "time": 214
+    },
+    {
+      "entity_id": "38",
+      "status": "success",
+      "time": 220
+    },
+    {
+      "entity_id": "39",
+      "status": "success",
+      "time": 198
+    },
+    {
+      "entity_id": "40",
+      "status": "success",
+      "time": 216
+    },
+    {
+      "entity_id": "41",
+      "status": "success",
+      "time": 245
+    },
+    {
+      "entity_id": "42",
+      "status": "success",
+      "time": 214
+    },
+    {
+      "entity_id": "43",
+      "status": "success",
+      "time": 217
+    },
+    {
+      "entity_id": "44",
+      "status": "success",
+      "time": 197
+    },
+    {
+      "entity_id": "4",
+      "status": "success",
+      "time": 214
+    },
+    {
+      "entity_id": "45",
+      "status": "success",
+      "time": 244
+    },
+    {
+      "entity_id": "46",
+      "status": "success",
+      "time": 187
+    },
+    {
+      "entity_id": "47",
+      "status": "success",
+      "time": 228
+    },
+    {
+      "entity_id": "48",
+      "status": "success",
+      "time": 240
+    },
+    {
+      "entity_id": "49",
+      "status": "success",
+      "time": 178
+    },
+    {
+      "entity_id": "50",
+      "status": "success",
+      "time": 192
+    },
+    {
+      "entity_id": "51",
+      "status": "success",
+      "time": 276
+    },
+    {
+      "entity_id": "52",
+      "status": "success",
+      "time": 226
+    },
+    {
+      "entity_id": "53",
+      "status": "success",
+      "time": 241
+    },
+    {
+      "entity_id": "54",
+      "status": "success",
+      "time": 221
+    },
+    {
+      "entity_id": "55",
+      "status": "success",
+      "time": 234
+    },
+    {
+      "entity_id": "5",
+      "status": "success",
+      "time": 207
+    },
+    {
+      "entity_id": "56",
+      "status": "success",
+      "time": 259
+    },
+    {
+      "entity_id": "57",
+      "status": "success",
+      "time": 249
+    },
+    {
+      "entity_id": "58",
+      "status": "success",
+      "time": 242
+    },
+    {
+      "entity_id": "59",
+      "status": "success",
+      "time": 234
+    },
+    {
+      "entity_id": "60",
+      "status": "success",
+      "time": 227
+    },
+    {
+      "entity_id": "61",
+      "status": "success",
+      "time": 229
+    },
+    {
+      "entity_id": "62",
+      "status": "success",
+      "time": 223
+    },
+    {
+      "entity_id": "63",
+      "status": "success",
+      "time": 176
+    },
+    {
+      "entity_id": "64",
+      "status": "success",
+      "time": 195
+    },
+    {
+      "entity_id": "65",
+      "status": "success",
+      "time": 214
+    },
+    {
+      "entity_id": "66",
+      "status": "success",
+      "time": 229
+    },
+    {
+      "entity_id": "6",
+      "status": "success",
+      "time": 246
+    },
+    {
+      "entity_id": "67",
+      "status": "success",
+      "time": 239
+    },
+    {
+      "entity_id": "68",
+      "status": "success",
+      "time": 219
+    },
+    {
+      "entity_id": "69",
+      "status": "success",
+      "time": 204
+    },
+    {
+      "entity_id": "70",
+      "status": "success",
+      "time": 239
+    },
+    {
+      "entity_id": "71",
+      "status": "success",
+      "time": 247
+    },
+    {
+      "entity_id": "72",
+      "status": "success",
+      "time": 236
+    },
+    {
+      "entity_id": "73",
+      "status": "success",
+      "time": 240
+    },
+    {
+      "entity_id": "74",
+      "status": "success",
+      "time": 229
+    },
+    {
+      "entity_id": "75",
+      "status": "success",
+      "time": 197
+    },
+    {
+      "entity_id": "76",
+      "status": "success",
+      "time": 212
+    },
+    {
+      "entity_id": "77",
+      "status": "success",
+      "time": 232
+    },
+    {
+      "entity_id": "7",
+      "status": "success",
+      "time": 247
+    },
+    {
+      "entity_id": "78",
+      "status": "success",
+      "time": 217
+    },
+    {
+      "entity_id": "79",
+      "status": "success",
+      "time": 224
+    },
+    {
+      "entity_id": "80",
+      "status": "success",
+      "time": 177
+    },
+    {
+      "entity_id": "81",
+      "status": "success",
+      "time": 203
+    },
+    {
+      "entity_id": "82",
+      "status": "success",
+      "time": 198
+    },
+    {
+      "entity_id": "83",
+      "status": "success",
+      "time": 239
+    },
+    {
+      "entity_id": "84",
+      "status": "success",
+      "time": 173
+    },
+    {
+      "entity_id": "85",
+      "status": "success",
+      "time": 200
+    },
+    {
+      "entity_id": "86",
+      "status": "success",
+      "time": 189
+    },
+    {
+      "entity_id": "87",
+      "status": "success",
+      "time": 207
+    },
+    {
+      "entity_id": "88",
+      "status": "success",
+      "time": 229
+    },
+    {
+      "entity_id": "8",
+      "status": "success",
+      "time": 264
+    },
+    {
+      "entity_id": "89",
+      "status": "success",
+      "time": 222
+    },
+    {
+      "entity_id": "90",
+      "status": "success",
+      "time": 195
+    },
+    {
+      "entity_id": "91",
+      "status": "success",
+      "time": 220
+    },
+    {
+      "entity_id": "92",
+      "status": "success",
+      "time": 221
+    },
+    {
+      "entity_id": "93",
+      "status": "success",
+      "time": 205
+    },
+    {
+      "entity_id": "94",
+      "status": "success",
+      "time": 240
+    },
+    {
+      "entity_id": "95",
+      "status": "success",
+      "time": 243
+    },
+    {
+      "entity_id": "96",
+      "status": "success",
+      "time": 247
+    },
+    {
+      "entity_id": "97",
+      "status": "success",
+      "time": 244
+    },
+    {
+      "entity_id": "98",
+      "status": "success",
+      "time": 240
+    },
+    {
+      "entity_id": "99",
+      "status": "success",
+      "time": 197
+    },
+    {
+      "entity_id": "9",
+      "status": "success",
+      "time": 221
+    }
+  ]
+}

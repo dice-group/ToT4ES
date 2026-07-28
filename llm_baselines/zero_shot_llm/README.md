@@ -24,12 +24,24 @@ python process_all_entities.py \
   --dataset dbpedia \
   --summary-size 5 \
   --output-dir outputs \
-  --temperature 0.1 \
+  --temperature 0.8 \
+  --prompt-style tot_matched \
+  --max-new-tokens 1024 \
   --max-entities 125 \
   --model "Qwen/Qwen3-coder-30B-A3B-Instruct"
   --skip-existing \
   --log-file dbpedia_results.txt
 ```
+
+### Fairness-oriented (ToT-aligned) baseline setting
+
+Use these flags to reduce prompt/decoding confounds when comparing against ToT4ES without LLM scoring:
+
+- `--prompt-style tot_matched`: uses full indexed N-Triples and Relatedness/Informativeness/Coverage criteria in a single-pass prompt.
+- `--temperature`: set to your ToT thought temperature (commonly `0.8`).
+- `--max-new-tokens`: keep consistent across methods.
+- `--top-p`: optional; set only if you also use the same value in other methods.
+- `--no-sample`: optional deterministic greedy mode.
 
 ## How to Evaluate
 
