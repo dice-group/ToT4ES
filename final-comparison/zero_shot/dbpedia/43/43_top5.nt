@@ -1,0 +1,5 @@
+<http://dbpedia.org/resource/King_of_the_Mountain_(film)> <http://dbpedia.org/ontology/director> <http://dbpedia.org/resource/Noel_Nosseck> .
+<http://dbpedia.org/resource/King_of_the_Mountain_(film)> <http://dbpedia.org/ontology/producer> <http://dbpedia.org/resource/Jack_Frost_Sanders> .
+<http://dbpedia.org/resource/King_of_the_Mountain_(film)> <http://dbpedia.org/ontology/starring> <http://dbpedia.org/resource/Dennis_Hopper> .
+<http://dbpedia.org/resource/King_of_the_Mountain_(film)> <http://dbpedia.org/ontology/releaseDate> "1981-05-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://dbpedia.org/resource/King_of_the_Mountain_(film)> <http://dbpedia.org/ontology/gross> "2100000.0"^^<http://dbpedia.org/datatype/usDollar> .

@@ -1,0 +1,3 @@
+<http://dbpedia.org/resource/Kaalpurush> <http://xmlns.com/foaf/0.1/name> "Kaalpurush"@en .
+<http://dbpedia.org/resource/Kaalpurush> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Film> .
+<http://dbpedia.org/resource/Kaalpurush> <http://dbpedia.org/ontology/director> <http://dbpedia.org/resource/Buddhadeb_Dasgupta> .
