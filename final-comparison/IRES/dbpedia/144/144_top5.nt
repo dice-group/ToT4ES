@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Pe_Maung_Tin> <http://dbpedia.org/ontology/occupation> <http://dbpedia.org/resource/Pe_Maung_Tin__1> .
-<http://dbpedia.org/resource/Pe_Maung_Tin> <http://dbpedia.org/ontology/birthName> "Ba Tin"@en .
-<http://dbpedia.org/resource/Pe_Maung_Tin> <http://dbpedia.org/ontology/stateOfOrigin> <http://dbpedia.org/resource/Bamar_people> .
-<http://dbpedia.org/resource/Pe_Maung_Tin> <http://dbpedia.org/ontology/relative> <http://dbpedia.org/resource/Tee_Tee_Luce> .
-<http://dbpedia.org/resource/Pe_Maung_Tin> <http://dbpedia.org/ontology/deathDate> "1973-03-22"^^<http://www.w3.org/2001/XMLSchema#date> .

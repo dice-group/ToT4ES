@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Benjamin_Franklin> <http://dbpedia.org/property/birthPlace> <http://dbpedia.org/resource/Province_of_Massachusetts_Bay> .
-<http://dbpedia.org/resource/Benjamin_Franklin> <http://dbpedia.org/property/deathPlace> <http://dbpedia.org/resource/Philadelphia> .
-<http://dbpedia.org/resource/Benjamin_Franklin> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/Sarah_Franklin_Bache> .
-<http://dbpedia.org/resource/Benjamin_Franklin> <http://dbpedia.org/ontology/child> <http://dbpedia.org/resource/William_Franklin> .
-<http://dbpedia.org/resource/Benjamin_Franklin> <http://dbpedia.org/property/spouse> <http://dbpedia.org/resource/Deborah_Read> .

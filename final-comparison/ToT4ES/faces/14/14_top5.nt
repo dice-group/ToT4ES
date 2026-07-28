@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/ontology/parent> <http://dbpedia.org/resource/Jeanne_d'Albret> .
-<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/house> <http://dbpedia.org/resource/House_of_Bourbon> .
-<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/successor> <http://dbpedia.org/resource/Louis_XIII_of_France> .
-<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/ontology/predecessor> <http://dbpedia.org/resource/Henry_III_of_France> .
-<http://dbpedia.org/resource/Henry_IV_of_France> <http://dbpedia.org/property/father> <http://dbpedia.org/resource/Antoine_of_Navarre> .

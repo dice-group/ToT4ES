@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/ontology/governmentType> <http://dbpedia.org/resource/Parliamentary_republic> .
-<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/currency> <http://dbpedia.org/resource/Czech_koruna> .
-<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/200px-Flag_of_the_Czech_Republic.svg.png> .
-<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/demonym> <http://dbpedia.org/resource/Czechs> .
-<http://dbpedia.org/resource/Czech_Republic> <http://dbpedia.org/property/leaderTitle> <http://dbpedia.org/resource/President_of_the_Czech_Republic> .

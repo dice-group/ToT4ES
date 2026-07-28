@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Scranton,_Pennsylvania> .
-<http://dbpedia.org/resource/Joe_Biden> <http://xmlns.com/foaf/0.1/homepage> <http://www.whitehouse.gov/administration/vice-president-biden/> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/property/website> <http://www.facebook.com/joebiden/> .
-<http://dbpedia.org/resource/Joe_Biden> <http://dbpedia.org/ontology/spouse> <http://dbpedia.org/resource/Jill_Biden> .
-<http://dbpedia.org/resource/Joe_Biden> <http://www.w3.org/ns/prov#wasDerivedFrom> <http://en.wikipedia.org/wiki/Joe_Biden?oldid=547812672> .
