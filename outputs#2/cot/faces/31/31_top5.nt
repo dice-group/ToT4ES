@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Turing_machine> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Cryptanalysis_of_the_Enigma> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/field> <http://dbpedia.org/resource/Computer_science> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/almaMater> <http://dbpedia.org/resource/King's_College,_Cambridge> .
-<http://dbpedia.org/resource/Alan_Turing> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Paddington> .

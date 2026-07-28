@@ -1,2 +1,0 @@
-dataset,summary_size,entities_evaluated,missing_summaries,precision,recall,f1
-lmdb,10,50,0,0.8131428571428572,0.36170506474029807,0.44845098039215686

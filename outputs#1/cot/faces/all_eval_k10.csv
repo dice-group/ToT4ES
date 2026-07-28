@@ -1,2 +1,0 @@
-dataset,summary_size,entities_evaluated,missing_summaries,precision,recall,f1
-faces,10,50,0,0.7593333333333334,0.27773823412993276,0.33197543859649126

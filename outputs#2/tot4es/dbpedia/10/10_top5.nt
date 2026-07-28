@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Roderick_Carr> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Marshal110295951> .
-<http://dbpedia.org/resource/Roderick_Carr> <http://dbpedia.org/ontology/militaryCommand> "Commander in Chief, Air Headquarters India" .
-<http://dbpedia.org/resource/Roderick_Carr> <http://dbpedia.org/ontology/serviceEndYear> "1947"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Roderick_Carr> <http://dbpedia.org/ontology/serviceStartYear> "1914"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Roderick_Carr> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/AirMarshal109781171> .

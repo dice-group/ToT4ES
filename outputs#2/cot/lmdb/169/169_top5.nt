@@ -1,5 +1,0 @@
-<http://data.linkedmdb.org/resource/film/49> <http://purl.org/dc/terms/title> "Chang" .
-<http://data.linkedmdb.org/resource/film/49> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/director/43> .
-<http://data.linkedmdb.org/resource/film/49> <http://data.linkedmdb.org/resource/movie/director> <http://data.linkedmdb.org/resource/director/270> .
-<http://data.linkedmdb.org/resource/film/49> <http://data.linkedmdb.org/resource/movie/language> <http://www.lingvoj.org/lingvo/en> .
-<http://data.linkedmdb.org/resource/film/49> <http://data.linkedmdb.org/resource/movie/runtime> "64" .
