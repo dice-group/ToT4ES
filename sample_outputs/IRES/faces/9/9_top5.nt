@@ -1,5 +1,0 @@
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/property/doctoralAdvisor> <http://dbpedia.org/resource/Werner_Heisenberg> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/thumbnail> <http://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/EdwardTeller1958_fewer_smudges.jpg/200px-EdwardTeller1958_fewer_smudges.jpg> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/birthPlace> <http://dbpedia.org/resource/Hungary> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/knownFor> <http://dbpedia.org/resource/Jahn%E2%80%93Teller_effect> .
-<http://dbpedia.org/resource/Edward_Teller> <http://dbpedia.org/ontology/doctoralStudent> <http://dbpedia.org/resource/Marshall_Rosenbluth> .
