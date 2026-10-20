@@ -136,4 +136,19 @@ Table 2 — Highest F-measure (higher is better) comparing ToT4ES against baseli
 | Chain of Thought LLM | 0.246 | 0.504 | 0.277 | 0.339 | 0.227 | 0.191 |
 | **TOT4ES (our)** | **0.374** | **0.573** | **0.421** | **0.478** | 0.212 | **0.329** |
 
+---
+## How to Cite
+```bibtex
+@inproceedings{firmansyah2026tot4es,
+  author    = {Firmansyah, Asep Fajar and Zahera, Hamada M. and Ngonga Ngomo, Axel-Cyrille},
+  title     = {ToT4ES: Tree of Thought for Entity Summarization},
+  booktitle = {Knowledge Engineering and Knowledge Management},
+  publisher = {Springer, Cham},
+  year      = {2026},   
+  ddoi      = {10.1007/978-3-032-41614-8_14}
+}
+```
+---
+## Contact
+If you have any questions or feedback, feel free to contact us at asep.fajar.firmansyah@upb.de
 
